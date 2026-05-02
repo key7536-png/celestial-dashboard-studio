@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Search, Loader2, Copy } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { Card } from "@/components/ui/card";
@@ -12,8 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/sns")({
   head: () => ({ meta: [{ title: "SNS 홍보 — 자개빛" }] }),
