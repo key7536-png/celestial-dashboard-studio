@@ -90,11 +90,14 @@ function Dashboard() {
               to={item.to}
               className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-7 hover:border-primary/50 hover:bg-card/80 transition-all"
             >
-              {item.badge ? (
-                <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center shadow-glow">
-                  {item.badge}
-                </span>
-              ) : null}
+              {(() => {
+                const badge = item.to === "/consultations" ? activeConsultations : item.badge ?? 0;
+                return badge > 0 ? (
+                  <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center shadow-glow">
+                    {badge}
+                  </span>
+                ) : null;
+              })()}
               <div className="text-4xl mb-5 group-hover:scale-110 transition-transform inline-block">
                 {item.emoji}
               </div>
