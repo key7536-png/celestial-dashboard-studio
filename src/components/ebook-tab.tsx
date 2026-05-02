@@ -127,7 +127,7 @@ export function EbookTab() {
           subject,
           category,
           pages,
-          blocks: blocks as unknown as Record<string, unknown>[],
+          blocks: blocks as unknown as never,
           theme,
         };
         if (projectId) {
