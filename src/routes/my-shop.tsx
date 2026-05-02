@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/shop")({
+export const Route = createFileRoute("/my-shop")({
   head: () => ({ meta: [{ title: "내 상점 — Lunara" }] }),
   component: () => (
     <PageShell icon={Store} title="내 상점" description="상점 디자인과 정보 관리">
