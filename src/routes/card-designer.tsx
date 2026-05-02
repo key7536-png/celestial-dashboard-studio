@@ -4,7 +4,7 @@ import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/cards")({
+export const Route = createFileRoute("/card-designer")({
   head: () => ({ meta: [{ title: "카드 디자인 — Lunara" }] }),
   component: () => (
     <PageShell icon={Layers} title="카드 디자인" description="나만의 타로 카드팩 만들기">

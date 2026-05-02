@@ -10,24 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SnsRouteImport } from './routes/sns'
-import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MyShopRouteImport } from './routes/my-shop'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ConsultationsRouteImport } from './routes/consultations'
-import { Route as CardsRouteImport } from './routes/cards'
+import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SnsRoute = SnsRouteImport.update({
   id: '/sns',
   path: '/sns',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRoute = ShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -38,6 +33,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyShopRoute = MyShopRouteImport.update({
+  id: '/my-shop',
+  path: '/my-shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -55,9 +55,9 @@ const ConsultationsRoute = ConsultationsRouteImport.update({
   path: '/consultations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CardsRoute = CardsRouteImport.update({
-  id: '/cards',
-  path: '/cards',
+const CardDesignerRoute = CardDesignerRouteImport.update({
+  id: '/card-designer',
+  path: '/card-designer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -74,38 +74,38 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/cards': typeof CardsRoute
+  '/card-designer': typeof CardDesignerRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
-  '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/cards': typeof CardsRoute
+  '/card-designer': typeof CardDesignerRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
-  '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/cards': typeof CardsRoute
+  '/card-designer': typeof CardDesignerRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
-  '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
 }
 export interface FileRouteTypes {
@@ -113,50 +113,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/cards'
+    | '/card-designer'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/my-shop'
     | '/pricing'
     | '/settings'
-    | '/shop'
     | '/sns'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/cards'
+    | '/card-designer'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/my-shop'
     | '/pricing'
     | '/settings'
-    | '/shop'
     | '/sns'
   id:
     | '__root__'
     | '/'
     | '/auth'
-    | '/cards'
+    | '/card-designer'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/my-shop'
     | '/pricing'
     | '/settings'
-    | '/shop'
     | '/sns'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  CardsRoute: typeof CardsRoute
+  CardDesignerRoute: typeof CardDesignerRoute
   ConsultationsRoute: typeof ConsultationsRoute
   ContentRoute: typeof ContentRoute
   DashboardRoute: typeof DashboardRoute
+  MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
   SettingsRoute: typeof SettingsRoute
-  ShopRoute: typeof ShopRoute
   SnsRoute: typeof SnsRoute
 }
 
@@ -167,13 +167,6 @@ declare module '@tanstack/react-router' {
       path: '/sns'
       fullPath: '/sns'
       preLoaderRoute: typeof SnsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -188,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-shop': {
+      id: '/my-shop'
+      path: '/my-shop'
+      fullPath: '/my-shop'
+      preLoaderRoute: typeof MyShopRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -211,11 +211,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsultationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/cards': {
-      id: '/cards'
-      path: '/cards'
-      fullPath: '/cards'
-      preLoaderRoute: typeof CardsRouteImport
+    '/card-designer': {
+      id: '/card-designer'
+      path: '/card-designer'
+      fullPath: '/card-designer'
+      preLoaderRoute: typeof CardDesignerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -238,13 +238,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  CardsRoute: CardsRoute,
+  CardDesignerRoute: CardDesignerRoute,
   ConsultationsRoute: ConsultationsRoute,
   ContentRoute: ContentRoute,
   DashboardRoute: DashboardRoute,
+  MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
   SettingsRoute: SettingsRoute,
-  ShopRoute: ShopRoute,
   SnsRoute: SnsRoute,
 }
 export const routeTree = rootRouteImport

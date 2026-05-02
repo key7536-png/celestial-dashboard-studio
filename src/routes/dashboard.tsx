@@ -22,8 +22,8 @@ const MENU: ReadonlyArray<MenuItem> = [
   { to: "/consultations", title: "상담 관리", desc: "고객 상담을 확인하고 관리하세요", emoji: "💬" },
   { to: "/content", title: "콘텐츠 생성", desc: "전자책, 썸네일, 상세페이지 만들기", emoji: "📖" },
   { to: "/sns", title: "SNS 홍보", desc: "숏츠 영상 & 쓰레드 텍스트 자동 생성", emoji: "📣" },
-  { to: "/cards", title: "카드 디자인", desc: "나만의 타로 카드팩 만들기", emoji: "🃏" },
-  { to: "/shop", title: "내 상점", desc: "상점 디자인과 정보 관리", emoji: "🏪" },
+  { to: "/card-designer", title: "카드 디자인", desc: "나만의 타로 카드팩 만들기", emoji: "🃏" },
+  { to: "/my-shop", title: "내 상점", desc: "상점 디자인과 정보 관리", emoji: "🏪" },
   { to: "/settings", title: "설정", desc: "API 키 및 계정 설정", emoji: "⚙️" },
 ];
 
