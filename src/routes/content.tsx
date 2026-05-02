@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { EbookTab } from "@/components/ebook-tab";
 
 export const Route = createFileRoute("/content")({
   head: () => ({ meta: [{ title: "콘텐츠 생성 — 자개빛" }] }),
@@ -34,7 +35,7 @@ function ContentPage() {
         </TabsList>
 
         <TabsContent value="ebook" className="mt-6">
-          <EbookPlaceholder />
+          <EbookTab />
         </TabsContent>
 
         <TabsContent value="thumbnail" className="mt-6">
