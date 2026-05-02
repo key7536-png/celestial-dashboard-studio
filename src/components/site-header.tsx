@@ -17,7 +17,7 @@ export function SiteHeader() {
       <div className="container mx-auto flex h-16 items-center justify-between px-6">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
           <span className="font-display text-2xl font-semibold text-gradient-mystic tracking-tight">
-            Lunara
+            자개빛
           </span>
         </Link>
 
