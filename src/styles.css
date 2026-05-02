@@ -31,65 +31,68 @@
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
   --color-mystic: var(--mystic);
-  --font-display: "Cormorant Garamond", "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Noto Serif KR", "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Noto Sans KR", "Inter", system-ui, sans-serif;
 }
 
-/* Lunara — Mystic Dark theme. Dark by default. */
+/* 자개빛 (JAGAEBIT) — Dark Mystical Korean Aesthetic */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.875rem;
 
-  /* Deep cosmic indigo background */
-  --background: oklch(0.14 0.04 285);
-  --foreground: oklch(0.96 0.02 90);
+  /* 먹빛 배경 (almost black) */
+  --background: oklch(0.13 0.012 285);
+  --foreground: oklch(0.93 0.012 250);
 
-  --card: oklch(0.19 0.05 285);
-  --card-foreground: oklch(0.96 0.02 90);
+  /* 카드/패널 (#13131a) */
+  --card: oklch(0.165 0.014 285);
+  --card-foreground: oklch(0.93 0.012 250);
 
-  --popover: oklch(0.19 0.05 285);
-  --popover-foreground: oklch(0.96 0.02 90);
+  --popover: oklch(0.165 0.014 285);
+  --popover-foreground: oklch(0.93 0.012 250);
 
-  /* Mystic violet primary */
-  --primary: oklch(0.62 0.22 305);
-  --primary-foreground: oklch(0.98 0.01 90);
+  /* 자개 보라 #b794f4 */
+  --primary: oklch(0.74 0.13 295);
+  --primary-foreground: oklch(0.13 0.012 285);
 
-  /* Gold accent */
-  --gold: oklch(0.82 0.16 85);
-  --gold-foreground: oklch(0.18 0.04 285);
+  /* 황금 #f6ad55 */
+  --gold: oklch(0.79 0.14 65);
+  --gold-foreground: oklch(0.13 0.012 285);
 
-  --secondary: oklch(0.26 0.06 290);
-  --secondary-foreground: oklch(0.96 0.02 90);
+  --secondary: oklch(0.22 0.02 285);
+  --secondary-foreground: oklch(0.93 0.012 250);
 
-  --muted: oklch(0.22 0.04 285);
-  --muted-foreground: oklch(0.72 0.04 290);
+  --muted: oklch(0.20 0.015 285);
+  --muted-foreground: oklch(0.58 0.018 270);
 
-  --accent: oklch(0.55 0.20 320);
-  --accent-foreground: oklch(0.98 0.01 90);
+  --accent: oklch(0.74 0.13 295);
+  --accent-foreground: oklch(0.13 0.012 285);
 
-  --mystic: oklch(0.45 0.22 295);
+  --mystic: oklch(0.55 0.18 295);
 
   --destructive: oklch(0.62 0.22 25);
   --destructive-foreground: oklch(0.98 0.01 90);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.62 0.22 305);
+  /* #2d2d3d 보더 */
+  --border: oklch(0.30 0.02 285);
+  --input: oklch(0.30 0.02 285);
+  --ring: oklch(0.74 0.13 295);
 
-  /* Gradients */
-  --gradient-cosmic: linear-gradient(135deg, oklch(0.18 0.06 285) 0%, oklch(0.22 0.10 305) 50%, oklch(0.18 0.08 270) 100%);
-  --gradient-gold: linear-gradient(135deg, oklch(0.82 0.16 85) 0%, oklch(0.72 0.18 60) 100%);
-  --gradient-mystic: linear-gradient(135deg, oklch(0.55 0.22 305) 0%, oklch(0.45 0.22 280) 100%);
+  /* Gradients - 자개 + 황금 + 먹 */
+  --gradient-cosmic: linear-gradient(135deg, oklch(0.15 0.018 285) 0%, oklch(0.20 0.04 295) 50%, oklch(0.15 0.020 270) 100%);
+  --gradient-gold: linear-gradient(135deg, oklch(0.79 0.14 65) 0%, oklch(0.70 0.16 55) 100%);
+  --gradient-mystic: linear-gradient(135deg, oklch(0.74 0.13 295) 0%, oklch(0.79 0.14 65) 100%);
+  --gradient-jagae: linear-gradient(135deg, oklch(0.74 0.13 295) 0%, oklch(0.65 0.14 320) 35%, oklch(0.79 0.14 65) 100%);
 
-  /* Shadows / glows */
-  --shadow-glow: 0 0 40px -8px oklch(0.62 0.22 305 / 0.5);
-  --shadow-gold: 0 0 30px -8px oklch(0.82 0.16 85 / 0.45);
-  --shadow-card: 0 20px 60px -20px oklch(0.05 0.04 285 / 0.6);
+  /* Shadows / glows - 보라 빛 glow */
+  --shadow-glow: 0 0 32px -6px oklch(0.74 0.13 295 / 0.45);
+  --shadow-gold: 0 0 28px -6px oklch(0.79 0.14 65 / 0.40);
+  --shadow-card: 0 18px 50px -22px oklch(0.04 0.02 285 / 0.7);
+  --shadow-purple-hover: 0 0 40px -4px oklch(0.74 0.13 295 / 0.55);
 }
 
 .dark {
-  /* Same as root — site is dark-only */
-  --background: oklch(0.14 0.04 285);
-  --foreground: oklch(0.96 0.02 90);
+  --background: oklch(0.13 0.012 285);
+  --foreground: oklch(0.93 0.012 250);
 }
 
 @layer base {
