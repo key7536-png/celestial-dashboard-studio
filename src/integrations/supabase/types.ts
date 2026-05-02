@@ -47,6 +47,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ebook_projects: {
+        Row: {
+          blocks: Json | null
+          category: string | null
+          created_at: string
+          id: string
+          pages: number | null
+          subject: string | null
+          theme: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blocks?: Json | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          pages?: number | null
+          subject?: string | null
+          theme?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blocks?: Json | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          pages?: number | null
+          subject?: string | null
+          theme?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
