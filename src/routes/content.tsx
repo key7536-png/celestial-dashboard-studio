@@ -50,17 +50,8 @@ function ContentPage() {
   );
 }
 
-function EbookPlaceholder() {
-  return (
-    <Card className="p-8 bg-card/60 border-border/60 text-center">
-      <BookOpen className="h-12 w-12 text-primary mx-auto mb-3 opacity-70" />
-      <h3 className="font-display text-lg font-semibold mb-2">전자책 생성 기능</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        전자책 탭은 별도 작업으로 곧 추가됩니다. 상세페이지 탭에서는 임시로 직접 제목/주제를 입력해 테스트할 수 있어요.
-      </p>
-    </Card>
-  );
-}
+
+
 
 /* ------------------------- 썸네일 탭 ------------------------- */
 function ThumbnailTab() {
