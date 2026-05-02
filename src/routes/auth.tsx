@@ -1,130 +1,86 @@
-import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { Moon, Sparkles, Loader2 } from "lucide-react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
-import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [{ title: "로그인 — Lunara" }],
-  }),
+  head: () => ({ meta: [{ title: "입장 — 자개빛" }] }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading, signInWithEmail } = useAuth();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!loading && user) navigate({ to: "/dashboard" });
+  }, [user, loading, navigate]);
+
+  const handleEnter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("올바른 이메일을 입력해주세요");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await signInWithEmail(email);
+      toast.success("환영합니다 ✨");
       navigate({ to: "/dashboard" });
+    } finally {
+      setSubmitting(false);
     }
-  }, [user, authLoading, navigate]);
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
-    if (error) {
-      toast.error("로그인 실패: " + error.message);
-      return;
-    }
-    toast.success("환영합니다! ✨");
-    navigate({ to: "/dashboard" });
-  };
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    const redirectUrl = `${window.location.origin}/dashboard`;
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: redirectUrl },
-    });
-    setSubmitting(false);
-    if (error) {
-      toast.error("회원가입 실패: " + error.message);
-      return;
-    }
-    toast.success("계정이 생성되었어요! 🌙");
-    navigate({ to: "/dashboard" });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center stars-bg px-4 py-12 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center grid-bg px-4 py-12 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-cosmic opacity-50 pointer-events-none" />
 
       <div className="relative w-full max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8 group">
-          <Moon className="h-7 w-7 text-gold transition-transform group-hover:rotate-12" />
-          <span className="font-display text-3xl font-semibold text-gradient-gold">
-            Lunara
-          </span>
+          <span className="font-display text-3xl font-semibold text-gradient-mystic">자개빛</span>
         </Link>
 
-        <div className="rounded-2xl border border-gold/20 bg-card/80 backdrop-blur-xl p-8 shadow-card-mystic">
+        <div className="rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl p-8 shadow-card-mystic">
           <div className="text-center mb-6">
-            <Sparkles className="h-8 w-8 text-gold mx-auto mb-3" />
-            <h1 className="font-display text-2xl font-semibold mb-1">
-              별이 당신을 기다립니다
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              로그인하고 신비로운 여정을 시작하세요
-            </p>
+            <Sparkles className="h-8 w-8 text-primary mx-auto mb-3" />
+            <h1 className="font-display text-2xl font-semibold mb-1">전문가 대시보드 입장</h1>
+            <p className="text-sm text-muted-foreground">이메일만 입력하면 바로 시작할 수 있어요</p>
           </div>
 
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-secondary/50">
-              <TabsTrigger value="signin">로그인</TabsTrigger>
-              <TabsTrigger value="signup">회원가입</TabsTrigger>
-            </TabsList>
+          <form onSubmit={handleEnter} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">이메일</Label>
+              <Input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="bg-background/50"
+                autoFocus
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-gradient-mystic shadow-glow hover:opacity-90 h-11"
+            >
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              전문가 대시보드 입장
+            </Button>
+          </form>
 
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-in">이메일</Label>
-                  <Input id="email-in" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="bg-background/50" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pw-in">비밀번호</Label>
-                  <Input id="pw-in" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="bg-background/50" />
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full bg-gradient-mystic shadow-glow hover:opacity-90">
-                  {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  로그인
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-up">이메일</Label>
-                  <Input id="email-up" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="bg-background/50" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="pw-up">비밀번호 (6자 이상)</Label>
-                  <Input id="pw-up" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="bg-background/50" />
-                </div>
-                <Button type="submit" disabled={submitting} className="w-full bg-gradient-mystic shadow-glow hover:opacity-90">
-                  {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  회원가입
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            20년 명리 전문가의 운영 도구
+          </p>
         </div>
       </div>
     </div>
