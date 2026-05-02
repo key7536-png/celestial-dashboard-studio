@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "대시보드 — Lunara" }] }),
@@ -18,7 +19,7 @@ type MenuItem = {
 };
 
 const MENU: ReadonlyArray<MenuItem> = [
-  { to: "/consultations", title: "상담 관리", desc: "고객 상담을 확인하고 관리하세요", emoji: "💬", badge: 1 },
+  { to: "/consultations", title: "상담 관리", desc: "고객 상담을 확인하고 관리하세요", emoji: "💬" },
   { to: "/content", title: "콘텐츠 생성", desc: "전자책, 썸네일, 상세페이지 만들기", emoji: "📖" },
   { to: "/sns", title: "SNS 홍보", desc: "숏츠 영상 & 쓰레드 텍스트 자동 생성", emoji: "📣" },
   { to: "/cards", title: "카드 디자인", desc: "나만의 타로 카드팩 만들기", emoji: "🃏" },
@@ -29,10 +30,35 @@ const MENU: ReadonlyArray<MenuItem> = [
 function Dashboard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [activeConsultations, setActiveConsultations] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("consultations")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .in("status", ["무료상담중", "유료상담중"]);
+      setActiveConsultations(count ?? 0);
+    };
+    fetchCount();
+    const channel = supabase
+      .channel(`dashboard-consultations:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "consultations", filter: `user_id=eq.${user.id}` },
+        () => fetchCount(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   if (loading || !user) {
     return (
@@ -64,11 +90,14 @@ function Dashboard() {
               to={item.to}
               className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-7 hover:border-primary/50 hover:bg-card/80 transition-all"
             >
-              {item.badge ? (
-                <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center shadow-glow">
-                  {item.badge}
-                </span>
-              ) : null}
+              {(() => {
+                const badge = item.to === "/consultations" ? activeConsultations : item.badge ?? 0;
+                return badge > 0 ? (
+                  <span className="absolute -top-2 -right-2 h-6 min-w-6 px-1.5 rounded-full bg-destructive text-destructive-foreground text-xs font-semibold flex items-center justify-center shadow-glow">
+                    {badge}
+                  </span>
+                ) : null;
+              })()}
               <div className="text-4xl mb-5 group-hover:scale-110 transition-transform inline-block">
                 {item.emoji}
               </div>
