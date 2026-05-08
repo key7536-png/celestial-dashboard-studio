@@ -119,9 +119,20 @@ function SettingsPage() {
           </p>
 
           {hasKey && !editing ? (
-            <div className="flex items-center gap-2">
-              <Input value={maskKey(settings!.gemini_api_key!)} readOnly className="bg-background/50 font-mono text-sm" />
-              <Button variant="outline" size="sm" onClick={() => { setEditing(true); setGeminiKey(""); }}>변경</Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Input value={maskKey(settings!.gemini_api_key!)} readOnly className="bg-background/50 font-mono text-sm" />
+                <Button variant="outline" size="sm" onClick={handleTestKey} disabled={testing}>
+                  {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "키 테스트"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { setEditing(true); /* keep current key in input */ }}>변경</Button>
+              </div>
+              {testResult && (
+                <div className={`text-xs flex items-center gap-1.5 ${testResult.ok ? "text-emerald-400" : "text-rose-400"}`}>
+                  {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                  {testResult.msg}
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -141,13 +152,31 @@ function SettingsPage() {
                   {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                Google AI Studio에서 키 발급 <ExternalLink className="h-3 w-3" />
-              </a>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  Google AI Studio에서 키 발급 <ExternalLink className="h-3 w-3" />
+                </a>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleTestKey} disabled={testing || !geminiKey.trim()}>
+                    {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "키 테스트"}
+                  </Button>
+                  {hasKey && (
+                    <Button variant="ghost" size="sm" onClick={() => { setEditing(false); setGeminiKey(settings?.gemini_api_key ?? ""); setTestResult(null); }}>
+                      취소
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {testResult && (
+                <div className={`text-xs flex items-center gap-1.5 ${testResult.ok ? "text-emerald-400" : "text-rose-400"}`}>
+                  {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                  {testResult.msg}
+                </div>
+              )}
             </div>
           )}
 
