@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_sessions: {
+        Row: {
+          chat_type: string
+          client_name: string
+          created_at: string
+          generated_response: string | null
+          id: string
+          input_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chat_type: string
+          client_name: string
+          created_at?: string
+          generated_response?: string | null
+          id?: string
+          input_data?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chat_type?: string
+          client_name?: string
+          created_at?: string
+          generated_response?: string | null
+          id?: string
+          input_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       consultations: {
         Row: {
           ai_response: string | null
