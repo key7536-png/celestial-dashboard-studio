@@ -24,9 +24,6 @@ export function SiteHeader() {
         <div className="flex items-center gap-4 text-sm">
           {user ? (
             <>
-              <span className="hidden sm:inline-flex items-center rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                마스터반
-              </span>
               <span className="text-foreground/90">
                 <span className="text-gradient-mystic font-semibold">{nickname}</span>
                 <span className="text-muted-foreground"> 님</span>
