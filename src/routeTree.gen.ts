@@ -9,17 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VideoMakerRouteImport } from './routes/video-maker'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyShopRouteImport } from './routes/my-shop'
+import { Route as FortunePdfRouteImport } from './routes/fortune-pdf'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as ConsultationsRouteImport } from './routes/consultations'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VideoMakerRoute = VideoMakerRouteImport.update({
+  id: '/video-maker',
+  path: '/video-maker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SnsRoute = SnsRouteImport.update({
   id: '/sns',
   path: '/sns',
@@ -40,6 +48,11 @@ const MyShopRoute = MyShopRouteImport.update({
   path: '/my-shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FortunePdfRoute = FortunePdfRouteImport.update({
+  id: '/fortune-pdf',
+  path: '/fortune-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -53,6 +66,11 @@ const ContentRoute = ContentRouteImport.update({
 const ConsultationsRoute = ConsultationsRouteImport.update({
   id: '/consultations',
   path: '/consultations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CardDesignerRoute = CardDesignerRouteImport.update({
@@ -75,38 +93,47 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
+  '/chat': typeof ChatRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/video-maker': typeof VideoMakerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
+  '/chat': typeof ChatRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/video-maker': typeof VideoMakerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
+  '/chat': typeof ChatRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
+  '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/video-maker': typeof VideoMakerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -114,54 +141,73 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/card-designer'
+    | '/chat'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/video-maker'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/card-designer'
+    | '/chat'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/video-maker'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/card-designer'
+    | '/chat'
     | '/consultations'
     | '/content'
     | '/dashboard'
+    | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/video-maker'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CardDesignerRoute: typeof CardDesignerRoute
+  ChatRoute: typeof ChatRoute
   ConsultationsRoute: typeof ConsultationsRoute
   ContentRoute: typeof ContentRoute
   DashboardRoute: typeof DashboardRoute
+  FortunePdfRoute: typeof FortunePdfRoute
   MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
   SettingsRoute: typeof SettingsRoute
   SnsRoute: typeof SnsRoute
+  VideoMakerRoute: typeof VideoMakerRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/video-maker': {
+      id: '/video-maker'
+      path: '/video-maker'
+      fullPath: '/video-maker'
+      preLoaderRoute: typeof VideoMakerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sns': {
       id: '/sns'
       path: '/sns'
@@ -190,6 +236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fortune-pdf': {
+      id: '/fortune-pdf'
+      path: '/fortune-pdf'
+      fullPath: '/fortune-pdf'
+      preLoaderRoute: typeof FortunePdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -209,6 +262,13 @@ declare module '@tanstack/react-router' {
       path: '/consultations'
       fullPath: '/consultations'
       preLoaderRoute: typeof ConsultationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/card-designer': {
@@ -239,14 +299,26 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CardDesignerRoute: CardDesignerRoute,
+  ChatRoute: ChatRoute,
   ConsultationsRoute: ConsultationsRoute,
   ContentRoute: ContentRoute,
   DashboardRoute: DashboardRoute,
+  FortunePdfRoute: FortunePdfRoute,
   MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
   SettingsRoute: SettingsRoute,
   SnsRoute: SnsRoute,
+  VideoMakerRoute: VideoMakerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
