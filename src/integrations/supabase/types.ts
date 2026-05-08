@@ -50,11 +50,16 @@ export type Database = {
       ebook_projects: {
         Row: {
           blocks: Json | null
+          book_type: string | null
           category: string | null
+          content: Json | null
           created_at: string
           id: string
           pages: number | null
+          selected_theme: string | null
+          style: string | null
           subject: string | null
+          subtitle: string | null
           theme: string | null
           title: string | null
           updated_at: string
@@ -62,11 +67,16 @@ export type Database = {
         }
         Insert: {
           blocks?: Json | null
+          book_type?: string | null
           category?: string | null
+          content?: Json | null
           created_at?: string
           id?: string
           pages?: number | null
+          selected_theme?: string | null
+          style?: string | null
           subject?: string | null
+          subtitle?: string | null
           theme?: string | null
           title?: string | null
           updated_at?: string
@@ -74,11 +84,16 @@ export type Database = {
         }
         Update: {
           blocks?: Json | null
+          book_type?: string | null
           category?: string | null
+          content?: Json | null
           created_at?: string
           id?: string
           pages?: number | null
+          selected_theme?: string | null
+          style?: string | null
           subject?: string | null
+          subtitle?: string | null
           theme?: string | null
           title?: string | null
           updated_at?: string
