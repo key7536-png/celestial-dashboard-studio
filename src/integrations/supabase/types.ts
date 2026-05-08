@@ -134,11 +134,134 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          amount: number
+          answer: string | null
+          answer_file_url: string | null
+          birthdate: string | null
+          created_at: string
+          customer_email: string
+          customer_name: string
+          id: string
+          kakao_id: string | null
+          order_id: string | null
+          payment_key: string | null
+          product_id: string | null
+          product_name: string
+          question: string | null
+          seller_user_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          answer?: string | null
+          answer_file_url?: string | null
+          birthdate?: string | null
+          created_at?: string
+          customer_email: string
+          customer_name: string
+          id?: string
+          kakao_id?: string | null
+          order_id?: string | null
+          payment_key?: string | null
+          product_id?: string | null
+          product_name: string
+          question?: string | null
+          seller_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          answer?: string | null
+          answer_file_url?: string | null
+          birthdate?: string | null
+          created_at?: string
+          customer_email?: string
+          customer_name?: string
+          id?: string
+          kakao_id?: string | null
+          order_id?: string | null
+          payment_key?: string | null
+          product_id?: string | null
+          product_name?: string
+          question?: string | null
+          seller_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "shop_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          category: string
+          created_at: string
+          delivery_type: string
+          description: string | null
+          duration: string | null
+          file_url: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          sale_price: number | null
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          delivery_type?: string
+          description?: string | null
+          duration?: string | null
+          file_url?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          sale_price?: number | null
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          delivery_type?: string
+          description?: string | null
+          duration?: string | null
+          file_url?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          sale_price?: number | null
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_settings: {
         Row: {
           created_at: string
           gemini_api_key: string | null
           kakao_channel_url: string | null
+          toss_client_key: string | null
           updated_at: string
           user_id: string
         }
@@ -146,6 +269,7 @@ export type Database = {
           created_at?: string
           gemini_api_key?: string | null
           kakao_channel_url?: string | null
+          toss_client_key?: string | null
           updated_at?: string
           user_id: string
         }
@@ -153,6 +277,7 @@ export type Database = {
           created_at?: string
           gemini_api_key?: string | null
           kakao_channel_url?: string | null
+          toss_client_key?: string | null
           updated_at?: string
           user_id?: string
         }

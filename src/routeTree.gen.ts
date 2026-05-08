@@ -13,6 +13,7 @@ import { Route as VideoMakerRouteImport } from './routes/video-maker'
 import { Route as TarotPdfRouteImport } from './routes/tarot-pdf'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyShopRouteImport } from './routes/my-shop'
 import { Route as FortunePdfRouteImport } from './routes/fortune-pdf'
@@ -48,6 +49,11 @@ const SnsRoute = SnsRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsRoute = ProductsRouteImport.update({
+  id: '/products',
+  path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
+  '/products': typeof ProductsRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/tarot-pdf': typeof TarotPdfRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
+  '/products': typeof ProductsRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/tarot-pdf': typeof TarotPdfRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/fortune-pdf': typeof FortunePdfRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
+  '/products': typeof ProductsRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/tarot-pdf': typeof TarotPdfRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
+    | '/products'
     | '/settings'
     | '/sns'
     | '/tarot-pdf'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
+    | '/products'
     | '/settings'
     | '/sns'
     | '/tarot-pdf'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/fortune-pdf'
     | '/my-shop'
     | '/pricing'
+    | '/products'
     | '/settings'
     | '/sns'
     | '/tarot-pdf'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   FortunePdfRoute: typeof FortunePdfRoute
   MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
+  ProductsRoute: typeof ProductsRoute
   SettingsRoute: typeof SettingsRoute
   SnsRoute: typeof SnsRoute
   TarotPdfRoute: typeof TarotPdfRoute
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products': {
+      id: '/products'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -458,6 +478,7 @@ const rootRouteChildren: RootRouteChildren = {
   FortunePdfRoute: FortunePdfRoute,
   MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
+  ProductsRoute: ProductsRoute,
   SettingsRoute: SettingsRoute,
   SnsRoute: SnsRoute,
   TarotPdfRoute: TarotPdfRoute,
