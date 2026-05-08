@@ -22,6 +22,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
 
 const VideoMakerRoute = VideoMakerRouteImport.update({
   id: '/video-maker',
@@ -88,12 +89,17 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChatRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
-  '/chat': typeof ChatRoute
+  '/chat': typeof ChatRouteWithChildren
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
@@ -103,12 +109,12 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat/': typeof ChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
-  '/chat': typeof ChatRoute
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
@@ -118,13 +124,14 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat': typeof ChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/card-designer': typeof CardDesignerRoute
-  '/chat': typeof ChatRoute
+  '/chat': typeof ChatRouteWithChildren
   '/consultations': typeof ConsultationsRoute
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
@@ -134,6 +141,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat/': typeof ChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,12 +159,12 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/card-designer'
-    | '/chat'
     | '/consultations'
     | '/content'
     | '/dashboard'
@@ -166,6 +174,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat'
   id:
     | '__root__'
     | '/'
@@ -181,13 +190,14 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CardDesignerRoute: typeof CardDesignerRoute
-  ChatRoute: typeof ChatRoute
+  ChatRoute: typeof ChatRouteWithChildren
   ConsultationsRoute: typeof ConsultationsRoute
   ContentRoute: typeof ContentRoute
   DashboardRoute: typeof DashboardRoute
@@ -292,14 +302,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/': {
+      id: '/chat/'
+      path: '/'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof ChatRoute
+    }
   }
 }
+
+interface ChatRouteChildren {
+  ChatIndexRoute: typeof ChatIndexRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatIndexRoute: ChatIndexRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CardDesignerRoute: CardDesignerRoute,
-  ChatRoute: ChatRoute,
+  ChatRoute: ChatRouteWithChildren,
   ConsultationsRoute: ConsultationsRoute,
   ContentRoute: ContentRoute,
   DashboardRoute: DashboardRoute,
