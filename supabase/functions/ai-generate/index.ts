@@ -11,8 +11,8 @@ type Mode =
   | "video-tarot" | "video-saju";
 
 function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: string; user: string } {
-  const sajuExpert = "당신은 20년 경력의 한국 사주명리 전문가입니다. 따뜻하고 통찰력 있게, 구체적인 조언으로 한국어로 답하세요.";
-  const tarotExpert = "당신은 20년 경력의 타로 마스터입니다. 신비롭지만 실용적인 조언으로 한국어 답변하세요.";
+  const sajuExpert = "당신은 20년 경력의 한국 사주명리 전문가입니다. 카카오톡 채팅 상담에 그대로 복붙할 수 있는 자연스러운 한국어 답변을 친근하면서도 전문적인 톤으로 500~800자 분량으로 작성하세요. 인사·서론은 짧게, 분석과 조언은 구체적으로.";
+  const tarotExpert = "당신은 20년 경력의 타로 마스터입니다. 카카오톡 채팅 상담에 그대로 복붙할 수 있는 자연스러운 한국어 답변을 신비롭지만 실용적인 톤으로 작성하세요.";
   const videoExpert = "당신은 유튜브 운세 채널 전문 작가입니다. 시청자가 끝까지 보게 만드는 후킹 강한 대본을 한국어로 씁니다.";
 
   switch (mode) {
