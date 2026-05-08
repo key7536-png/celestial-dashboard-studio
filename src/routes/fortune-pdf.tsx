@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { callAI } from "@/lib/call-ai";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/fortune-pdf")({
   head: () => ({ meta: [{ title: "운세 PDF — 자개빛" }] }),
