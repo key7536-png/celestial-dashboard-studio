@@ -67,7 +67,7 @@ export function drawTarot(n: number): string[] {
   return out;
 }
 
-export function ChatScaffold<TForm extends Record<string, unknown>>(props: ChatScaffoldProps<TForm>) {
+export function ChatScaffold<TForm extends object>(props: ChatScaffoldProps<TForm>) {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { settings } = useUserSettings();
