@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VideoMakerRouteImport } from './routes/video-maker'
+import { Route as TarotPdfRouteImport } from './routes/tarot-pdf'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -32,6 +33,11 @@ import { Route as ChatCoupleRouteImport } from './routes/chat.couple'
 const VideoMakerRoute = VideoMakerRouteImport.update({
   id: '/video-maker',
   path: '/video-maker',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TarotPdfRoute = TarotPdfRouteImport.update({
+  id: '/tarot-pdf',
+  path: '/tarot-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SnsRoute = SnsRouteImport.update({
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
   '/chat/free': typeof ChatFreeRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
   '/chat/free': typeof ChatFreeRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
+  '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
   '/chat/free': typeof ChatFreeRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
     | '/chat/free'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
     | '/chat/free'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/settings'
     | '/sns'
+    | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
     | '/chat/free'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SettingsRoute: typeof SettingsRoute
   SnsRoute: typeof SnsRoute
+  TarotPdfRoute: typeof TarotPdfRoute
   VideoMakerRoute: typeof VideoMakerRoute
 }
 
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/video-maker'
       fullPath: '/video-maker'
       preLoaderRoute: typeof VideoMakerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tarot-pdf': {
+      id: '/tarot-pdf'
+      path: '/tarot-pdf'
+      fullPath: '/tarot-pdf'
+      preLoaderRoute: typeof TarotPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sns': {
@@ -440,6 +460,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SettingsRoute: SettingsRoute,
   SnsRoute: SnsRoute,
+  TarotPdfRoute: TarotPdfRoute,
   VideoMakerRoute: VideoMakerRoute,
 }
 export const routeTree = rootRouteImport

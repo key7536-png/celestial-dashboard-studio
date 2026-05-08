@@ -26,6 +26,7 @@ const MENU: ReadonlyArray<MenuItem> = [
   { to: "/my-shop", title: "내 상점", desc: "상점 디자인과 정보 관리", emoji: "🏪" },
   { to: "/chat", title: "채팅 상담", desc: "사주·타로 AI 채팅 5종", emoji: "💬" },
   { to: "/fortune-pdf", title: "운세 PDF", desc: "종합사주·종합타로 PDF 생성", emoji: "📋" },
+  { to: "/tarot-pdf", title: "MZ타로 PDF", desc: "고객 질문 → 카드 3장 → MZ톤 PDF", emoji: "🌸" },
   { to: "/video-maker", title: "영상 메이커", desc: "타로·사주 유튜브 대본 생성", emoji: "🎬" },
   { to: "/settings", title: "설정", desc: "API 키 및 계정 설정", emoji: "⚙️" },
 ];

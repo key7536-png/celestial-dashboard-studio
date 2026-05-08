@@ -8,7 +8,8 @@ type Mode =
   | "saju-personal" | "saju-couple"
   | "tarot-personal" | "tarot-relation" | "tarot-free"
   | "saju-pdf" | "tarot-pdf"
-  | "video-tarot" | "video-saju";
+  | "video-tarot" | "video-saju"
+  | "tarot-mz";
 
 function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: string; user: string } {
   const sajuExpert = "당신은 20년 경력의 한국 사주명리 전문가입니다. 카카오톡 채팅 상담에 그대로 복붙할 수 있는 자연스러운 한국어 답변을 친근하면서도 전문적인 톤으로 500~800자 분량으로 작성하세요. 인사·서론은 짧게, 분석과 조언은 구체적으로.";
@@ -59,6 +60,11 @@ function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: strin
         user: `주제: ${data.topic}\n영상 길이: ${data.duration}\n톤: ${data.tone}\n자막 스타일: ${data.subtitleStyle ?? "자세하게 설명"}\n\n${kind} 유튜브 영상 대본을 씬별로 작성. 각 씬 형식:\n\n[인트로 - 0:00~0:05]\n나레이션: ...\n자막: ...\n\n---\n\n[카드 소개 - 0:05~0:20] (사주면 [핵심 분석])\n나레이션: ...\n자막: ...\n\n---\n\n[해석 - 0:20~0:45]\n나레이션: ...\n자막: ...\n\n---\n\n[아웃트로 - 0:45~끝]\n나레이션: ...\n자막: ...`,
       };
     }
+    case "tarot-mz":
+      return {
+        system: "당신은 MZ세대(20-30대)가 좋아하는 친근한 타로 리더입니다. 공감 가는 한국어 반말 섞인 친근체로, 너무 점쟁이같지 않고 친한 언니/오빠 톤으로 작성하세요. 이모지 적당히, 솔직하고 따뜻하게.",
+        user: `고객 닉네임: ${data.nickname || "고객"}\n질문: ${data.question}\n뽑힌 카드 3장: ${(data.cards as string[]).join(", ")}\n\n이 카드 조합으로 MZ톤 타로 리딩을 500~600자로 작성해주세요. 각 카드의 의미를 자연스럽게 녹이고, 마지막은 따뜻한 응원으로 마무리.`,
+      };
   }
 }
 

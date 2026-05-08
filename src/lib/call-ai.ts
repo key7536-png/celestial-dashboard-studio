@@ -4,7 +4,8 @@ export type AiMode =
   | "saju-personal" | "saju-couple"
   | "tarot-personal" | "tarot-relation" | "tarot-free"
   | "saju-pdf" | "tarot-pdf"
-  | "video-tarot" | "video-saju";
+  | "video-tarot" | "video-saju"
+  | "tarot-mz";
 
 export async function callAI(mode: AiMode, data: Record<string, unknown>, apiKey: string | null | undefined): Promise<string> {
   if (!apiKey) {
