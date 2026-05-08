@@ -52,12 +52,20 @@ function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: strin
         system: tarotExpert,
         user: `이름: ${data.name ?? ""}\n질문/주제: ${data.question}\n뽑힌 ${data.cardCount}장: ${(data.cards as string[]).join(", ")}\n스타일: ${data.style ?? "전문적"}\n\n상세한 종합 타로 리포트를 마크다운으로 작성:\n## 1. 질문 개요\n## 2. 카드별 상세 해석 (각 카드마다)\n## 3. 카드 조합 의미\n## 4. 종합 메시지\n## 5. 앞으로의 조언`,
       };
-    case "video-tarot":
-    case "video-saju": {
-      const kind = mode === "video-tarot" ? "타로" : "사주";
+    case "video-tarot": {
+      const groups = data.groups as { name: string; cards: string[] }[];
+      const groupLines = groups.map((g, i) => `그룹${i + 1}: ${g.cards.join(", ")}`).join("\n");
       return {
-        system: videoExpert,
-        user: `주제: ${data.topic}\n영상 길이: ${data.duration}\n톤: ${data.tone}\n자막 스타일: ${data.subtitleStyle ?? "자세하게 설명"}\n\n${kind} 유튜브 영상 대본을 씬별로 작성. 각 씬 형식:\n\n[인트로 - 0:00~0:05]\n나레이션: ...\n자막: ...\n\n---\n\n[카드 소개 - 0:05~0:20] (사주면 [핵심 분석])\n나레이션: ...\n자막: ...\n\n---\n\n[해석 - 0:20~0:45]\n나레이션: ...\n자막: ...\n\n---\n\n[아웃트로 - 0:45~끝]\n나레이션: ...\n자막: ...`,
+        system: "당신은 유튜브 타로 크리에이터입니다. Pick a Card 영상 스크립트를 작성합니다.",
+        user: `채널명: ${data.channel}\n영상 제목: ${data.title}\n주제: ${data.topic ?? "일반 타로"}\n\n카드 구성:\n${groupLines}\n\n다음 구조로 영상 스크립트를 작성해주세요. 각 섹션은 정확히 "---" 줄로 구분하세요.\n\n[인트로]\n인사 + 영상 소개 + 4그룹 중 직감으로 끌리는 카드 선택 안내. 끝에 "이번 영상이 도움 되셨다면 고정댓글의 개인 상담 링크도 확인해보세요" 멘트 포함. (250~350자)\n\n---\n\n[그룹 1]\n그룹 1을 선택한 분에게. 카드 3장 각 의미 + 종합 메시지. (300~400자) 끝에 "구독·좋아요·알람 설정 부탁드려요" 포함.\n\n---\n\n[그룹 2]\n동일 구조 (300~400자) 끝에 "구독·좋아요·알람 설정 부탁드려요" 포함.\n\n---\n\n[그룹 3]\n동일 구조 (300~400자) 끝에 "구독·좋아요·알람 설정 부탁드려요" 포함.\n\n---\n\n[그룹 4]\n동일 구조 (300~400자) 끝에 "구독·좋아요·알람 설정 부탁드려요" 포함.\n\n섹션 제목([인트로], [그룹 1] 등)은 그대로 유지하고 그 아래 본문만 작성하세요.`,
+      };
+    }
+    case "video-saju": {
+      const ilgan = ["甲(갑)","乙(을)","丙(병)","丁(정)","戊(무)","己(기)","庚(경)","辛(신)","壬(임)","癸(계)"];
+      const sections = ilgan.map(i => `\n---\n\n[${i} 일간]\n${i} 일간 운세 (200~300자). 끝에 "구독·좋아요·알람 설정 부탁드려요" 포함.`).join("");
+      return {
+        system: "당신은 사주명리학 전문 유튜버입니다. 일간별 운세 영상 스크립트를 작성합니다.",
+        user: `채널명: ${data.channel}\n주제: ${data.topic}\n\n다음 11개 섹션으로 스크립트를 작성해주세요. 각 섹션은 정확히 "---" 줄로 구분하세요.\n\n[인트로]\n인사 + 오늘 영상 소개 + 10개 일간 안내 + 본인 일간 모를 경우 만세력 검색 안내. 끝에 "고정댓글에 타임라인과 개인 사주 상담 링크가 있어요" 멘트 포함. (250~350자)\n${sections}\n\n섹션 제목은 그대로 유지하고 그 아래 본문만 작성하세요.`,
       };
     }
     case "tarot-mz":
