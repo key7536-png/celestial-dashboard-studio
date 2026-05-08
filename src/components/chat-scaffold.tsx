@@ -140,9 +140,9 @@ export function ChatScaffold<TForm extends Record<string, unknown>>(props: ChatS
           user_id: user.id,
           chat_type: props.chatType,
           client_name: name,
-          input_data: form,
+          input_data: form as never,
           generated_response: answer,
-        })
+        } as never)
         .select("id")
         .single();
       if (error) throw error;
