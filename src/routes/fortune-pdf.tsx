@@ -64,13 +64,25 @@ function FortunePdfPage() {
   );
 }
 
+function KeyWarning() {
+  return (
+    <Link to="/settings" className="block">
+      <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
+        ⚠️ 설정에서 Gemini API 키를 먼저 등록해주세요 →
+      </div>
+    </Link>
+  );
+}
+
 function SajuPdfForm() {
+  const { settings } = useUserSettings();
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
   const [calendar, setCalendar] = useState("양력");
   const [gender, setGender] = useState("여성");
   const [time, setTime] = useState("");
   const [pages, setPages] = useState("30");
+  const [request, setRequest] = useState("");
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
 
@@ -78,11 +90,11 @@ function SajuPdfForm() {
     if (!name || !birth) return toast.error("이름·생년월일을 입력해주세요.");
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("ai-generate", {
-        body: { mode: "saju-pdf", data: { name, birth, calendar, gender, time, pages } },
-      });
-      if (error) throw error;
-      const text = (data as { content: string }).content ?? "";
+      const text = await callAI(
+        "saju-pdf",
+        { name, birth, calendar, gender, time, pages, request },
+        settings?.gemini_api_key,
+      );
       setContent(text);
       await generatePdf(`${name}님의 종합사주 리포트`, text, `${name}_종합사주_자개빛.pdf`);
       toast.success("PDF가 다운로드되었습니다!");
@@ -95,6 +107,7 @@ function SajuPdfForm() {
 
   return (
     <Card className="p-6 space-y-4 bg-card/60">
+      {!settings?.gemini_api_key && <KeyWarning />}
       <div className="grid grid-cols-2 gap-3">
         <Field label="이름"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
         <Field label="생년월일"><Input type="date" value={birth} onChange={(e) => setBirth(e.target.value)} /></Field>
@@ -115,6 +128,9 @@ function SajuPdfForm() {
           </RadioGroup>
         </Field>
       </div>
+      <Field label="특별 요청사항 (선택)">
+        <Textarea value={request} onChange={(e) => setRequest(e.target.value)} placeholder="예: 이직 시기를 자세히 봐주세요" className="min-h-[60px]" />
+      </Field>
       <Button onClick={handleGenerate} disabled={loading} className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground">
         {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중...</> : <>📋 종합사주 PDF 생성하기</>}
       </Button>
@@ -129,8 +145,12 @@ function SajuPdfForm() {
 }
 
 function TarotPdfForm() {
+  const { settings } = useUserSettings();
+  const [name, setName] = useState("");
   const [question, setQuestion] = useState("");
-  const [cardCount, setCardCount] = useState("5");
+  const [cardCount, setCardCount] = useState("3");
+  const [style, setStyle] = useState("전문적");
+  const [drawn, setDrawn] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState("");
 
@@ -138,14 +158,19 @@ function TarotPdfForm() {
     if (!question.trim()) return toast.error("질문/주제를 입력해주세요.");
     setLoading(true);
     try {
-      const cards = pickCards(parseInt(cardCount));
-      const { data, error } = await supabase.functions.invoke("ai-generate", {
-        body: { mode: "tarot-pdf", data: { question, cardCount, cards } },
-      });
-      if (error) throw error;
-      const text = (data as { content: string }).content ?? "";
+      const cards = drawn.length ? drawn : pickCards(parseInt(cardCount));
+      setDrawn(cards);
+      const text = await callAI(
+        "tarot-pdf",
+        { name, question, cardCount, cards, style },
+        settings?.gemini_api_key,
+      );
       setContent(text);
-      await generatePdf("종합 타로 리포트", `질문: ${question}\n카드: ${cards.join(", ")}\n\n${text}`, `종합타로_자개빛.pdf`);
+      await generatePdf(
+        `종합 타로 리포트${name ? ` - ${name}` : ""}`,
+        `질문: ${question}\n카드: ${cards.join(", ")}\n\n${text}`,
+        `${name || "종합타로"}_자개빛.pdf`,
+      );
       toast.success("PDF가 다운로드되었습니다!");
     } catch (e) {
       toast.error((e as Error).message ?? "생성 실패");
@@ -156,14 +181,38 @@ function TarotPdfForm() {
 
   return (
     <Card className="p-6 space-y-4 bg-card/60">
+      {!settings?.gemini_api_key && <KeyWarning />}
+      <Field label="이름 (선택)"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
       <Field label="질문 또는 주제">
         <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="예: 2026년 나의 연애운" className="min-h-[80px]" />
       </Field>
-      <Field label="카드 수">
-        <RadioGroup value={cardCount} onValueChange={setCardCount} className="flex gap-3 pt-2">
-          {["3","5","10"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}장</label>))}
-        </RadioGroup>
-      </Field>
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="카드 수">
+          <RadioGroup value={cardCount} onValueChange={(v) => { setCardCount(v); setDrawn([]); }} className="flex gap-3 pt-2">
+            {["3","7","10"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}장</label>))}
+          </RadioGroup>
+        </Field>
+        <Field label="리딩 스타일">
+          <RadioGroup value={style} onValueChange={setStyle} className="flex gap-3 pt-2 flex-wrap">
+            {["신비로운","전문적","친근한"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>))}
+          </RadioGroup>
+        </Field>
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs">카드 뽑기</Label>
+          <Button size="sm" variant="outline" onClick={() => setDrawn(pickCards(parseInt(cardCount)))}>
+            🃏 {cardCount}장 뽑기
+          </Button>
+        </div>
+        {drawn.length > 0 && (
+          <div className="flex gap-2 flex-wrap">
+            {drawn.map((c, i) => (
+              <div key={i} className="rounded-md border border-primary/40 bg-primary/10 px-2 py-1.5 text-xs">{c}</div>
+            ))}
+          </div>
+        )}
+      </div>
       <Button onClick={handleGenerate} disabled={loading} className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground">
         {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중...</> : <><Download className="h-4 w-4 mr-2" />종합타로 PDF 생성하기</>}
       </Button>
@@ -179,3 +228,4 @@ function TarotPdfForm() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
 }
+
