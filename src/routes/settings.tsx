@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Eye, EyeOff, Loader2, ExternalLink } from "lucide-react";
+import { Settings as SettingsIcon, Eye, EyeOff, Loader2, ExternalLink, CheckCircle2, XCircle } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserSettings, saveUserSettings } from "@/hooks/use-user-settings";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -30,6 +31,8 @@ function SettingsPage() {
   const [show, setShow] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<null | { ok: boolean; msg: string }>(null);
 
   useEffect(() => {
     if (settings) {
@@ -42,19 +45,54 @@ function SettingsPage() {
 
   async function handleSave() {
     if (!user) return;
+    // Guard: prevent accidentally wiping a saved key by saving an empty input
+    const trimmed = geminiKey.trim();
+    if (hasKey && editing && !trimmed) {
+      toast.error("새 키를 입력하거나 '취소'를 눌러주세요. (저장하면 기존 키가 지워져요)");
+      return;
+    }
     setSaving(true);
     try {
       await saveUserSettings(user.id, {
-        gemini_api_key: geminiKey.trim() || null,
+        // If editing produced empty value AND user already had a key, keep existing
+        gemini_api_key: trimmed || (hasKey ? settings?.gemini_api_key ?? null : null),
         kakao_channel_url: kakaoUrl.trim() || null,
       });
       toast.success("저장되었습니다.");
       setEditing(false);
+      setTestResult(null);
       await reload();
     } catch (e) {
       toast.error((e as Error).message ?? "저장 실패");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleTestKey() {
+    const key = (editing ? geminiKey.trim() : settings?.gemini_api_key ?? "").trim();
+    if (!key) {
+      toast.error("먼저 키를 입력해주세요.");
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-test-key", { body: { apiKey: key } });
+      if (error) throw error;
+      const res = data as { ok: boolean; message?: string; error?: string };
+      if (res.ok) {
+        setTestResult({ ok: true, msg: res.message ?? "✓ 키가 정상 작동합니다." });
+        toast.success("키 정상 작동!");
+      } else {
+        setTestResult({ ok: false, msg: res.error ?? "키 검증 실패" });
+        toast.error(res.error ?? "키 검증 실패");
+      }
+    } catch (e) {
+      setTestResult({ ok: false, msg: (e as Error).message });
+      toast.error((e as Error).message);
+    } finally {
+      setTesting(false);
     }
   }
 
