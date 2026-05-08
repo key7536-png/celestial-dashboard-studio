@@ -423,15 +423,6 @@ export function EbookTab() {
         </div>
       </div>
 
-      {/* Warning */}
-      <div className="flex items-start gap-2 p-3 rounded-lg border border-orange-500/40 bg-orange-500/10 text-sm">
-        <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5 shrink-0" />
-        <p className="text-orange-200">
-          <strong>⚠️ 수익 금액이 적힌 책 내용/책 제목은 수익증명을 실제로 하셔야 합니다.</strong>{" "}
-          허위·과장 수익 표현은 법적 책임이 따를 수 있습니다.
-        </p>
-      </div>
-
       {/* Step 1 */}
       <Card className="p-5 bg-card/60 border-border/60 space-y-4">
         <h4 className="font-display text-lg font-semibold">✦ Step 1. 주제 & 기획안 추천</h4>
