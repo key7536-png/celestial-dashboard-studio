@@ -8,7 +8,8 @@ type Mode =
   | "saju-personal" | "saju-couple"
   | "tarot-personal" | "tarot-relation" | "tarot-free"
   | "saju-pdf" | "tarot-pdf"
-  | "video-tarot" | "video-saju";
+  | "video-tarot" | "video-saju"
+  | "tarot-mz";
 
 function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: string; user: string } {
   const sajuExpert = "당신은 20년 경력의 한국 사주명리 전문가입니다. 카카오톡 채팅 상담에 그대로 복붙할 수 있는 자연스러운 한국어 답변을 친근하면서도 전문적인 톤으로 500~800자 분량으로 작성하세요. 인사·서론은 짧게, 분석과 조언은 구체적으로.";
