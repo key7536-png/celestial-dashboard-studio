@@ -476,7 +476,13 @@ export function EbookTab() {
         </div>
       </div>
 
-      {/* Step 1 */}
+      {!user && (
+        <div className="p-3 rounded-lg border border-amber-500/40 bg-amber-500/10 text-sm text-amber-200 flex items-center justify-between gap-3 flex-wrap">
+          <span>⚠️ 로그인하지 않아 클라우드에 저장되지 않습니다. 작업은 이 브라우저에 임시 저장돼요. 로그인하면 모든 기기에서 불러올 수 있어요.</span>
+          <a href="/auth" className="underline shrink-0">로그인하기 →</a>
+        </div>
+      )}
+
       <Card className="p-5 bg-card/60 border-border/60 space-y-4">
         <h4 className="font-display text-lg font-semibold">✦ Step 1. 주제 & 기획안 추천</h4>
         <div>
