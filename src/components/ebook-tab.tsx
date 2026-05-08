@@ -111,6 +111,8 @@ export function EbookTab() {
   const [previewPage, setPreviewPage] = useState(0);
 
   const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [proofreading, setProofreading] = useState(false);
+  const [proofreport, setProofreport] = useState<string>("");
   const coverRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
