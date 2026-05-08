@@ -134,11 +134,43 @@ export function EbookTab() {
 
   useEffect(() => { loadProjects(); }, [loadProjects]);
 
-  // Auto-save
+  // Local draft restore (works even when not logged in)
+  const DRAFT_KEY = "jagaebit:ebookDraft";
+  const restoredRef = useRef(false);
   useEffect(() => {
-    if (!user || (!title && !blocks.length && !subject)) return;
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      if (d.title) setTitle(d.title);
+      if (d.subtitle) setSubtitle(d.subtitle);
+      if (d.subject) setSubject(d.subject);
+      if (d.style) setStyle(d.style);
+      if (d.bookType) setBookType(d.bookType);
+      if (d.theme) setTheme(d.theme);
+      if (Array.isArray(d.blocks) && d.blocks.length) {
+        setBlocks(d.blocks);
+        toast.success("이전 작업을 복원했습니다.");
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Auto-save (cloud + local)
+  useEffect(() => {
+    if (!title && !blocks.length && !subject) return;
     setSavingState("saving");
     const t = setTimeout(async () => {
+      // Always back up locally so nothing is lost on refresh
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, subtitle, subject, style, bookType, theme, blocks }));
+      } catch { /* ignore */ }
+
+      if (!user) {
+        setSavingState("idle");
+        return;
+      }
       try {
         const payload = {
           user_id: user.id,
