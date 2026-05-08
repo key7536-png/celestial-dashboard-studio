@@ -27,8 +27,8 @@ type StoredEbook = { title: string; subject: string; chapters?: number };
 function ContentPage() {
   return (
     <PageShell icon={BookOpen} title="콘텐츠 생성" description="전자책, 썸네일, 상세페이지 만들기">
-      <Tabs defaultValue="ebook" className="w-full">
-        <TabsList className="grid grid-cols-3 w-full max-w-xl">
+      <Tabs defaultValue="ebook" className="w-full max-w-6xl mx-auto">
+        <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="ebook"><BookOpen className="h-4 w-4 mr-1.5" />전자책</TabsTrigger>
           <TabsTrigger value="thumbnail"><ImageIcon className="h-4 w-4 mr-1.5" />썸네일</TabsTrigger>
           <TabsTrigger value="detail"><Layout className="h-4 w-4 mr-1.5" />상세페이지</TabsTrigger>
