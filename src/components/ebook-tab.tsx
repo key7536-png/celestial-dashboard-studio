@@ -285,8 +285,16 @@ export function EbookTab() {
           }
         }
       }
-      // Parse markdown into blocks
-      const lines = acc.split("\n");
+      // Parse markdown into blocks (strip markdown emphasis markers)
+      const stripMd = (s: string) =>
+        s
+          .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+          .replace(/\*\*(.+?)\*\*/g, "$1")
+          .replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, "$1$2")
+          .replace(/__(.+?)__/g, "$1")
+          .replace(/(^|[^_])_(?!\s)([^_\n]+?)_(?!_)/g, "$1$2")
+          .replace(/`([^`]+)`/g, "$1");
+      const lines = stripMd(acc).split("\n");
       const newBlocks: Block[] = [];
       let curText = "";
       let firstTitle = "";
