@@ -392,6 +392,25 @@ export function EbookTab() {
     }
   }
 
+  async function handleProofread() {
+    if (!blocks.length) { toast.error("점검할 원고가 없습니다."); return; }
+    setProofreading(true);
+    setProofreport("");
+    try {
+      const { data, error } = await supabase.functions.invoke("ebook-proofread", {
+        body: { title, subtitle, blocks },
+      });
+      if (error) throw error;
+      setProofreport((data as { report?: string })?.report ?? "결과 없음");
+      toast.success("원고 점검 완료");
+    } catch (err) {
+      console.error(err);
+      toast.error((err as Error)?.message ?? "점검 실패");
+    } finally {
+      setProofreading(false);
+    }
+  }
+
   // Group blocks into preview pages (cover + chapters)
   const previewPages = useMemo(() => {
     const pages: Array<{ kind: "cover" | "content"; blocks: Block[] }> = [{ kind: "cover", blocks: [] }];
