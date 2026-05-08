@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Settings as SettingsIcon, Eye, EyeOff, Loader2, ExternalLink } from "lucide-react";
+import { Settings as SettingsIcon, Eye, EyeOff, Loader2, ExternalLink, CheckCircle2, XCircle } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserSettings, saveUserSettings } from "@/hooks/use-user-settings";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -30,6 +31,8 @@ function SettingsPage() {
   const [show, setShow] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<null | { ok: boolean; msg: string }>(null);
 
   useEffect(() => {
     if (settings) {
@@ -42,19 +45,54 @@ function SettingsPage() {
 
   async function handleSave() {
     if (!user) return;
+    // Guard: prevent accidentally wiping a saved key by saving an empty input
+    const trimmed = geminiKey.trim();
+    if (hasKey && editing && !trimmed) {
+      toast.error("새 키를 입력하거나 '취소'를 눌러주세요. (저장하면 기존 키가 지워져요)");
+      return;
+    }
     setSaving(true);
     try {
       await saveUserSettings(user.id, {
-        gemini_api_key: geminiKey.trim() || null,
+        // If editing produced empty value AND user already had a key, keep existing
+        gemini_api_key: trimmed || (hasKey ? settings?.gemini_api_key ?? null : null),
         kakao_channel_url: kakaoUrl.trim() || null,
       });
       toast.success("저장되었습니다.");
       setEditing(false);
+      setTestResult(null);
       await reload();
     } catch (e) {
       toast.error((e as Error).message ?? "저장 실패");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleTestKey() {
+    const key = (editing ? geminiKey.trim() : settings?.gemini_api_key ?? "").trim();
+    if (!key) {
+      toast.error("먼저 키를 입력해주세요.");
+      return;
+    }
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-test-key", { body: { apiKey: key } });
+      if (error) throw error;
+      const res = data as { ok: boolean; message?: string; error?: string };
+      if (res.ok) {
+        setTestResult({ ok: true, msg: res.message ?? "✓ 키가 정상 작동합니다." });
+        toast.success("키 정상 작동!");
+      } else {
+        setTestResult({ ok: false, msg: res.error ?? "키 검증 실패" });
+        toast.error(res.error ?? "키 검증 실패");
+      }
+    } catch (e) {
+      setTestResult({ ok: false, msg: (e as Error).message });
+      toast.error((e as Error).message);
+    } finally {
+      setTesting(false);
     }
   }
 
@@ -81,9 +119,20 @@ function SettingsPage() {
           </p>
 
           {hasKey && !editing ? (
-            <div className="flex items-center gap-2">
-              <Input value={maskKey(settings!.gemini_api_key!)} readOnly className="bg-background/50 font-mono text-sm" />
-              <Button variant="outline" size="sm" onClick={() => { setEditing(true); setGeminiKey(""); }}>변경</Button>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Input value={maskKey(settings!.gemini_api_key!)} readOnly className="bg-background/50 font-mono text-sm" />
+                <Button variant="outline" size="sm" onClick={handleTestKey} disabled={testing}>
+                  {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "키 테스트"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => { setEditing(true); /* keep current key in input */ }}>변경</Button>
+              </div>
+              {testResult && (
+                <div className={`text-xs flex items-center gap-1.5 ${testResult.ok ? "text-emerald-400" : "text-rose-400"}`}>
+                  {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                  {testResult.msg}
+                </div>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -103,13 +152,31 @@ function SettingsPage() {
                   {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-              >
-                Google AI Studio에서 키 발급 <ExternalLink className="h-3 w-3" />
-              </a>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  Google AI Studio에서 키 발급 <ExternalLink className="h-3 w-3" />
+                </a>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={handleTestKey} disabled={testing || !geminiKey.trim()}>
+                    {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "키 테스트"}
+                  </Button>
+                  {hasKey && (
+                    <Button variant="ghost" size="sm" onClick={() => { setEditing(false); setGeminiKey(settings?.gemini_api_key ?? ""); setTestResult(null); }}>
+                      취소
+                    </Button>
+                  )}
+                </div>
+              </div>
+              {testResult && (
+                <div className={`text-xs flex items-center gap-1.5 ${testResult.ok ? "text-emerald-400" : "text-rose-400"}`}>
+                  {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
+                  {testResult.msg}
+                </div>
+              )}
             </div>
           )}
 
