@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Video, Loader2, Mic, Square, RotateCcw, Copy, Download, Shuffle, Wand2 } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
@@ -674,7 +674,3 @@ function PinnedComment({ titleText, sections, ctaLabel, setCtaLabel, ctaLink, se
   );
 }
 
-// cleanup audio URLs on unmount
-function _useCleanup(sections: SectionData[]) {
-  useEffect(() => () => { sections.forEach(s => s.audioUrl && URL.revokeObjectURL(s.audioUrl)); }, []);
-}
