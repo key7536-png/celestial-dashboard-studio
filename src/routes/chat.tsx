@@ -215,6 +215,9 @@ function ChatRoom({ mode }: { mode: Exclude<Mode, null> }) {
 
             {mode === "tarot-relation" && (
               <>
+                <Field label="나의 상황 / 마음">
+                  <Textarea value={mySituation} onChange={(e) => setMySituation(e.target.value)} placeholder="현재 두 사람의 상황을 적어주세요" className="min-h-[60px]" />
+                </Field>
                 <div className="flex items-center justify-between pt-2">
                   <Label>상대 카드 (3장)</Label>
                   <Button size="sm" variant="outline" onClick={() => drawCards(3, "partner")}>
@@ -244,9 +247,17 @@ function ChatRoom({ mode }: { mode: Exclude<Mode, null> }) {
           {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />분석 중...</> : "✦ AI에게 묻기"}
         </Button>
 
-        {mode === "tarot-free" && (
-          <a href="https://pf.kakao.com" target="_blank" rel="noopener noreferrer" className="block">
-            <Button variant="outline" className="w-full">💎 더 깊은 유료 상담 안내</Button>
+        {!settings?.gemini_api_key && (
+          <Link to="/settings" className="block">
+            <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
+              ⚠️ 설정에서 Gemini API 키를 먼저 등록해주세요 →
+            </div>
+          </Link>
+        )}
+
+        {mode === "tarot-free" && settings?.kakao_channel_url && (
+          <a href={settings.kakao_channel_url} target="_blank" rel="noopener noreferrer" className="block">
+            <Button variant="outline" className="w-full">💬 더 자세한 리딩은 카카오 채널 상담 →</Button>
           </a>
         )}
       </Card>
