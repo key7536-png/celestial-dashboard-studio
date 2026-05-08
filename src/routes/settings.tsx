@@ -26,14 +26,18 @@ function SettingsPage() {
           </div>
         </Card>
 
-        <Card className="p-6 bg-card/60 border-border/50 space-y-4">
-          <h3 className="font-display text-lg">API 키</h3>
-          <div className="space-y-2">
-            <Label>OpenAI API Key</Label>
-            <Input type="password" placeholder="sk-..." className="bg-background/50" />
+        <Card className="p-6 bg-card/60 border-border/50 space-y-3">
+          <h3 className="font-display text-lg">AI 엔진</h3>
+          <div className="rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm space-y-1.5">
+            <p className="font-semibold text-primary">✦ Lovable AI 자동 연결됨</p>
+            <p className="text-muted-foreground text-xs leading-relaxed">
+              채팅 상담 · 운세 PDF · 영상 메이커 · 전자책 · 상세페이지 · SNS 콘텐츠 모두
+              <strong className="text-foreground"> Gemini 모델</strong>로 작동합니다.
+              별도의 API 키 입력이 필요하지 않아요.
+            </p>
           </div>
-          <Button className="bg-gradient-mystic shadow-glow">저장</Button>
         </Card>
+
 
         <Card className="p-6 bg-card/60 border-border/50 space-y-4">
           <h3 className="font-display text-lg">알림</h3>
