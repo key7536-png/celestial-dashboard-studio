@@ -610,13 +610,29 @@ export function EbookTab() {
             </div>
           </div>
 
-          {/* Cover image generator */}
+          {/* Proofread */}
+          <Card className="p-5 bg-card/60 border-border/60 space-y-3">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div>
+                <h4 className="font-semibold text-sm">🔍 원고 점검 (오타·위치·일관성)</h4>
+                <p className="text-xs text-muted-foreground mt-1">AI가 글자/위치/구조를 한 번에 점검해 두 번 일하지 않도록 도와줍니다.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={handleProofread} disabled={proofreading || blocks.length === 0}>
+                {proofreading ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />점검 중...</> : <>✦ 원고 점검 실행</>}
+              </Button>
+            </div>
+            {proofreport && (
+              <div className="text-xs whitespace-pre-wrap p-3 rounded-md bg-background/40 border border-border/60 max-h-64 overflow-auto">{proofreport}</div>
+            )}
+          </Card>
+
+          {/* Cover image generator + 3D mockup */}
           <Card className="p-5 bg-card/60 border-border/60 space-y-3">
             <div>
-              <h4 className="font-semibold text-sm">👆 표지 이미지 생성</h4>
-              <p className="text-xs text-muted-foreground mt-1">자동 생성된 표지를 썸네일 탭에서 목업으로 활용할 수 있습니다.</p>
+              <h4 className="font-semibold text-sm">📕 표지 생성 → 3D 목업 바로 만들기</h4>
+              <p className="text-xs text-muted-foreground mt-1">표지를 생성하고 다운로드한 뒤, Mockey.ai로 바로 이동해 3D 전자책 목업을 만들 수 있어요.</p>
             </div>
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-4 items-start flex-wrap">
               <div ref={coverRef} className="shrink-0 flex flex-col items-center justify-between p-6 rounded-lg"
                 style={{ width: 210, height: 297, background: `linear-gradient(135deg, ${currentTheme.bg}, ${currentTheme.accent})`, color: currentTheme.text }}>
                 <div className="text-[8px] tracking-widest opacity-60">JAGAEBIT</div>
@@ -626,14 +642,36 @@ export function EbookTab() {
                 </div>
                 <div className="text-[8px] opacity-70">{subject}</div>
               </div>
-              <div className="flex-1 space-y-2">
-                <Button onClick={handleGenerateCover} className="bg-primary text-primary-foreground">
-                  <ImageIcon className="h-4 w-4 mr-2" />표지 이미지 생성
+              <div className="flex-1 min-w-[200px] space-y-2">
+                <Button onClick={handleGenerateCover} className="bg-primary text-primary-foreground w-full">
+                  <ImageIcon className="h-4 w-4 mr-2" />1. 표지 이미지 생성
                 </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={!coverImage}
+                  onClick={() => {
+                    if (!coverImage) return;
+                    const a = document.createElement("a");
+                    a.href = coverImage;
+                    a.download = `${title || "ebook"}_cover.png`;
+                    a.click();
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />2. 표지 다운로드
+                </Button>
+                <a
+                  href="https://mockey.ai/mockup/book"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("block", !coverImage && "pointer-events-none opacity-50")}
+                >
+                  <Button className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground" disabled={!coverImage}>
+                    📦 3. Mockey.ai에서 3D 목업 만들기 →
+                  </Button>
+                </a>
                 {coverImage && (
-                  <div className="text-xs text-emerald-400">
-                    ✓ 표지가 생성되었습니다. 썸네일 탭에서 목업을 만들어보세요!
-                  </div>
+                  <div className="text-xs text-emerald-400">✓ 표지 준비 완료. 다운로드한 PNG를 Mockey.ai에 업로드하세요.</div>
                 )}
               </div>
             </div>
