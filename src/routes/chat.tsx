@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useUserSettings } from "@/hooks/use-user-settings";
+import { callAI } from "@/lib/call-ai";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({ meta: [{ title: "채팅 상담 — 자개빛" }] }),
@@ -78,8 +80,10 @@ function ChatPage() {
 }
 
 function ChatRoom({ mode }: { mode: Exclude<Mode, null> }) {
+  const { settings } = useUserSettings();
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState("");
+  const [mySituation, setMySituation] = useState("");
 
   // Common fields
   const [name, setName] = useState("");
@@ -123,7 +127,7 @@ function ChatRoom({ mode }: { mode: Exclude<Mode, null> }) {
       data = { question, cards };
     } else if (mode === "tarot-relation") {
       if (cards.length === 0 || partnerCards.length === 0) return toast.error("양쪽 카드를 모두 뽑아주세요.");
-      data = { myCards: cards, partnerCards, question };
+      data = { myCards: cards, partnerCards, question, mySituation };
     } else if (mode === "tarot-free") {
       if (!question.trim()) return toast.error("질문을 입력해주세요.");
       if (cards.length === 0) return toast.error("카드를 먼저 뽑아주세요.");
@@ -133,9 +137,8 @@ function ChatRoom({ mode }: { mode: Exclude<Mode, null> }) {
     setLoading(true);
     setAnswer("");
     try {
-      const { data: res, error } = await supabase.functions.invoke("ai-generate", { body: { mode, data } });
-      if (error) throw error;
-      setAnswer((res as { content: string }).content ?? "");
+      const content = await callAI(mode, data, settings?.gemini_api_key);
+      setAnswer(content);
     } catch (e) {
       toast.error((e as Error).message ?? "생성 실패");
     } finally {
