@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2, Sparkles, Download, Copy, Trash2, FolderOpen, Plus, X,
-  Image as ImageIcon, Type, ChevronLeft, ChevronRight, BookOpen, AlertTriangle, Eye,
+  Image as ImageIcon, Type, ChevronLeft, ChevronRight, BookOpen, Eye,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { Card } from "@/components/ui/card";
