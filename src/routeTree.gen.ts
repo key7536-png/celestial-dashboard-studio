@@ -23,6 +23,11 @@ import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as ChatTarotRouteImport } from './routes/chat.tarot'
+import { Route as ChatSajuRouteImport } from './routes/chat.saju'
+import { Route as ChatRelationRouteImport } from './routes/chat.relation'
+import { Route as ChatFreeRouteImport } from './routes/chat.free'
+import { Route as ChatCoupleRouteImport } from './routes/chat.couple'
 
 const VideoMakerRoute = VideoMakerRouteImport.update({
   id: '/video-maker',
@@ -94,6 +99,31 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ChatRoute,
 } as any)
+const ChatTarotRoute = ChatTarotRouteImport.update({
+  id: '/tarot',
+  path: '/tarot',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatSajuRoute = ChatSajuRouteImport.update({
+  id: '/saju',
+  path: '/saju',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatRelationRoute = ChatRelationRouteImport.update({
+  id: '/relation',
+  path: '/relation',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatFreeRoute = ChatFreeRouteImport.update({
+  id: '/free',
+  path: '/free',
+  getParentRoute: () => ChatRoute,
+} as any)
+const ChatCoupleRoute = ChatCoupleRouteImport.update({
+  id: '/couple',
+  path: '/couple',
+  getParentRoute: () => ChatRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,6 +139,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat/couple': typeof ChatCoupleRoute
+  '/chat/free': typeof ChatFreeRoute
+  '/chat/relation': typeof ChatRelationRoute
+  '/chat/saju': typeof ChatSajuRoute
+  '/chat/tarot': typeof ChatTarotRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRoutesByTo {
@@ -124,6 +159,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat/couple': typeof ChatCoupleRoute
+  '/chat/free': typeof ChatFreeRoute
+  '/chat/relation': typeof ChatRelationRoute
+  '/chat/saju': typeof ChatSajuRoute
+  '/chat/tarot': typeof ChatTarotRoute
   '/chat': typeof ChatIndexRoute
 }
 export interface FileRoutesById {
@@ -141,6 +181,11 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sns': typeof SnsRoute
   '/video-maker': typeof VideoMakerRoute
+  '/chat/couple': typeof ChatCoupleRoute
+  '/chat/free': typeof ChatFreeRoute
+  '/chat/relation': typeof ChatRelationRoute
+  '/chat/saju': typeof ChatSajuRoute
+  '/chat/tarot': typeof ChatTarotRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRouteTypes {
@@ -159,6 +204,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat/couple'
+    | '/chat/free'
+    | '/chat/relation'
+    | '/chat/saju'
+    | '/chat/tarot'
     | '/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +224,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat/couple'
+    | '/chat/free'
+    | '/chat/relation'
+    | '/chat/saju'
+    | '/chat/tarot'
     | '/chat'
   id:
     | '__root__'
@@ -190,6 +245,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sns'
     | '/video-maker'
+    | '/chat/couple'
+    | '/chat/free'
+    | '/chat/relation'
+    | '/chat/saju'
+    | '/chat/tarot'
     | '/chat/'
   fileRoutesById: FileRoutesById
 }
@@ -309,14 +369,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof ChatRoute
     }
+    '/chat/tarot': {
+      id: '/chat/tarot'
+      path: '/tarot'
+      fullPath: '/chat/tarot'
+      preLoaderRoute: typeof ChatTarotRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/saju': {
+      id: '/chat/saju'
+      path: '/saju'
+      fullPath: '/chat/saju'
+      preLoaderRoute: typeof ChatSajuRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/relation': {
+      id: '/chat/relation'
+      path: '/relation'
+      fullPath: '/chat/relation'
+      preLoaderRoute: typeof ChatRelationRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/free': {
+      id: '/chat/free'
+      path: '/free'
+      fullPath: '/chat/free'
+      preLoaderRoute: typeof ChatFreeRouteImport
+      parentRoute: typeof ChatRoute
+    }
+    '/chat/couple': {
+      id: '/chat/couple'
+      path: '/couple'
+      fullPath: '/chat/couple'
+      preLoaderRoute: typeof ChatCoupleRouteImport
+      parentRoute: typeof ChatRoute
+    }
   }
 }
 
 interface ChatRouteChildren {
+  ChatCoupleRoute: typeof ChatCoupleRoute
+  ChatFreeRoute: typeof ChatFreeRoute
+  ChatRelationRoute: typeof ChatRelationRoute
+  ChatSajuRoute: typeof ChatSajuRoute
+  ChatTarotRoute: typeof ChatTarotRoute
   ChatIndexRoute: typeof ChatIndexRoute
 }
 
 const ChatRouteChildren: ChatRouteChildren = {
+  ChatCoupleRoute: ChatCoupleRoute,
+  ChatFreeRoute: ChatFreeRoute,
+  ChatRelationRoute: ChatRelationRoute,
+  ChatSajuRoute: ChatSajuRoute,
+  ChatTarotRoute: ChatTarotRoute,
   ChatIndexRoute: ChatIndexRoute,
 }
 
