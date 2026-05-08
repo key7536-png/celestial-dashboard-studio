@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Loader2, Sparkles, Download, Copy, Trash2, FolderOpen, Plus, X,
-  Image as ImageIcon, Type, ChevronLeft, ChevronRight, BookOpen, AlertTriangle, Eye,
+  Image as ImageIcon, Type, ChevronLeft, ChevronRight, BookOpen, Eye,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { Card } from "@/components/ui/card";
@@ -111,6 +111,8 @@ export function EbookTab() {
   const [previewPage, setPreviewPage] = useState(0);
 
   const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [proofreading, setProofreading] = useState(false);
+  const [proofreport, setProofreport] = useState<string>("");
   const coverRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -390,6 +392,25 @@ export function EbookTab() {
     }
   }
 
+  async function handleProofread() {
+    if (!blocks.length) { toast.error("점검할 원고가 없습니다."); return; }
+    setProofreading(true);
+    setProofreport("");
+    try {
+      const { data, error } = await supabase.functions.invoke("ebook-proofread", {
+        body: { title, subtitle, blocks },
+      });
+      if (error) throw error;
+      setProofreport((data as { report?: string })?.report ?? "결과 없음");
+      toast.success("원고 점검 완료");
+    } catch (err) {
+      console.error(err);
+      toast.error((err as Error)?.message ?? "점검 실패");
+    } finally {
+      setProofreading(false);
+    }
+  }
+
   // Group blocks into preview pages (cover + chapters)
   const previewPages = useMemo(() => {
     const pages: Array<{ kind: "cover" | "content"; blocks: Block[] }> = [{ kind: "cover", blocks: [] }];
@@ -421,15 +442,6 @@ export function EbookTab() {
             <FolderOpen className="h-4 w-4 mr-1.5" />내 프로젝트 ({projects.length})
           </Button>
         </div>
-      </div>
-
-      {/* Warning */}
-      <div className="flex items-start gap-2 p-3 rounded-lg border border-orange-500/40 bg-orange-500/10 text-sm">
-        <AlertTriangle className="h-4 w-4 text-orange-400 mt-0.5 shrink-0" />
-        <p className="text-orange-200">
-          <strong>⚠️ 수익 금액이 적힌 책 내용/책 제목은 수익증명을 실제로 하셔야 합니다.</strong>{" "}
-          허위·과장 수익 표현은 법적 책임이 따를 수 있습니다.
-        </p>
       </div>
 
       {/* Step 1 */}
@@ -619,13 +631,29 @@ export function EbookTab() {
             </div>
           </div>
 
-          {/* Cover image generator */}
+          {/* Proofread */}
+          <Card className="p-5 bg-card/60 border-border/60 space-y-3">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div>
+                <h4 className="font-semibold text-sm">🔍 원고 점검 (오타·위치·일관성)</h4>
+                <p className="text-xs text-muted-foreground mt-1">AI가 글자/위치/구조를 한 번에 점검해 두 번 일하지 않도록 도와줍니다.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={handleProofread} disabled={proofreading || blocks.length === 0}>
+                {proofreading ? <><Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />점검 중...</> : <>✦ 원고 점검 실행</>}
+              </Button>
+            </div>
+            {proofreport && (
+              <div className="text-xs whitespace-pre-wrap p-3 rounded-md bg-background/40 border border-border/60 max-h-64 overflow-auto">{proofreport}</div>
+            )}
+          </Card>
+
+          {/* Cover image generator + 3D mockup */}
           <Card className="p-5 bg-card/60 border-border/60 space-y-3">
             <div>
-              <h4 className="font-semibold text-sm">👆 표지 이미지 생성</h4>
-              <p className="text-xs text-muted-foreground mt-1">자동 생성된 표지를 썸네일 탭에서 목업으로 활용할 수 있습니다.</p>
+              <h4 className="font-semibold text-sm">📕 표지 생성 → 3D 목업 바로 만들기</h4>
+              <p className="text-xs text-muted-foreground mt-1">표지를 생성하고 다운로드한 뒤, Mockey.ai로 바로 이동해 3D 전자책 목업을 만들 수 있어요.</p>
             </div>
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-4 items-start flex-wrap">
               <div ref={coverRef} className="shrink-0 flex flex-col items-center justify-between p-6 rounded-lg"
                 style={{ width: 210, height: 297, background: `linear-gradient(135deg, ${currentTheme.bg}, ${currentTheme.accent})`, color: currentTheme.text }}>
                 <div className="text-[8px] tracking-widest opacity-60">JAGAEBIT</div>
@@ -635,14 +663,36 @@ export function EbookTab() {
                 </div>
                 <div className="text-[8px] opacity-70">{subject}</div>
               </div>
-              <div className="flex-1 space-y-2">
-                <Button onClick={handleGenerateCover} className="bg-primary text-primary-foreground">
-                  <ImageIcon className="h-4 w-4 mr-2" />표지 이미지 생성
+              <div className="flex-1 min-w-[200px] space-y-2">
+                <Button onClick={handleGenerateCover} className="bg-primary text-primary-foreground w-full">
+                  <ImageIcon className="h-4 w-4 mr-2" />1. 표지 이미지 생성
                 </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={!coverImage}
+                  onClick={() => {
+                    if (!coverImage) return;
+                    const a = document.createElement("a");
+                    a.href = coverImage;
+                    a.download = `${title || "ebook"}_cover.png`;
+                    a.click();
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />2. 표지 다운로드
+                </Button>
+                <a
+                  href="https://mockey.ai/mockup/book"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("block", !coverImage && "pointer-events-none opacity-50")}
+                >
+                  <Button className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground" disabled={!coverImage}>
+                    📦 3. Mockey.ai에서 3D 목업 만들기 →
+                  </Button>
+                </a>
                 {coverImage && (
-                  <div className="text-xs text-emerald-400">
-                    ✓ 표지가 생성되었습니다. 썸네일 탭에서 목업을 만들어보세요!
-                  </div>
+                  <div className="text-xs text-emerald-400">✓ 표지 준비 완료. 다운로드한 PNG를 Mockey.ai에 업로드하세요.</div>
                 )}
               </div>
             </div>
