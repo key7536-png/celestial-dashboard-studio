@@ -222,7 +222,7 @@ function TarotPdfPage() {
       const bg = rgb(...hex(tpl.bg));
       const fg = rgb(...hex(tpl.fg));
       const accent = rgb(...hex(tpl.accent));
-      const cardBg = rgb(...hex(tpl.cardBg.replace(/[a-f0-9]{2}$/i, m => (tpl.cardBg.length === 9 ? "" : m))));
+      const cardBg = rgb(...hex(tpl.cardBg));
 
       // A4 in points (pdf-lib default unit). 210mm x 297mm = 595.28 x 841.89
       const W = 595.28;
