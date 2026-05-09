@@ -205,18 +205,37 @@ function TarotPdfPage() {
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pdfW = 210;
       const pdfH = 297;
-      // html2canvas는 oklch() 색상을 못 읽어서 죽음 → onclone에서 안전한 색으로 덮어씀
+      // html2canvas는 oklch() 색상을 못 읽어서 죽음 → 모든 요소의 oklch 색상을 rgb로 변환
+      const ctx = document.createElement("canvas").getContext("2d")!;
+      const toRgb = (c: string) => {
+        try {
+          ctx.fillStyle = "#000";
+          ctx.fillStyle = c;
+          return ctx.fillStyle as string;
+        } catch {
+          return "#000";
+        }
+      };
+      const COLOR_PROPS = [
+        "color","backgroundColor","borderColor",
+        "borderTopColor","borderRightColor","borderBottomColor","borderLeftColor",
+        "outlineColor","fill","stroke","textDecorationColor","caretColor",
+        "columnRuleColor",
+      ] as const;
       const sanitize = (clonedDoc: Document) => {
-        const style = clonedDoc.createElement("style");
-        style.textContent = `
-          *, *::before, *::after {
-            border-color: transparent !important;
-            box-shadow: none !important;
-            text-shadow: none !important;
-            outline-color: transparent !important;
-          }
-        `;
-        clonedDoc.head.appendChild(style);
+        const reset = clonedDoc.createElement("style");
+        reset.textContent = `*,*::before,*::after{box-shadow:none !important;text-shadow:none !important;background-image:none !important;}`;
+        clonedDoc.head.appendChild(reset);
+        const all = clonedDoc.querySelectorAll<HTMLElement>("*");
+        all.forEach((el) => {
+          const cs = clonedDoc.defaultView!.getComputedStyle(el);
+          COLOR_PROPS.forEach((p) => {
+            const v = cs.getPropertyValue(p.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase()));
+            if (v && v.includes("oklch")) {
+              (el.style as unknown as Record<string, string>)[p] = toRgb(v);
+            }
+          });
+        });
       };
       for (let i = 0; i < pages.length; i++) {
         const canvas = await html2canvas(pages[i], {
