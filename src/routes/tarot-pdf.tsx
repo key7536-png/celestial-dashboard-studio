@@ -8,8 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { PDFDocument, rgb } from "pdf-lib";
-import fontkit from "@pdf-lib/fontkit";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { callAI } from "@/lib/call-ai";
 
@@ -197,173 +195,47 @@ function TarotPdfPage() {
     }
   };
 
-  const downloadPdf = async () => {
+  const downloadPdf = () => {
     setDownloading(true);
     try {
-      // 한글 폰트 로드 (Pretendard via jsDelivr — OTF, fontkit 호환)
-      const FONT_URL = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/public/static/Pretendard-Regular.otf";
-      const FONT_BOLD_URL = "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/packages/pretendard/dist/public/static/Pretendard-Bold.otf";
-      const [fontBytes, boldBytes] = await Promise.all([
-        fetch(FONT_URL).then(r => { if (!r.ok) throw new Error("폰트 로드 실패"); return r.arrayBuffer(); }),
-        fetch(FONT_BOLD_URL).then(r => { if (!r.ok) throw new Error("폰트 로드 실패"); return r.arrayBuffer(); }),
-      ]);
-
-      const pdf = await PDFDocument.create();
-      pdf.registerFontkit(fontkit);
-      const font = await pdf.embedFont(fontBytes, { subset: true });
-      const fontBold = await pdf.embedFont(boldBytes, { subset: true });
-
-      // hex → rgb (0~1)
-      const hex = (h: string): [number, number, number] => {
-        const c = h.replace("#", "");
-        const s = c.length === 3 ? c.split("").map(x => x + x).join("") : c.padEnd(6, "0").slice(0, 6);
-        return [parseInt(s.slice(0, 2), 16) / 255, parseInt(s.slice(2, 4), 16) / 255, parseInt(s.slice(4, 6), 16) / 255];
-      };
-      const bg = rgb(...hex(tpl.bg));
-      const fg = rgb(...hex(tpl.fg));
-      const accent = rgb(...hex(tpl.accent));
-      const cardBg = rgb(...hex(tpl.cardBg));
-
-      // A4 in points (pdf-lib default unit). 210mm x 297mm = 595.28 x 841.89
-      const W = 595.28;
-      const H = 841.89;
-
-      // 텍스트 줄바꿈 헬퍼 (문자 단위; 한글에 안전)
-      const wrap = (text: string, maxWidth: number, size: number, f = font) => {
-        const lines: string[] = [];
-        const paragraphs = text.split("\n");
-        for (const para of paragraphs) {
-          if (!para) { lines.push(""); continue; }
-          let cur = "";
-          for (const ch of para) {
-            const test = cur + ch;
-            if (f.widthOfTextAtSize(test, size) > maxWidth) {
-              lines.push(cur);
-              cur = ch;
-            } else {
-              cur = test;
-            }
-          }
-          if (cur) lines.push(cur);
-        }
-        return lines;
-      };
-
-      // ---------- 표지 ----------
-      const cover = pdf.addPage([W, H]);
-      cover.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
-      const titleSize = 14;
-      cover.drawText(tpl.title, {
-        x: (W - fontBold.widthOfTextAtSize(tpl.title, titleSize)) / 2,
-        y: H - 200, size: titleSize, font: fontBold, color: fg, opacity: 0.7,
-      });
-      const nick = nickname || "고객님";
-      const nickSize = 42;
-      cover.drawText(nick, {
-        x: (W - fontBold.widthOfTextAtSize(nick, nickSize)) / 2,
-        y: H - 280, size: nickSize, font: fontBold, color: accent,
-      });
-      const sub = "타로 리딩 리포트";
-      cover.drawText(sub, {
-        x: (W - font.widthOfTextAtSize(sub, 16)) / 2,
-        y: H - 330, size: 16, font, color: fg, opacity: 0.8,
-      });
-      const date = new Date().toLocaleDateString("ko-KR");
-      cover.drawText(date, {
-        x: (W - font.widthOfTextAtSize(date, 11)) / 2,
-        y: H - 380, size: 11, font, color: fg, opacity: 0.6,
-      });
-      const brand = "— 자개빛 —";
-      cover.drawText(brand, {
-        x: (W - font.widthOfTextAtSize(brand, 10)) / 2,
-        y: 120, size: 10, font, color: fg, opacity: 0.5,
-      });
-
-      // ---------- 질문별 페이지 ----------
-      for (let i = 0; i < readings.length; i++) {
-        const r = readings[i];
-        const page = pdf.addPage([W, H]);
-        page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
-
-        const margin = 50;
-        let y = H - margin - 20;
-
-        // QUESTION 라벨
-        page.drawText(`QUESTION ${i + 1}`, {
-          x: margin, y, size: 10, font, color: fg, opacity: 0.6,
-        });
-        y -= 22;
-
-        // 질문 본문
-        const qLines = wrap(r.question, W - margin * 2, 18, fontBold);
-        for (const line of qLines) {
-          page.drawText(line, { x: margin, y, size: 18, font: fontBold, color: accent });
-          y -= 24;
-        }
-        y -= 16;
-
-        // 카드 3장 박스
-        const gap = 12;
-        const boxW = (W - margin * 2 - gap * 2) / 3;
-        const boxH = 80;
-        const boxY = y - boxH;
-        for (let ci = 0; ci < r.cards.length; ci++) {
-          const c = r.cards[ci];
-          const x = margin + ci * (boxW + gap);
-          page.drawRectangle({ x, y: boxY, width: boxW, height: boxH, color: cardBg });
-          page.drawText(`#${ci + 1}`, { x: x + 10, y: boxY + boxH - 18, size: 9, font, color: fg, opacity: 0.6 });
-          const cn = c.name;
-          const cnSize = 13;
-          page.drawText(cn, {
-            x: x + (boxW - fontBold.widthOfTextAtSize(cn, cnSize)) / 2,
-            y: boxY + boxH / 2 - 4, size: cnSize, font: fontBold, color: fg,
-          });
-          const dir = c.reversed ? "역방향" : "정방향";
-          page.drawText(dir, {
-            x: x + (boxW - font.widthOfTextAtSize(dir, 10)) / 2,
-            y: boxY + 12, size: 10, font, color: fg, opacity: 0.7,
-          });
-        }
-        y = boxY - 24;
-
-        // 리딩 본문
-        const body = r.text || "(리딩이 생성되지 않았습니다)";
-        const bodySize = 11;
-        const lineH = 17;
-        const bodyLines = wrap(body, W - margin * 2, bodySize);
-        let curPage = page;
-        for (const line of bodyLines) {
-          if (y < margin + lineH) {
-            curPage = pdf.addPage([W, H]);
-            curPage.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
-            y = H - margin;
-          }
-          curPage.drawText(line, { x: margin, y, size: bodySize, font, color: fg });
-          y -= lineH;
-        }
-      }
-
-      const bytes = await pdf.save();
-      const blob = new Blob([bytes as BlobPart], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${nickname || "고객"}_타로리딩_자개빛.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      toast.success("PDF 다운로드 완료");
-    } catch (e) {
-      console.error("[tarot-pdf] PDF 생성 오류:", e);
-      toast.error("PDF 생성 실패: " + ((e as Error)?.message ?? "알 수 없는 오류"));
+      window.print();
     } finally {
-      setDownloading(false);
+      setTimeout(() => setDownloading(false), 500);
     }
   };
 
   return (
     <PageShell icon={Sparkles} title="MZ타로 PDF" description="고객 질문 → 카드 3장 → MZ톤 리딩 PDF">
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 0; }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+          body * { visibility: hidden !important; }
+          .print-area, .print-area * { visibility: visible !important; }
+          .print-area {
+            position: absolute !important;
+            left: 0; top: 0;
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .print-area > * {
+            width: 210mm !important;
+            height: 297mm !important;
+            page-break-after: always;
+            break-after: page;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-area > *:last-child { page-break-after: auto; }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
       <div className="grid lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {/* LEFT */}
         <div className="space-y-5">
@@ -491,11 +363,11 @@ function TarotPdfPage() {
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              📥 PDF 다운로드
+              🖨️ PDF 저장 (인쇄창)
             </Button>
           </div>
 
-          <div ref={previewRef} className="space-y-3">
+          <div ref={previewRef} className="space-y-3 print-area">
             {/* Cover */}
             <PreviewPage tpl={tpl}>
               <div className="h-full flex flex-col items-center justify-center text-center p-12" style={{ fontFamily: tpl.font }}>
