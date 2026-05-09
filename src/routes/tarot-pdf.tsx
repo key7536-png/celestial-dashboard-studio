@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Sparkles, Loader2, Download, Shuffle } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
@@ -81,6 +81,8 @@ const SAMPLE_QUESTIONS = [
   "올해 안에 새로운 인연을 만날 수 있을까요?",
 ];
 
+const STORAGE_KEY = "tarot-pdf-customer-v1";
+
 function TarotPdfPage() {
   const { settings } = useUserSettings();
   const [pkg, setPkg] = useState<1 | 3>(1);
@@ -91,6 +93,25 @@ function TarotPdfPage() {
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // 고객 입력 자동 저장/복원
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.nickname) setNickname(s.nickname);
+        if (s.questionsText) setQuestionsText(s.questionsText);
+        if (s.pkg === 1 || s.pkg === 3) setPkg(s.pkg);
+        if (s.tplId) setTplId(s.tplId);
+      }
+    } catch { /* noop */ }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nickname, questionsText, pkg, tplId }));
+    } catch { /* noop */ }
+  }, [nickname, questionsText, pkg, tplId]);
 
   const tpl = TEMPLATES.find(t => t.id === tplId)!;
 
@@ -184,8 +205,27 @@ function TarotPdfPage() {
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pdfW = 210;
       const pdfH = 297;
+      // html2canvas는 oklch() 색상을 못 읽어서 죽음 → onclone에서 안전한 색으로 덮어씀
+      const sanitize = (clonedDoc: Document) => {
+        const style = clonedDoc.createElement("style");
+        style.textContent = `
+          *, *::before, *::after {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            outline-color: transparent !important;
+          }
+        `;
+        clonedDoc.head.appendChild(style);
+      };
       for (let i = 0; i < pages.length; i++) {
-        const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: tpl.bg, useCORS: true });
+        const canvas = await html2canvas(pages[i], {
+          scale: 2,
+          backgroundColor: tpl.bg,
+          useCORS: true,
+          logging: false,
+          onclone: sanitize,
+        });
         const img = canvas.toDataURL("image/jpeg", 0.92);
         if (i > 0) pdf.addPage();
         pdf.addImage(img, "JPEG", 0, 0, pdfW, pdfH);
@@ -193,7 +233,8 @@ function TarotPdfPage() {
       pdf.save(`${nickname || "고객"}_타로리딩_자개빛.pdf`);
       toast.success("PDF 다운로드 완료");
     } catch (e) {
-      toast.error("PDF 생성 실패: " + (e as Error).message);
+      console.error("[tarot-pdf] PDF 생성 오류:", e);
+      toast.error("PDF 생성 실패: " + ((e as Error)?.message ?? "알 수 없는 오류"));
     } finally {
       setDownloading(false);
     }
@@ -206,7 +247,7 @@ function TarotPdfPage() {
         <div className="space-y-5">
           <Card className="p-5 space-y-1">
             <h2 className="font-display text-xl font-semibold">고객 질문 → 카드 3장 → MZ톤 리딩 PDF</h2>
-            <p className="text-sm text-muted-foreground">1질문 3,000원 / 3질문 8,000원 패키지. 고객이 보낸 질문을 그대로 붙여넣고 카드 추천 후 PDF로 내보내세요.</p>
+            <p className="text-sm text-muted-foreground">1질문 5,000원 / 3질문 10,000원 패키지. 고객이 보낸 질문을 그대로 붙여넣고 카드 추천 후 PDF로 내보내세요.</p>
           </Card>
 
           {!settings?.gemini_api_key && (
@@ -220,8 +261,8 @@ function TarotPdfPage() {
           {/* Package */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { n: 1 as const, title: "1질문 패키지", price: "질문 1개 · 3,000원" },
-              { n: 3 as const, title: "3질문 패키지", price: "질문 3개 · 8,000원" },
+              { n: 1 as const, title: "1질문 패키지", price: "질문 1개 · 5,000원" },
+              { n: 3 as const, title: "3질문 패키지", price: "질문 3개 · 10,000원" },
             ].map(p => (
               <button
                 key={p.n}
