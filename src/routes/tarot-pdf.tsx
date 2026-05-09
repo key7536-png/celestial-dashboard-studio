@@ -205,8 +205,27 @@ function TarotPdfPage() {
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pdfW = 210;
       const pdfH = 297;
+      // html2canvas는 oklch() 색상을 못 읽어서 죽음 → onclone에서 안전한 색으로 덮어씀
+      const sanitize = (clonedDoc: Document) => {
+        const style = clonedDoc.createElement("style");
+        style.textContent = `
+          *, *::before, *::after {
+            border-color: transparent !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            outline-color: transparent !important;
+          }
+        `;
+        clonedDoc.head.appendChild(style);
+      };
       for (let i = 0; i < pages.length; i++) {
-        const canvas = await html2canvas(pages[i], { scale: 2, backgroundColor: tpl.bg, useCORS: true });
+        const canvas = await html2canvas(pages[i], {
+          scale: 2,
+          backgroundColor: tpl.bg,
+          useCORS: true,
+          logging: false,
+          onclone: sanitize,
+        });
         const img = canvas.toDataURL("image/jpeg", 0.92);
         if (i > 0) pdf.addPage();
         pdf.addImage(img, "JPEG", 0, 0, pdfW, pdfH);
@@ -214,7 +233,8 @@ function TarotPdfPage() {
       pdf.save(`${nickname || "고객"}_타로리딩_자개빛.pdf`);
       toast.success("PDF 다운로드 완료");
     } catch (e) {
-      toast.error("PDF 생성 실패: " + (e as Error).message);
+      console.error("[tarot-pdf] PDF 생성 오류:", e);
+      toast.error("PDF 생성 실패: " + ((e as Error)?.message ?? "알 수 없는 오류"));
     } finally {
       setDownloading(false);
     }
