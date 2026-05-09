@@ -331,15 +331,14 @@ function TarotPdfPage() {
         const bodySize = 11;
         const lineH = 17;
         const bodyLines = wrap(body, W - margin * 2, bodySize);
+        let curPage = page;
         for (const line of bodyLines) {
           if (y < margin + lineH) {
-            const np = pdf.addPage([W, H]);
-            np.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
+            curPage = pdf.addPage([W, H]);
+            curPage.drawRectangle({ x: 0, y: 0, width: W, height: H, color: bg });
             y = H - margin;
-            np.drawText(line, { x: margin, y, size: bodySize, font, color: fg });
-          } else {
-            page.drawText(line, { x: margin, y, size: bodySize, font, color: fg });
           }
+          curPage.drawText(line, { x: margin, y, size: bodySize, font, color: fg });
           y -= lineH;
         }
       }
