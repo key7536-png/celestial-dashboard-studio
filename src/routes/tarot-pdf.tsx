@@ -205,36 +205,47 @@ function TarotPdfPage() {
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pdfW = 210;
       const pdfH = 297;
-      // html2canvas는 oklch() 색상을 못 읽어서 죽음 → 모든 요소의 oklch 색상을 rgb로 변환
-      const ctx = document.createElement("canvas").getContext("2d")!;
-      const toRgb = (c: string) => {
-        try {
-          ctx.fillStyle = "#000";
-          ctx.fillStyle = c;
-          return ctx.fillStyle as string;
-        } catch {
-          return "#000";
-        }
-      };
-      const COLOR_PROPS = [
-        "color","backgroundColor","borderColor",
-        "borderTopColor","borderRightColor","borderBottomColor","borderLeftColor",
-        "outlineColor","fill","stroke","textDecorationColor","caretColor",
-        "columnRuleColor",
-      ] as const;
+      // html2canvas는 oklch() 색상을 못 읽음 → 디자인 토큰을 rgb로 덮어쓰고 oklch 잔존 인라인 스타일 제거
       const sanitize = (clonedDoc: Document) => {
-        const reset = clonedDoc.createElement("style");
-        reset.textContent = `*,*::before,*::after{box-shadow:none !important;text-shadow:none !important;background-image:none !important;}`;
-        clonedDoc.head.appendChild(reset);
-        const all = clonedDoc.querySelectorAll<HTMLElement>("*");
-        all.forEach((el) => {
-          const cs = clonedDoc.defaultView!.getComputedStyle(el);
-          COLOR_PROPS.forEach((p) => {
-            const v = cs.getPropertyValue(p.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase()));
-            if (v && v.includes("oklch")) {
-              (el.style as unknown as Record<string, string>)[p] = toRgb(v);
-            }
-          });
+        const override = clonedDoc.createElement("style");
+        override.textContent = `
+          :root, .dark {
+            --background:#13131a; --foreground:#ecedf2;
+            --card:#181820; --card-foreground:#ecedf2;
+            --popover:#181820; --popover-foreground:#ecedf2;
+            --primary:#b794f4; --primary-foreground:#13131a;
+            --gold:#f6ad55; --gold-foreground:#13131a;
+            --secondary:#2a2a36; --secondary-foreground:#ecedf2;
+            --muted:#22222d; --muted-foreground:#8a8a9b;
+            --accent:#b794f4; --accent-foreground:#13131a;
+            --destructive:#e53e3e; --destructive-foreground:#ffffff;
+            --border:#2d2d3d; --input:#2d2d3d; --ring:#b794f4;
+            --mystic:#8b5cf6;
+            --color-background:#13131a; --color-foreground:#ecedf2;
+            --color-card:#181820; --color-card-foreground:#ecedf2;
+            --color-popover:#181820; --color-popover-foreground:#ecedf2;
+            --color-primary:#b794f4; --color-primary-foreground:#13131a;
+            --color-secondary:#2a2a36; --color-secondary-foreground:#ecedf2;
+            --color-muted:#22222d; --color-muted-foreground:#8a8a9b;
+            --color-accent:#b794f4; --color-accent-foreground:#13131a;
+            --color-destructive:#e53e3e; --color-destructive-foreground:#ffffff;
+            --color-border:#2d2d3d; --color-input:#2d2d3d; --color-ring:#b794f4;
+            --color-gold:#f6ad55; --color-gold-foreground:#13131a;
+            --color-mystic:#8b5cf6;
+          }
+          html, body { background:#13131a !important; background-image:none !important; }
+          *, *::before, *::after {
+            box-shadow:none !important;
+            text-shadow:none !important;
+            background-image:none !important;
+            text-decoration-color:currentColor !important;
+            caret-color:auto !important;
+          }
+        `;
+        clonedDoc.head.appendChild(override);
+        // 인라인 스타일에 남은 oklch도 제거
+        clonedDoc.querySelectorAll<HTMLElement>("[style*='oklch']").forEach((el) => {
+          el.setAttribute("style", el.getAttribute("style")!.replace(/oklch\([^)]*\)/g, "#000"));
         });
       };
       for (let i = 0; i < pages.length; i++) {
