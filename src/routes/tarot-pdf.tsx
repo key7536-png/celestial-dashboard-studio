@@ -125,7 +125,7 @@ function TarotPdfPage() {
       const newName = pool[Math.floor(Math.random() * pool.length)];
       return {
         ...r,
-        cards: r.cards.map((c, j) => j === cIdx ? { name: newName, reversed: Math.random() < 0.3 } : c),
+        cards: r.cards.map((c, j) => j === cIdx ? { name: newName, reversed: Math.random() < 0.5 } : c),
       };
     }));
   };
