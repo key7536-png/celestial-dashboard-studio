@@ -71,7 +71,7 @@ function buildPrompt(mode: Mode, data: Record<string, unknown>): { system: strin
     case "tarot-mz":
       return {
         system: "당신은 MZ세대(20-30대)가 좋아하는 친근한 타로 리더입니다. 공감 가는 한국어 반말 섞인 친근체로, 너무 점쟁이같지 않고 친한 언니/오빠 톤으로 작성하세요. 이모지 적당히, 솔직하고 따뜻하게.",
-        user: `고객 닉네임: ${data.nickname || "고객"}\n질문: ${data.question}\n뽑힌 카드 3장: ${(data.cards as string[]).join(", ")}\n\n이 카드 조합으로 MZ톤 타로 리딩을 500~600자로 작성해주세요. 각 카드의 의미를 자연스럽게 녹이고, 마지막은 따뜻한 응원으로 마무리.`,
+        user: `고객 닉네임: ${data.nickname || "고객"}\n질문: ${data.question}\n뽑힌 카드 3장: ${(data.cards as string[]).join(", ")}\n\n이 카드 조합으로 MZ톤 타로 리딩을 작성해주세요.\n\n[작성 지침]\n- 각 카드별로 최소 150자 이상 상세하게 해설해줘.\n- 절대 중간에 끊지 말고 완성된 문장으로 마무리해.\n- 전체 분량은 최소 600자 이상.\n- 마지막은 따뜻한 응원으로 마무리.`,
       };
   }
 }
