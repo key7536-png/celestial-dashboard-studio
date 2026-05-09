@@ -81,6 +81,8 @@ const SAMPLE_QUESTIONS = [
   "올해 안에 새로운 인연을 만날 수 있을까요?",
 ];
 
+const STORAGE_KEY = "tarot-pdf-customer-v1";
+
 function TarotPdfPage() {
   const { settings } = useUserSettings();
   const [pkg, setPkg] = useState<1 | 3>(1);
@@ -91,6 +93,25 @@ function TarotPdfPage() {
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // 고객 입력 자동 저장/복원
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.nickname) setNickname(s.nickname);
+        if (s.questionsText) setQuestionsText(s.questionsText);
+        if (s.pkg === 1 || s.pkg === 3) setPkg(s.pkg);
+        if (s.tplId) setTplId(s.tplId);
+      }
+    } catch { /* noop */ }
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ nickname, questionsText, pkg, tplId }));
+    } catch { /* noop */ }
+  }, [nickname, questionsText, pkg, tplId]);
 
   const tpl = TEMPLATES.find(t => t.id === tplId)!;
 
