@@ -227,7 +227,7 @@ function TarotPdfPage() {
         <div className="space-y-5">
           <Card className="p-5 space-y-1">
             <h2 className="font-display text-xl font-semibold">고객 질문 → 카드 3장 → MZ톤 리딩 PDF</h2>
-            <p className="text-sm text-muted-foreground">1질문 3,000원 / 3질문 8,000원 패키지. 고객이 보낸 질문을 그대로 붙여넣고 카드 추천 후 PDF로 내보내세요.</p>
+            <p className="text-sm text-muted-foreground">1질문 5,000원 / 3질문 10,000원 패키지. 고객이 보낸 질문을 그대로 붙여넣고 카드 추천 후 PDF로 내보내세요.</p>
           </Card>
 
           {!settings?.gemini_api_key && (
@@ -241,8 +241,8 @@ function TarotPdfPage() {
           {/* Package */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { n: 1 as const, title: "1질문 패키지", price: "질문 1개 · 3,000원" },
-              { n: 3 as const, title: "3질문 패키지", price: "질문 3개 · 8,000원" },
+              { n: 1 as const, title: "1질문 패키지", price: "질문 1개 · 5,000원" },
+              { n: 3 as const, title: "3질문 패키지", price: "질문 3개 · 10,000원" },
             ].map(p => (
               <button
                 key={p.n}
