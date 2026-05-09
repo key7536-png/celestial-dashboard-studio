@@ -333,11 +333,11 @@ function TarotPdfPage() {
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              📥 PDF 다운로드
+              🖨️ PDF 저장 (인쇄창)
             </Button>
           </div>
 
-          <div ref={previewRef} className="space-y-3">
+          <div ref={previewRef} className="space-y-3 print-area">
             {/* Cover */}
             <PreviewPage tpl={tpl}>
               <div className="h-full flex flex-col items-center justify-center text-center p-12" style={{ fontFamily: tpl.font }}>
