@@ -129,22 +129,35 @@ function TarotPdfPage() {
     setGenerating(true);
     try {
       for (let i = 0; i < readings.length; i++) {
-        setReadings(prev => prev.map((r, idx) => idx === i ? { ...r, loading: true } : r));
-        const r = readings[i];
-        const cardStr = r.cards.map(c => `${c.name}(${c.reversed ? "역방향" : "정방향"})`);
         try {
+          setReadings(prev => prev.map((r, idx) => idx === i ? { ...r, loading: true } : r));
+          const r = readings[i];
+          if (!r || !Array.isArray(r.cards) || r.cards.length === 0) {
+            console.warn(`[tarot-pdf] reading ${i} has no cards, skipping`);
+            continue;
+          }
+          const cardStr = r.cards.map(c => `${c?.name ?? "?"}(${c?.reversed ? "역방향" : "정방향"})`);
+          console.log(`[tarot-pdf] ${i + 1}번 카드:`, cardStr);
           const text = await callAI("tarot-mz", {
             nickname: nickname || "고객",
             question: r.question,
             cards: cardStr,
           }, settings.gemini_api_key);
-          setReadings(prev => prev.map((rd, idx) => idx === i ? { ...rd, text, loading: false } : rd));
+          console.log(`[tarot-pdf] ${i + 1}번 응답 길이:`, text?.length ?? 0);
+          const safeText = (text && typeof text === "string" && text.trim())
+            ? text
+            : "AI 응답을 받지 못했습니다. 다시 시도해주세요.";
+          setReadings(prev => prev.map((rd, idx) => idx === i ? { ...rd, text: safeText, loading: false } : rd));
         } catch (e) {
+          console.error(`[tarot-pdf] ${i + 1}번 질문 처리 중 오류:`, e);
           setReadings(prev => prev.map((rd, idx) => idx === i ? { ...rd, loading: false } : rd));
-          toast.error(`${i + 1}번 질문 생성 실패: ${(e as Error).message}`);
+          toast.error(`${i + 1}번 질문 생성 실패: ${(e as Error)?.message ?? "알 수 없는 오류"}`);
         }
       }
       toast.success("MZ톤 리딩 생성 완료!");
+    } catch (e) {
+      console.error("[tarot-pdf] generateReadings 전체 오류:", e);
+      toast.error("리딩 생성 중 오류가 발생했습니다: " + ((e as Error)?.message ?? ""));
     } finally {
       setGenerating(false);
     }
