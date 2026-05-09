@@ -206,6 +206,36 @@ function TarotPdfPage() {
 
   return (
     <PageShell icon={Sparkles} title="MZ타로 PDF" description="고객 질문 → 카드 3장 → MZ톤 리딩 PDF">
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 0; }
+          html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+          body * { visibility: hidden !important; }
+          .print-area, .print-area * { visibility: visible !important; }
+          .print-area {
+            position: absolute !important;
+            left: 0; top: 0;
+            width: 210mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .print-area > * {
+            width: 210mm !important;
+            height: 297mm !important;
+            page-break-after: always;
+            break-after: page;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-area > *:last-child { page-break-after: auto; }
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
       <div className="grid lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {/* LEFT */}
         <div className="space-y-5">
