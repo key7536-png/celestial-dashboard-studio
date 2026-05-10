@@ -574,6 +574,13 @@ function TarotPdfPage() {
   );
 }
 
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const m = hex.replace("#", "");
+  const s = m.length === 3 ? m.split("").map((c) => c + c).join("") : m.slice(0, 6);
+  const n = parseInt(s, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
 function PreviewPage({ tpl, children }: { tpl: Template; children: React.ReactNode }) {
   return (
     <div
