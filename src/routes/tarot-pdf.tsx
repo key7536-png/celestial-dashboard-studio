@@ -42,7 +42,7 @@ function pickCards(n: number): CardDraw[] {
   return Array.from({ length: n }, () => {
     const idx = Math.floor(Math.random() * pool.length);
     const name = pool.splice(idx, 1)[0];
-    return { name, reversed: Math.random() < 0.5 };
+    return { name, reversed: false };
   });
 }
 
