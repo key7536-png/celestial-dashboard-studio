@@ -263,7 +263,7 @@ function TarotPdfPage() {
       `}</style>
       <div className="grid lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
         {/* LEFT */}
-        <div className="space-y-5">
+        <div className="space-y-5 min-w-0">
           <Card className="p-5 space-y-1">
             <h2 className="font-display text-xl font-semibold">고객 질문 → 카드 3장 → MZ톤 리딩 PDF</h2>
             <p className="text-sm text-muted-foreground">1질문 5,000원 / 3질문 10,000원 패키지. 고객이 보낸 질문을 그대로 붙여넣고 카드 추천 후 PDF로 내보내세요.</p>
@@ -383,7 +383,7 @@ function TarotPdfPage() {
         </div>
 
         {/* RIGHT — preview */}
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
