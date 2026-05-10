@@ -50,6 +50,11 @@ async function generatePdf(title: string, content: string, fileName: string) {
 }
 
 function FortunePdfPage() {
+  const { settings } = useUserSettings();
+  const apiKey = settings?.gemini_api_key ?? "";
+  const reportSrc = apiKey
+    ? `/fortune-report-generator.html?key=${encodeURIComponent(apiKey)}`
+    : "/fortune-report-generator.html";
   return (
     <PageShell icon={FileText} title="운세 PDF" description="종합 사주·타로 PDF 자동 생성">
       <Tabs defaultValue="report" className="max-w-3xl mx-auto">
@@ -60,15 +65,19 @@ function FortunePdfPage() {
         </TabsList>
         <TabsContent value="report" className="mt-6">
           <Card className="p-2 bg-card/60 overflow-hidden">
+            {!apiKey && (
+              <div className="px-3 pt-2"><KeyWarning /></div>
+            )}
             <iframe
-              src="/fortune-report-generator.html"
+              key={apiKey || "no-key"}
+              src={reportSrc}
               title="운명 분석 보고서 생성기"
               className="w-full rounded-md"
               style={{ height: "calc(100vh - 220px)", minHeight: 600, border: 0 }}
             />
             <div className="px-3 py-2 text-[11px] text-muted-foreground">
               💡 브라우저 새 탭에서 열려면{" "}
-              <a href="/fortune-report-generator.html" target="_blank" rel="noreferrer" className="text-primary underline">
+              <a href={reportSrc} target="_blank" rel="noreferrer" className="text-primary underline">
                 여기를 클릭
               </a>
               하세요.

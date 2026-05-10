@@ -123,6 +123,23 @@ body{background:#f5f0f3;min-height:100vh;padding:20px}
 <div id="pdfRender" style="position:fixed;top:-99999px;left:-99999px;width:794px;background:#fff"></div>
 
 <script>
+// Auto-fill Gemini API key from URL (?key=...) or postMessage from parent
+(function(){
+  function setKey(k){
+    if(!k) return;
+    var el = document.getElementById('apiKey');
+    if(el){ el.value = k; }
+    var card = document.getElementById('apiCard');
+    if(card){ card.style.display='none'; }
+  }
+  try {
+    var p = new URLSearchParams(location.search);
+    setKey(p.get('key'));
+  } catch(e){}
+  window.addEventListener('message', function(ev){
+    if(ev && ev.data && ev.data.type === 'gemini-key'){ setKey(ev.data.key); }
+  });
+})();
 // ===== 33 SECTIONS =====
 const SEC = [
   {id:'s01',title:'한 줄 총평 _ 이 분의 핵심',pg:'4-5',bg:0,sym:'❋',en:'INNER PORTRAIT',oh:0,color:'#c9527b'},
