@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>운명 분석 보고서 생성기 | 자개빛</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Noto Sans KR',sans-serif}
+body{background:#f5f0f3;min-height:100vh;padding:20px}
+.container{max-width:760px;margin:0 auto}
+.hd{text-align:center;padding:24px 0 16px}
+.hd h1{font-size:22px;font-weight:700;color:#8a2040;font-family:'Noto Serif KR',serif;letter-spacing:2px}
+.hd p{font-size:12px;color:#aaa;margin-top:5px;letter-spacing:1px}
+.card{background:#fff;border-radius:14px;padding:22px;margin-bottom:14px;box-shadow:0 1px 8px rgba(0,0,0,.07)}
+.stitle{font-size:14px;font-weight:700;color:#555;margin-bottom:14px;padding-bottom:8px;border-bottom:1.5px solid #f0e0e8}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.f label{font-size:11px;color:#999;display:block;margin-bottom:3px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.f input,.f select,.f textarea{width:100%;padding:9px 11px;border:1px solid #e8dde4;border-radius:8px;font-size:14px;font-family:'Noto Sans KR',sans-serif;background:#fff;color:#333}
+.f textarea{min-height:52px;resize:vertical}
+.f input:focus,.f select:focus{outline:none;border-color:#c9527b}
+.btn{width:100%;padding:12px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif}
+.btn:hover{opacity:.88}.btn:disabled{opacity:.4;cursor:not-allowed}
+.bp{background:#c9527b;color:#fff}
+.bb{background:#4a6fa5;color:#fff}
+.bg2{background:#f0e8ec;color:#666}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.pb{height:6px;background:#f0e0e8;border-radius:3px;overflow:hidden;margin:8px 0}
+.pf{height:100%;background:linear-gradient(90deg,#c9527b,#e87fa8);border-radius:3px;transition:width .3s}
+.pl{font-size:12px;color:#999;margin-top:4px}
+.si{border:1px solid #f0e0e8;border-radius:8px;margin-bottom:7px;overflow:hidden}
+.sh{padding:7px 11px;background:#fdf5f8;display:flex;align-items:center;gap:7px;border-bottom:1px solid #f0e0e8}
+.sb2{font-size:10px;color:#fff;padding:2px 6px;border-radius:3px;font-weight:700}
+.st{font-size:12px;font-weight:500;color:#444}
+.sp{margin-left:auto;font-size:11px;color:#c9527b;font-weight:600}
+.sk{height:8px;background:#f0e8ec;border-radius:4px;margin-bottom:6px;animation:pu 1.2s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:.4}50%{opacity:.9}}
+.sbody{padding:10px 12px;font-size:12px;line-height:1.8;color:#444;white-space:pre-wrap}
+.tocrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #faf0f5;font-size:12px;color:#555}
+.tocdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tocpg{margin-left:auto;font-size:11px;color:#c9527b;font-weight:600;white-space:nowrap}
+.mb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:999}
+.mb.show{display:flex}
+.md{background:#fff;border-radius:12px;padding:22px;width:320px;max-width:90vw}
+.md h3{font-size:15px;font-weight:700;color:#333;margin-bottom:14px}
+.notice{font-size:11px;color:#aaa;line-height:1.6;padding:9px;background:#fef9fb;border-radius:6px;border:1px solid #f0e0e8;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hd">
+    <h1>운명 분석 보고서</h1>
+    <p>VIBEELLA · 삶 패턴 리포트 (사주 기반) · 69페이지 · 33섹션</p>
+  </div>
+
+  <div class="card" id="apiCard">
+    <div class="stitle">🔑 Gemini API 키</div>
+    <div class="notice">aistudio.google.com → Get API Key 에서 발급 (무료)</div>
+    <div class="f"><label>Gemini API Key</label><input id="apiKey" type="password" placeholder="AIzaSy..."/></div>
+  </div>
+
+  <div class="card" id="inputCard">
+    <div class="stitle">📋 의뢰인 정보</div>
+    <div class="r2">
+      <div class="f"><label>이름</label><input id="n" placeholder="홍길동"/></div>
+      <div class="f"><label>성별</label><select id="g"><option value="여성">여성</option><option value="남성">남성</option></select></div>
+    </div>
+    <div class="r2">
+      <div class="f"><label>생년월일</label><input id="b" type="date"/></div>
+      <div class="f"><label>출생 시간</label><input id="t" type="time"/></div>
+    </div>
+    <div class="r2">
+      <div class="f"><label>태어난 곳</label><input id="p" placeholder="서울"/></div>
+      <div class="f"><label>특별 요청</label><input id="r" placeholder="연애, 재물, 직업..."/></div>
+    </div>
+    <button class="btn bp" onclick="startGen()">✦ 운명 분석 보고서 생성 (69p)</button>
+  </div>
+
+  <div class="card">
+    <div class="stitle">📑 목차 (33섹션 · 섹션당 2페이지)</div>
+    <div id="tocList"></div>
+  </div>
+
+  <div class="card" id="genCard" style="display:none">
+    <div class="stitle" id="genTitle">생성 중...</div>
+    <div class="pb"><div class="pf" id="pf" style="width:0%"></div></div>
+    <div class="pl" id="gl">AI가 내용을 작성합니다...</div>
+    <div style="font-size:11px;color:#ccc;margin-top:2px" id="gc2"></div>
+    <div id="genItems" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card" id="resultCard" style="display:none">
+    <div class="stitle" id="resTitle">완성!</div>
+    <div style="font-size:12px;color:#999;margin-bottom:12px" id="resSub"></div>
+    <div class="g2">
+      <button class="btn bp" id="pdfBtn" onclick="makePDF()">⬇ PDF 다운로드 (69p)</button>
+      <button class="btn bb" onclick="openEmailModal()">✉ 이메일 발송</button>
+    </div>
+    <button class="btn bg2" onclick="resetAll()" style="margin-top:6px">↺ 다시 생성</button>
+    <div id="pdfProg" style="display:none;margin-top:10px">
+      <div class="pb"><div class="pf" id="ppf" style="width:0%"></div></div>
+      <div class="pl" id="ppl">PDF 렌더링 중...</div>
+      <div style="font-size:11px;color:#ccc;margin-top:2px" id="ppct"></div>
+    </div>
+  </div>
+  <div id="resultItems"></div>
+</div>
+
+<div class="mb" id="emailModal">
+  <div class="md">
+    <h3>✉ 이메일로 보내기</h3>
+    <div class="f" style="margin-bottom:10px"><label>받는 사람 이메일</label><input id="eml" type="email" placeholder="client@email.com"/></div>
+    <div class="g2">
+      <button class="btn bp" onclick="sendEmail()">보내기</button>
+      <button class="btn bg2" onclick="closeEmailModal()">취소</button>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-top:8px;line-height:1.6" id="emailSt"></div>
+  </div>
+</div>
+
+<div id="pdfRender" style="position:fixed;top:-99999px;left:-99999px;width:794px;background:#fff"></div>
+
+<script>
+// ===== 33 SECTIONS =====
+const SEC = [
+  {id:'s01',title:'한 줄 총평 _ 이 분의 핵심',pg:'4-5',bg:0,sym:'❋',en:'INNER PORTRAIT',oh:0,color:'#c9527b'},
+  {id:'s02',title:'당신의 기본 결 _ 겉과 속의 차이',pg:'6-7',bg:0,sym:'●',en:'INNER PORTRAIT',oh:1,color:'#c9527b'},
+  {id:'s03',title:'에너지 구조 _ 추진력.감정.회복력의 균형',pg:'8-9',bg:1,sym:'◆',en:'WEALTH & ABUNDANCE',oh:2,color:'#b8820a'},
+  {id:'s04',title:'사람을 대하는 방식 _ 친해지는 결과 거리두는 결',pg:'10-11',bg:2,sym:'▲',en:'CAREER & SUCCESS',oh:3,color:'#888888'},
+  {id:'s05',title:'연애 패턴 _ 끌리는 사람과 감정 흐름',pg:'12-13',bg:3,sym:'♥',en:'LOVE & RELATIONSHIPS',oh:4,color:'#c9527b'},
+  {id:'s06',title:'관계가 무너지는 순간 _ 갈등의 골',pg:'14-15',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:0,color:'#6a3a9a'},
+  {id:'s07',title:'함께 있을 때 편한 사람 vs 힘든 사람',pg:'16-17',bg:5,sym:'—',en:'ANCIENT WISDOM',oh:1,color:'#5a4a2a'},
+  {id:'s08',title:'돈이 들어오는 방식과 새는 패턴',pg:'18-19',bg:1,sym:'◆',en:'WEALTH & ABUNDANCE',oh:2,color:'#b8820a'},
+  {id:'s09',title:'맞는 수익 구조와 피해야 할 돈 문제',pg:'20-21',bg:1,sym:'◆',en:'WEALTH & ABUNDANCE',oh:3,color:'#b8820a'},
+  {id:'s10',title:'일 스타일 _ 강점과 망가지는 조건',pg:'22-23',bg:2,sym:'▲',en:'CAREER & SUCCESS',oh:4,color:'#888888'},
+  {id:'s11',title:'잘 맞는 일 환경 vs 절대 안 맞는 환경',pg:'24-25',bg:2,sym:'▲',en:'CAREER & SUCCESS',oh:0,color:'#888888'},
+  {id:'s12',title:'스트레스가 쌓이는 신호와 회복 루틴',pg:'26-27',bg:6,sym:'✿',en:'HEALTH & VITALITY',oh:1,color:'#3a6a30'},
+  {id:'s13',title:'당신이 반복적으로 빠지는 함정',pg:'28-29',bg:0,sym:'❋',en:'INNER PORTRAIT',oh:2,color:'#c9527b'},
+  {id:'s14',title:'지금 당신의 상태 _ 현재 흐름 진단',pg:'30-31',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:3,color:'#6a3a9a'},
+  {id:'s15',title:'앞으로 3개월 _ 단기 흐름과 우선순위',pg:'32-33',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:4,color:'#6a3a9a'},
+  {id:'s16',title:'3~6개월 _ 변화가 시작되는 구간',pg:'34-35',bg:3,sym:'♥',en:'LOVE & RELATIONSHIPS',oh:0,color:'#c9527b'},
+  {id:'s17',title:'6~12개월 _ 큰 흐름과 방향성',pg:'36-37',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:1,color:'#6a3a9a'},
+  {id:'s18',title:'1번째 달 _ 상황과 행동 가이드',pg:'38-39',bg:2,sym:'▲',en:'CAREER & SUCCESS',oh:2,color:'#888888'},
+  {id:'s19',title:'2번째 달 _ 상황과 행동 가이드',pg:'40-41',bg:6,sym:'✿',en:'HEALTH & VITALITY',oh:3,color:'#3a6a30'},
+  {id:'s20',title:'3번째 달 _ 상황과 행동 가이드',pg:'42-43',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:4,color:'#6a3a9a'},
+  {id:'s21',title:'4번째 달 _ 상황과 행동 가이드',pg:'44-45',bg:5,sym:'—',en:'ANCIENT WISDOM',oh:0,color:'#5a4a2a'},
+  {id:'s22',title:'5번째 달 _ 상황과 행동 가이드',pg:'46-47',bg:0,sym:'❋',en:'INNER PORTRAIT',oh:1,color:'#c9527b'},
+  {id:'s23',title:'6번째 달 _ 상황과 행동 가이드',pg:'48-49',bg:3,sym:'♥',en:'LOVE & RELATIONSHIPS',oh:2,color:'#c9527b'},
+  {id:'s24',title:'7번째 달 _ 상황과 행동 가이드',pg:'50-51',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:3,color:'#6a3a9a'},
+  {id:'s25',title:'8번째 달 _ 상황과 행동 가이드',pg:'52-53',bg:2,sym:'▲',en:'CAREER & SUCCESS',oh:4,color:'#888888'},
+  {id:'s26',title:'9번째 달 _ 상황과 행동 가이드',pg:'54-55',bg:3,sym:'♥',en:'LOVE & RELATIONSHIPS',oh:0,color:'#c9527b'},
+  {id:'s27',title:'10번째 달 _ 상황과 행동 가이드',pg:'56-57',bg:1,sym:'◆',en:'WEALTH & ABUNDANCE',oh:1,color:'#b8820a'},
+  {id:'s28',title:'11번째 달 _ 상황과 행동 가이드',pg:'58-59',bg:0,sym:'●',en:'INNER PORTRAIT',oh:2,color:'#c9527b'},
+  {id:'s29',title:'12번째 달 _ 상황과 행동 가이드',pg:'60-61',bg:6,sym:'✿',en:'HEALTH & VITALITY',oh:3,color:'#3a6a30'},
+  {id:'s30',title:'지금 해야 할 것 vs 지금 피해야 할 것',pg:'62-63',bg:4,sym:'◇',en:'FATE & FORTUNE',oh:4,color:'#6a3a9a'},
+  {id:'s31',title:'당신에게 맞는 삶의 방식 _ 환경.사람.루틴',pg:'64-65',bg:3,sym:'♥',en:'LOVE & RELATIONSHIPS',oh:0,color:'#c9527b'},
+  {id:'s32',title:'이 분만의 소름 포인트 7가지',pg:'66-67',bg:0,sym:'❋',en:'INNER PORTRAIT',oh:1,color:'#c9527b'},
+  {id:'s33',title:'마지막 한마디 _ 실전 조언 3개',pg:'68-69',bg:1,sym:'◆',en:'WEALTH & ABUNDANCE',oh:2,color:'#b8820a'},
+];
+
+const OHAENG = [
+  {char:'木목', color:'#4a7a20'},
+  {char:'火화', color:'#c84020'},
+  {char:'土토', color:'#b8820a'},
+  {char:'金금', color:'#808080'},
+  {char:'水수', color:'#3060a0'},
+];
+
+// Background gradients for chapter title pages (7 types)
+const BG = [
+  // 0: Pink marble (INNER PORTRAIT)
+  'linear-gradient(135deg,#f5e0e6 0%,#ead0da 20%,#fae0d4 50%,#f0d8e0 80%,#e8c8d4 100%)',
+  // 1: Dark gold sparkle (WEALTH)
+  'linear-gradient(135deg,#1a0800 0%,#2d1200 30%,#1a0c00 60%,#2a1600 100%)',
+  // 2: Mountain sunrise (CAREER)
+  'linear-gradient(180deg,#050a18 0%,#0d1420 30%,#1a1008 55%,#2a1800 80%,#382010 100%)',
+  // 3: Night hearts (LOVE)
+  'linear-gradient(180deg,#050212 0%,#0d0525 40%,#160535 70%,#1e0440 100%)',
+  // 4: Galaxy (FATE)
+  'linear-gradient(180deg,#020008 0%,#070015 30%,#0c001e 60%,#0f0028 100%)',
+  // 5: Ink painting (WISDOM)
+  'linear-gradient(135deg,#e8e5de 0%,#dcd8c8 40%,#d0cbb8 70%,#c8c0a8 100%)',
+  // 6: Misty forest (HEALTH)
+  'linear-gradient(180deg,#8a9870 0%,#6a8050 40%,#587040 70%,#9aaa82 100%)',
+];
+
+// Text color for chapter title pages (light/dark per bg)
+const BG_DARK = [false, true, true, true, true, false, false];
+
+// TOC
+(function(){
+  const t = document.getElementById('tocList');
+  let h = '';
+  SEC.forEach((s,i) => {
+    h += `<div class="tocrow">
+      <div class="tocdot" style="background:${s.color}"></div>
+      <span>${i+1}. ${s.title.replace(/_/g,' —')}</span>
+      <span class="tocpg">p.${s.pg}</span>
+    </div>`;
+  });
+  t.innerHTML = h;
+})();
+
+let res={}, usr={}, lastBlob=null;
+
+// ===== API (Gemini) =====
+async function callGemini(prompt) {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) throw new Error('Gemini API 키를 입력해주세요');
+  const models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-latest'];
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const r = await fetch(url, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          contents:[{role:'user',parts:[{text:prompt}]}],
+          generationConfig:{maxOutputTokens:4500,temperature:0.9,topP:0.95}
+        })
+      });
+      const d = await r.json();
+      if (d.error) continue;
+      const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!txt) continue;
+      return JSON.parse(txt.replace(/```json|```/g,'').trim());
+    } catch(e) {}
+  }
+  throw new Error('Gemini 호출 실패');
+}
+
+function sectionPrompt(batch) {
+  return `당신은 20년 경력 한국 사주 명리학 전문가이자 감동적인 글쓰기 전문가입니다.
+
+의뢰인: ${usr.name}(${usr.gender}, 생년월일 ${usr.birth}, 출생시간 ${usr.time||'미상'}, 출생지 ${usr.place||'한국'})
+특별요청: ${usr.req||'없음'}
+
+다음 ${batch.length}개 섹션을 각 700~900자로 작성하세요.
+- 구체적이고 감동적으로, 이 사람만의 이야기처럼 개인화해서 써주세요
+- 단순 나열이 아닌 자연스럽게 흐르는 문장으로
+- 월별 가이드: 그 달의 운세 흐름·주의점·행동 지침 구체적으로
+- 소름 포인트: 사주에서 나타나는 놀라운 특징 7가지를 번호로
+- 마지막 조언: 실전 조언 3가지를 따뜻하고 구체적으로
+
+JSON만 반환 (백틱 없이):
+{${batch.map(s=>`"${s.id}":"내용"`).join(',')}}`;
+}
+
+function setP(pct, label, ct) {
+  document.getElementById('pf').style.width = pct + '%';
+  document.getElementById('gl').textContent = label;
+  document.getElementById('gc2').textContent = ct;
+}
+
+function renderSI(s, idx, text) {
+  const el = document.getElementById('si-'+s.id);
+  if (!el) return;
+  el.innerHTML = `
+    <div class="sh" style="background:${s.color}18">
+      <span class="sb2" style="background:${s.color}">${idx}</span>
+      <span class="st">${s.title.replace(/_/g,' —')}</span>
+      <span class="sp">p.${s.pg}</span>
+    </div>
+    <div class="sbody">${text}</div>`;
+}
+
+async function startGen() {
+  const n = document.getElementById('n').value.trim();
+  const b = document.getElementById('b').value;
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!n || !b) { alert('이름과 생년월일을 입력해주세요'); return; }
+  if (!apiKey) { alert('Gemini API 키를 입력해주세요'); return; }
+
+  usr = {name:n, birth:b, gender:document.getElementById('g').value,
+    time:document.getElementById('t').value, place:document.getElementById('p').value,
+    req:document.getElementById('r').value};
+
+  document.getElementById('inputCard').style.display='none';
+  document.getElementById('apiCard').style.display='none';
+  document.getElementById('genCard').style.display='block';
+  document.getElementById('genTitle').textContent = n + '님 운명 분석 보고서 생성 중';
+
+  const gi = document.getElementById('genItems');
+  gi.innerHTML = '';
+  SEC.forEach((s,i) => {
+    gi.innerHTML += `<div id="si-${s.id}" class="si">
+      <div class="sh">
+        <span class="sb2" style="background:${s.color}">${i+1}</span>
+        <span class="st">${s.title.replace(/_/g,' —')}</span>
+        <span class="sp">p.${s.pg}</span>
+      </div>
+      <div style="padding:8px 10px">
+        <div class="sk" style="width:85%"></div>
+        <div class="sk" style="width:68%"></div>
+      </div>
+    </div>`;
+  });
+
+  res = {};
+  const B = [SEC.slice(0,9), SEC.slice(9,18), SEC.slice(18,26), SEC.slice(26,33)];
+  let done = 0;
+
+  for (let i = 0; i < B.length; i++) {
+    setP(Math.round(done/33*100), `배치 ${i+1}/4 생성 중...`, done+' / 33');
+    try {
+      const out = await callGemini(sectionPrompt(B[i]));
+      B[i].forEach(s => {
+        res[s.id] = out[s.id] || '생성 오류';
+        renderSI(s, SEC.indexOf(s)+1, res[s.id]);
+        done++;
+        setP(Math.round(done/33*100), `${done}/33 완료`, done+' / 33 섹션');
+      });
+    } catch(e) {
+      B[i].forEach(s => { res[s.id]='생성 오류'; done++; });
+    }
+  }
+
+  document.getElementById('resultItems').innerHTML = gi.innerHTML;
+  document.getElementById('genCard').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resTitle').textContent = n + '님 운명 분석 보고서 완성!';
+  document.getElementById('resSub').textContent = '33섹션 · 69페이지 생성 완료';
+}
+
+// ===== FLORAL PATTERN SVG (watermark) =====
+function floralBg() {
+  return `background-color:#fffcfd;
+    background-image: radial-gradient(circle at 50% 50%, rgba(220,180,190,0.12) 0%, transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(220,180,190,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(220,180,190,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(220,180,190,0.10) 0%, transparent 45%),
+    radial-gradient(circle at 20% 20%, rgba(220,180,190,0.10) 0%, transparent 45%);`;
+}
+
+// ===== PDF PAGES =====
+
+function pgCover() {
+  return `<div style="width:794px;height:1122px;font-family:'Noto Sans KR',sans-serif;position:relative;overflow:hidden;
+    background:linear-gradient(160deg,#1a0808 0%,#2a1010 30%,#180c0c 60%,#0a0404 100%)">
+    <!-- Top bar -->
+    <div style="position:absolute;top:0;left:0;right:0;padding:22px 40px;
+      font-size:11px;letter-spacing:3px;color:rgba(220,180,150,0.7);font-weight:300">
+      VIBEELLA · 삶 패턴 리포트 (사주 기반)
+    </div>
+    <!-- Center content -->
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <!-- Card decoration circles -->
+      <div style="position:absolute;width:500px;height:500px;border-radius:50%;
+        border:1px solid rgba(180,140,80,0.15);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <div style="position:absolute;width:350px;height:350px;border-radius:50%;
+        border:1px solid rgba(180,140,80,0.1);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+      <!-- Main title -->
+      <div style="text-align:center;padding:0 60px">
+        <div style="font-size:13px;letter-spacing:5px;color:rgba(200,160,100,0.8);margin-bottom:24px;
+          font-weight:300">PREMIUM REPORT</div>
+        <div style="font-size:62px;font-weight:700;font-family:'Noto Serif KR',serif;
+          color:#f5ddb0;line-height:1.15;margin-bottom:12px;letter-spacing:-1px">
+          운명 분석<br>보고서
+        </div>
+        <div style="font-size:14px;color:rgba(200,165,110,0.7);letter-spacing:4px;margin-bottom:50px">
+          심층 운명 분석
+        </div>
+        <!-- Info box -->
+        <div style="border:1px solid rgba(180,140,80,0.4);border-radius:8px;padding:20px 36px;
+          display:inline-block;min-width:280px;background:rgba(0,0,0,0.3);backdrop-filter:blur(4px)">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left">
+            <div>
+              <div style="font-size:10px;color:rgba(200,165,110,0.7);letter-spacing:2px;margin-bottom:6px">성별</div>
+              <div style="font-size:13px;color:#f0d8a8;letter-spacing:1px">${usr.gender}</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:rgba(200,165,110,0.7);letter-spacing:2px;margin-bottom:6px">생년월일</div>
+              <div style="font-size:13px;color:#f0d8a8;letter-spacing:1px">${usr.birth}</div>
+            </div>
+          </div>
+          ${usr.time ? `<div style="margin-top:14px;border-top:1px solid rgba(180,140,80,0.2);padding-top:12px">
+            <div style="font-size:10px;color:rgba(200,165,110,0.7);letter-spacing:2px;margin-bottom:6px">출생시간</div>
+            <div style="font-size:13px;color:#f0d8a8;letter-spacing:1px">${usr.time}</div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+    <!-- Bottom -->
+    <div style="position:absolute;bottom:24px;left:0;right:0;text-align:center;
+      font-size:11px;color:rgba(200,165,110,0.5);letter-spacing:1px">
+      본 풀이는 작성자의 직접 편집·승인을 거친 결과물입니다.
+    </div>
+  </div>`;
+}
+
+function pgTOC(half) {
+  const items = half===1 ? SEC.slice(0,18) : SEC.slice(18);
+  const startI = half===1 ? 0 : 18;
+  const pg = half===1 ? 2 : 3;
+  let rows = '';
+  items.forEach((s,i) => {
+    rows += `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;
+      border-bottom:0.5px solid #f5edf2;font-family:'Noto Sans KR',sans-serif">
+      <div style="width:9px;height:9px;border-radius:50%;background:${s.color};flex-shrink:0"></div>
+      <span style="font-size:13px;color:#333;flex:1">${s.title.replace(/_/g,' — ')}</span>
+      <span style="font-size:12px;color:#c9527b;font-weight:600;white-space:nowrap">p.${s.pg}</span>
+    </div>`;
+  });
+  return `<div style="width:794px;height:1122px;font-family:'Noto Sans KR',sans-serif;
+    padding:60px;position:relative;overflow:hidden;
+    background-color:#fffcfd;
+    background-image:radial-gradient(ellipse at 20% 20%,rgba(220,180,190,0.15) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 80%,rgba(220,180,190,0.15) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 20%,rgba(220,180,190,0.10) 0%,transparent 40%),
+    radial-gradient(ellipse at 20% 80%,rgba(220,180,190,0.10) 0%,transparent 40%)">
+    <div style="font-size:11px;color:#c9527b;letter-spacing:3px;margin-bottom:6px;font-weight:500">
+      TABLE OF CONTENTS · ${half}/2
+    </div>
+    <div style="font-size:44px;font-weight:700;font-family:'Noto Serif KR',serif;color:#222;
+      margin-bottom:20px">목차</div>
+    <div style="height:1.5px;background:#c9527b;margin-bottom:20px"></div>
+    ${rows}
+    <div style="position:absolute;bottom:30px;right:60px;font-size:12px;color:#ccc">${pg}</div>
+  </div>`;
+}
+
+function pgSecTitle(s, idx) {
+  const isDark = BG_DARK[s.bg];
+  const txtColor = isDark ? '#fff' : '#2a1010';
+  const subtxtColor = isDark ? 'rgba(255,255,255,0.65)' : 'rgba(60,30,20,0.6)';
+  const boxBg = isDark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.88)';
+  const boxBorder = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(200,150,160,0.4)';
+  const pg = s.pg.split('-')[0];
+  
+  // Decorative elements for dark backgrounds
+  let deco = '';
+  if (isDark) {
+    deco = `<div style="position:absolute;width:300px;height:300px;border-radius:50%;
+      border:1px solid rgba(255,255,255,0.05);top:50%;left:50%;transform:translate(-50%,-50%)"></div>
+    <div style="position:absolute;width:450px;height:450px;border-radius:50%;
+      border:1px solid rgba(255,255,255,0.03);top:50%;left:50%;transform:translate(-50%,-50%)"></div>`;
+  }
+
+  return `<div style="width:794px;height:1122px;font-family:'Noto Sans KR',sans-serif;
+    position:relative;overflow:hidden;background:${BG[s.bg]}">
+    ${deco}
+    <!-- Chapter label top center -->
+    <div style="position:absolute;top:0;left:0;right:0;text-align:center;padding-top:54px">
+      <div style="font-size:11px;letter-spacing:4px;color:${subtxtColor};font-weight:300">
+        CHAPTER ${String(idx).padStart(2,'0')}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px">
+        <div style="width:40px;height:0.5px;background:${isDark?'rgba(255,255,255,0.4)':'rgba(150,80,80,0.4)'}"></div>
+        <div style="font-size:14px;color:${isDark?'rgba(220,180,100,0.9)':'rgba(180,80,80,0.8)'}">
+          ${s.sym}
+        </div>
+        <div style="width:40px;height:0.5px;background:${isDark?'rgba(255,255,255,0.4)':'rgba(150,80,80,0.4)'}"></div>
+      </div>
+    </div>
+    <!-- Title box center -->
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      padding:0 60px">
+      <div style="background:${boxBg};border:1px solid ${boxBorder};border-radius:14px;
+        padding:28px 40px;text-align:center;backdrop-filter:blur(4px);
+        box-shadow:0 4px 20px rgba(0,0,0,0.15);max-width:600px">
+        <div style="font-size:28px;font-weight:700;font-family:'Noto Serif KR',serif;
+          color:${isDark?'#fff':'#2a1010'};line-height:1.5;letter-spacing:-0.5px">
+          ${s.title.replace(/_/g,' — ')}
+        </div>
+      </div>
+    </div>
+    <!-- Bottom subtitle -->
+    <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;padding-bottom:50px">
+      <div style="font-size:11px;letter-spacing:3px;color:${subtxtColor};margin-bottom:6px;
+        font-weight:300">${s.en}</div>
+      <div style="font-size:12px;color:${subtxtColor}">
+        ${String(idx).padStart(2,'0')} / 33
+      </div>
+    </div>
+    <!-- Page number -->
+    <div style="position:absolute;bottom:24px;right:30px;font-size:11px;color:${subtxtColor}">
+      Vibeella · p.${pg}
+    </div>
+  </div>`;
+}
+
+function pgSecContent(s, idx, text) {
+  const oh = OHAENG[s.oh];
+  const pg = s.pg.split('-')[1];
+  const displayTitle = s.title.replace(/_/g,' — ');
+  
+  return `<div style="width:794px;height:1122px;font-family:'Noto Sans KR',sans-serif;
+    padding:0;position:relative;overflow:hidden;
+    background-color:#fffcfd;
+    background-image:
+    radial-gradient(ellipse at 10% 10%,rgba(220,180,190,0.12) 0%,transparent 40%),
+    radial-gradient(ellipse at 90% 90%,rgba(220,180,190,0.12) 0%,transparent 40%),
+    radial-gradient(ellipse at 90% 10%,rgba(220,180,190,0.08) 0%,transparent 35%),
+    radial-gradient(ellipse at 10% 90%,rgba(220,180,190,0.08) 0%,transparent 35%),
+    radial-gradient(ellipse at 50% 50%,rgba(220,180,190,0.06) 0%,transparent 60%)">
+    
+    <!-- Faint ohaeng watermark top right -->
+    <div style="position:absolute;top:20px;right:30px;font-size:13px;color:${oh.color};
+      opacity:0.7;font-family:'Noto Serif KR',serif;letter-spacing:2px">${oh.char}</div>
+    
+    <!-- Header -->
+    <div style="padding:28px 50px 14px;border-bottom:0.5px solid #eee">
+      <div style="display:flex;align-items:center;gap:0">
+        <span style="font-size:11px;font-weight:700;color:#c9527b;letter-spacing:2px">
+          CHAPTER ${String(idx).padStart(2,'0')}
+        </span>
+        <span style="color:#ddd;margin:0 10px;font-size:11px"> — ${s.sym} —</span>
+        <div style="flex:1;height:0.5px;background:#e8e0e8"></div>
+      </div>
+      <div style="font-size:22px;font-weight:700;font-family:'Noto Serif KR',serif;
+        color:#2a1010;margin-top:10px;line-height:1.3">${displayTitle}</div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px 50px 20px;font-size:14px;line-height:2.05;color:#333;
+      word-break:keep-all;overflow:hidden;height:960px;font-weight:300">
+      ${text.substring(0,780)}
+    </div>
+    
+    <!-- Footer -->
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:14px 50px;
+      border-top:0.5px solid #eee;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,252,253,0.9)">
+      <div style="font-size:11px;color:#ccc;letter-spacing:0.5px">
+        Vibeella ${s.sym} 본 풀이는 작성자의 직접 편집·승인을 거친 결과물입니다. · p.${pg}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===== PDF GENERATION =====
+async function makePDF() {
+  const btn = document.getElementById('pdfBtn');
+  btn.disabled = true; btn.textContent = '생성 중...';
+  document.getElementById('pdfProg').style.display = 'block';
+
+  const {jsPDF} = window.jspdf;
+  const pdf = new jsPDF('p','mm','a4');
+  const rd = document.getElementById('pdfRender');
+  let pg = 0;
+  const total = 1+2+(SEC.length*2); // cover+2TOC+33*2 = 69
+
+  const setP2 = (n,txt) => {
+    document.getElementById('ppf').style.width=Math.round(n/total*100)+'%';
+    document.getElementById('ppl').textContent=txt;
+    document.getElementById('ppct').textContent=n+' / '+total+' 페이지';
+  };
+
+  const cap = async (html, isFirst) => {
+    if(!isFirst) pdf.addPage();
+    rd.innerHTML = html;
+    await new Promise(r=>setTimeout(r,120));
+    const cvs = await html2canvas(rd,{scale:1.4,backgroundColor:'#fff',useCORS:true,logging:false});
+    pdf.addImage(cvs.toDataURL('image/jpeg',0.88),'JPEG',0,0,210,297);
+    pg++; setP2(pg,'렌더링 중...');
+  };
+
+  setP2(0,'표지 생성 중...');
+  await cap(pgCover(), true);
+  await cap(pgTOC(1), false);
+  await cap(pgTOC(2), false);
+
+  for (let i=0; i<SEC.length; i++) {
+    setP2(pg, `섹션 ${i+1}/33 — ${SEC[i].title.substring(0,15)}`);
+    await cap(pgSecTitle(SEC[i], i+1), false);
+    await cap(pgSecContent(SEC[i], i+1, res[SEC[i].id]||''), false);
+  }
+
+  const fname = `${usr.name}_운명분석보고서_69p.pdf`;
+  lastBlob = pdf.output('blob');
+  pdf.save(fname);
+  document.getElementById('pdfProg').style.display='none';
+  btn.disabled=false; btn.textContent='⬇ PDF 다운로드 (69p)';
+}
+
+function openEmailModal(){document.getElementById('emailModal').classList.add('show');}
+function closeEmailModal(){document.getElementById('emailModal').classList.remove('show');}
+
+function sendEmail() {
+  const email = document.getElementById('eml').value.trim();
+  if (!email) {alert('이메일을 입력해주세요');return;}
+  if (lastBlob) {
+    const url=URL.createObjectURL(lastBlob);
+    const a=document.createElement('a');a.href=url;a.download=`${usr.name}_운명분석보고서_69p.pdf`;a.click();
+    URL.revokeObjectURL(url);
+  }
+  const subj=encodeURIComponent(`[운명분석] ${usr.name}님의 삶 패턴 리포트 (69p)`);
+  const body=encodeURIComponent(`안녕하세요,\n\n${usr.name}님의 운명 분석 보고서(69페이지)를 보내드립니다.\n\n생년월일: ${usr.birth} | 성별: ${usr.gender}\n\nPDF 파일을 첨부하여 보내드립니다.\n\n자개빛`);
+  window.open(`mailto:${email}?subject=${subj}&body=${body}`);
+  document.getElementById('emailSt').textContent='✓ PDF 다운로드됨. 이메일 앱에서 첨부 후 발송해주세요.';
+}
+
+function resetAll(){res={};usr={};lastBlob=null;
+  document.getElementById('inputCard').style.display='block';
+  document.getElementById('apiCard').style.display='block';
+  document.getElementById('resultCard').style.display='none';
+  document.getElementById('resultItems').innerHTML='';
+}
+</script>
+</body>
+</html>
