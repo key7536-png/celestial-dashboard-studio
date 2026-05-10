@@ -529,7 +529,17 @@ function TarotPdfPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap pdf-body" style={{ minHeight: "200px", wordBreak: "keep-all", overflowWrap: "anywhere" }}>
+                  <div
+                    className="whitespace-pre-wrap pdf-body"
+                    style={{
+                      minHeight: "200px",
+                      wordBreak: "keep-all",
+                      overflowWrap: "anywhere",
+                      fontSize: "14px",
+                      lineHeight: 1.85,
+                      letterSpacing: "0.01em",
+                    }}
+                  >
                     {r.loading ? "✨ 리딩 생성 중..." : r.text || "아직 리딩이 생성되지 않았어요. 'MZ톤 리딩 PDF 생성하기'를 눌러주세요."}
                   </div>
                 </div>
