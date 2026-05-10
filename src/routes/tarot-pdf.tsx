@@ -195,12 +195,98 @@ function TarotPdfPage() {
     }
   };
 
-  const downloadPdf = () => {
+  const downloadPdf = async () => {
+    if (!previewRef.current) return;
     setDownloading(true);
     try {
-      window.print();
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+
+      const pages = Array.from(
+        previewRef.current.querySelectorAll<HTMLElement>("[data-pdf-page]"),
+      );
+      if (pages.length === 0) {
+        toast.error("PDF로 만들 페이지가 없어요");
+        return;
+      }
+
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageWmm = 210;
+      const pageHmm = 297;
+
+      for (let i = 0; i < pages.length; i++) {
+        const el = pages[i];
+        // 캡처용 강제 사이즈: A4 비율 폭 고정, 높이는 콘텐츠에 따라 자동
+        const prev = {
+          width: el.style.width,
+          aspectRatio: el.style.aspectRatio,
+          height: el.style.height,
+          minHeight: el.style.minHeight,
+        };
+        el.style.width = "794px"; // A4 @ 96dpi
+        el.style.aspectRatio = "auto";
+        el.style.height = "auto";
+        el.style.minHeight = "1123px";
+
+        // 폰트/이미지 안정화
+        await new Promise((r) => setTimeout(r, 50));
+
+        const canvas = await html2canvas(el, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: tpl.bg,
+          windowWidth: 794,
+        });
+
+        // 원래대로 복구
+        el.style.width = prev.width;
+        el.style.aspectRatio = prev.aspectRatio;
+        el.style.height = prev.height;
+        el.style.minHeight = prev.minHeight;
+
+        const imgWmm = pageWmm;
+        const imgHmm = (canvas.height * pageWmm) / canvas.width;
+
+        if (i > 0) pdf.addPage();
+
+        if (imgHmm <= pageHmm + 0.5) {
+          // 한 장에 들어감
+          const imgData = canvas.toDataURL("image/jpeg", 0.92);
+          pdf.addImage(imgData, "JPEG", 0, 0, imgWmm, imgHmm);
+        } else {
+          // 캔버스를 A4 높이만큼 잘라 여러 장으로 분할
+          const pageHpx = Math.floor((canvas.width * pageHmm) / pageWmm);
+          let renderedH = 0;
+          let pageIdx = 0;
+          while (renderedH < canvas.height) {
+            const sliceH = Math.min(pageHpx, canvas.height - renderedH);
+            const slice = document.createElement("canvas");
+            slice.width = canvas.width;
+            slice.height = sliceH;
+            const ctx = slice.getContext("2d")!;
+            ctx.fillStyle = tpl.bg;
+            ctx.fillRect(0, 0, slice.width, slice.height);
+            ctx.drawImage(canvas, 0, renderedH, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+            const sliceHmm = (sliceH * pageWmm) / canvas.width;
+            const imgData = slice.toDataURL("image/jpeg", 0.92);
+            if (pageIdx > 0) pdf.addPage();
+            pdf.addImage(imgData, "JPEG", 0, 0, imgWmm, sliceHmm);
+            renderedH += sliceH;
+            pageIdx += 1;
+          }
+        }
+      }
+
+      const fileName = `타로리딩_${nickname || "고객"}_${new Date().toISOString().slice(0, 10)}.pdf`;
+      pdf.save(fileName);
+      toast.success("PDF 다운로드 완료!");
+    } catch (e) {
+      console.error("[tarot-pdf] download error:", e);
+      toast.error("PDF 생성 실패: " + ((e as Error)?.message ?? ""));
     } finally {
-      setTimeout(() => setDownloading(false), 500);
+      setDownloading(false);
     }
   };
 
@@ -388,7 +474,7 @@ function TarotPdfPage() {
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              🖨️ PDF 저장 (인쇄창)
+              📥 PDF 다운로드
             </Button>
           </div>
 
