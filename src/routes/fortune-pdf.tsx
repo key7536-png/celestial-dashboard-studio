@@ -52,11 +52,29 @@ async function generatePdf(title: string, content: string, fileName: string) {
 function FortunePdfPage() {
   return (
     <PageShell icon={FileText} title="운세 PDF" description="종합 사주·타로 PDF 자동 생성">
-      <Tabs defaultValue="saju" className="max-w-3xl mx-auto">
-        <TabsList className="grid grid-cols-2 w-full">
+      <Tabs defaultValue="report" className="max-w-3xl mx-auto">
+        <TabsList className="grid grid-cols-3 w-full">
+          <TabsTrigger value="report">✦ 운명 분석 보고서 (69p)</TabsTrigger>
           <TabsTrigger value="saju">🌙 종합 사주 PDF</TabsTrigger>
           <TabsTrigger value="tarot">🔮 종합 타로 PDF</TabsTrigger>
         </TabsList>
+        <TabsContent value="report" className="mt-6">
+          <Card className="p-2 bg-card/60 overflow-hidden">
+            <iframe
+              src="/fortune-report-generator.html"
+              title="운명 분석 보고서 생성기"
+              className="w-full rounded-md"
+              style={{ height: "calc(100vh - 220px)", minHeight: 600, border: 0 }}
+            />
+            <div className="px-3 py-2 text-[11px] text-muted-foreground">
+              💡 브라우저 새 탭에서 열려면{" "}
+              <a href="/fortune-report-generator.html" target="_blank" rel="noreferrer" className="text-primary underline">
+                여기를 클릭
+              </a>
+              하세요.
+            </div>
+          </Card>
+        </TabsContent>
         <TabsContent value="saju" className="mt-6"><SajuPdfForm /></TabsContent>
         <TabsContent value="tarot" className="mt-6"><TarotPdfForm /></TabsContent>
       </Tabs>
