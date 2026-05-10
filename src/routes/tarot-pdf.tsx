@@ -413,12 +413,12 @@ function TarotPdfPage() {
               </Card>
             ) : readings.map((r, ri) => (
               <PreviewPage key={ri} tpl={tpl}>
-                <div className="h-full p-10" style={{ fontFamily: tpl.font }}>
+                <div className="h-full p-10 pdf-page-inner" style={{ fontFamily: tpl.font }}>
                   <div className="text-xs tracking-widest opacity-60 mb-2">QUESTION {ri + 1}</div>
-                  <div className="text-xl font-semibold mb-6" style={{ color: tpl.accent }}>
+                  <div className="text-xl font-semibold mb-6 pdf-question" style={{ color: tpl.accent }}>
                     {r.question}
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="grid grid-cols-3 gap-3 mb-6 pdf-cards">
                     {r.cards.map((c, ci) => (
                       <div key={ci} className="rounded-lg p-3 text-center" style={{ background: tpl.cardBg }}>
                         <div className="text-[10px] opacity-60">#{ci + 1}</div>
@@ -427,8 +427,8 @@ function TarotPdfPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap" style={{ minHeight: "200px" }}>
-                    {r.loading ? "✨ 리딩 생성 중..." : r.text || "아직 리딩이 생성되지 않았어요. ‘MZ톤 리딩 PDF 생성하기’를 눌러주세요."}
+                  <div className="text-sm leading-relaxed whitespace-pre-wrap pdf-body" style={{ minHeight: "200px", wordBreak: "keep-all", overflowWrap: "anywhere" }}>
+                    {r.loading ? "✨ 리딩 생성 중..." : r.text || "아직 리딩이 생성되지 않았어요. 'MZ톤 리딩 PDF 생성하기'를 눌러주세요."}
                   </div>
                 </div>
               </PreviewPage>
