@@ -474,7 +474,7 @@ function TarotPdfPage() {
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              🖨️ PDF 저장 (인쇄창)
+              📥 PDF 다운로드
             </Button>
           </div>
 
