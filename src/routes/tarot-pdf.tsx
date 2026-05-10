@@ -221,15 +221,40 @@ function TarotPdfPage() {
           }
           .print-area > * {
             width: 210mm !important;
-            height: 297mm !important;
+            min-height: 297mm !important;
+            height: auto !important;
+            aspect-ratio: auto !important;
+            overflow: visible !important;
             page-break-after: always;
             break-after: page;
+            page-break-inside: auto;
             border-radius: 0 !important;
             box-shadow: none !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
           .print-area > *:last-child { page-break-after: auto; }
+          .print-area .pdf-page-inner {
+            min-height: 297mm;
+            height: auto !important;
+            padding: 18mm 16mm !important;
+            box-sizing: border-box;
+          }
+          .print-area .pdf-body {
+            font-size: 11pt !important;
+            line-height: 1.7 !important;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+            page-break-inside: auto;
+          }
+          .print-area .pdf-question {
+            font-size: 16pt !important;
+            page-break-after: avoid;
+          }
+          .print-area .pdf-cards {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
