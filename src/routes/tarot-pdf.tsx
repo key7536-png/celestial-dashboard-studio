@@ -218,26 +218,38 @@ function TarotPdfPage() {
 
       for (let i = 0; i < pages.length; i++) {
         const el = pages[i];
-        // 캡처용 강제 사이즈: A4 비율 폭 고정, 높이는 콘텐츠에 따라 자동
+        // 캡처용 강제 사이즈: A4 폭 고정, 높이는 콘텐츠에 따라 자동, overflow 풀기
         const prev = {
           width: el.style.width,
           aspectRatio: el.style.aspectRatio,
           height: el.style.height,
           minHeight: el.style.minHeight,
+          overflow: el.style.overflow,
+          borderRadius: el.style.borderRadius,
+          boxShadow: el.style.boxShadow,
         };
         el.style.width = "794px"; // A4 @ 96dpi
         el.style.aspectRatio = "auto";
         el.style.height = "auto";
         el.style.minHeight = "1123px";
+        el.style.overflow = "visible";
+        el.style.borderRadius = "0";
+        el.style.boxShadow = "none";
 
-        // 폰트/이미지 안정화
-        await new Promise((r) => setTimeout(r, 50));
+        // h-full 자식들이 0으로 줄어들지 않게 임시로 minHeight 부여
+        const fullChildren = Array.from(el.querySelectorAll<HTMLElement>(".h-full"));
+        const childPrev = fullChildren.map((c) => c.style.minHeight);
+        fullChildren.forEach((c) => { c.style.minHeight = "1123px"; });
+
+        // 폰트/레이아웃 안정화
+        await new Promise((r) => setTimeout(r, 100));
 
         const canvas = await html2canvas(el, {
           scale: 2,
           useCORS: true,
           backgroundColor: tpl.bg,
           windowWidth: 794,
+          windowHeight: Math.max(1123, el.scrollHeight),
         });
 
         // 원래대로 복구
@@ -245,6 +257,10 @@ function TarotPdfPage() {
         el.style.aspectRatio = prev.aspectRatio;
         el.style.height = prev.height;
         el.style.minHeight = prev.minHeight;
+        el.style.overflow = prev.overflow;
+        el.style.borderRadius = prev.borderRadius;
+        el.style.boxShadow = prev.boxShadow;
+        fullChildren.forEach((c, idx) => { c.style.minHeight = childPrev[idx]; });
 
         const imgWmm = pageWmm;
         const imgHmm = (canvas.height * pageWmm) / canvas.width;
