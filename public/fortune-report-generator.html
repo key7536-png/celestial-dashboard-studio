@@ -223,10 +223,34 @@ const BG_DARK = [false, true, true, true, true, false, false];
 let res={}, usr={}, lastBlob=null;
 
 // ===== API (Gemini) =====
+function extractJson(txt) {
+  let s = String(txt || '').replace(/```json|```/g, '').trim();
+  const start = s.search(/[\{\[]/);
+  if (start === -1) throw new Error('JSON not found');
+  const openCh = s[start], closeCh = openCh === '[' ? ']' : '}';
+  // find last matching close
+  let end = s.lastIndexOf(closeCh);
+  if (end < start) end = s.length - 1;
+  s = s.slice(start, end + 1);
+  try { return JSON.parse(s); } catch(e) {
+    // attempt repair: trim trailing commas, control chars, unterminated string
+    let r = s.replace(/,\s*([}\]])/g, '$1').replace(/[\x00-\x1F\x7F]/g, ' ');
+    // close any unterminated string by adding closing quote+brace
+    const quotes = (r.match(/(?<!\\)"/g) || []).length;
+    if (quotes % 2 === 1) r += '"';
+    // pad missing closing braces
+    const opens = (r.match(/\{/g) || []).length;
+    const closes = (r.match(/\}/g) || []).length;
+    for (let i = 0; i < opens - closes; i++) r += '}';
+    return JSON.parse(r);
+  }
+}
+
 async function callGemini(prompt) {
   const apiKey = document.getElementById('apiKey').value.trim();
   if (!apiKey) throw new Error('Gemini API 키를 입력해주세요');
-  const models = ['gemini-2.0-flash','gemini-1.5-flash','gemini-1.5-flash-latest'];
+  const models = ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash','gemini-1.5-flash-latest'];
+  let lastErr = '';
   for (const model of models) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
@@ -234,34 +258,55 @@ async function callGemini(prompt) {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           contents:[{role:'user',parts:[{text:prompt}]}],
-          generationConfig:{maxOutputTokens:4500,temperature:0.9,topP:0.95}
+          generationConfig:{maxOutputTokens:16000,temperature:0.85,topP:0.95,responseMimeType:'application/json'}
         })
       });
       const d = await r.json();
-      if (d.error) continue;
-      const txt = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      if (!txt) continue;
-      return JSON.parse(txt.replace(/```json|```/g,'').trim());
-    } catch(e) {}
+      if (d.error) { lastErr = d.error.message || JSON.stringify(d.error); console.warn(model, 'error:', lastErr); continue; }
+      const txt = d.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('') || '';
+      if (!txt) { lastErr = 'empty response'; continue; }
+      return extractJson(txt);
+    } catch(e) { lastErr = e.message; console.warn(model, 'fail:', e); }
   }
-  throw new Error('Gemini 호출 실패');
+  throw new Error('Gemini 호출 실패: ' + lastErr);
+}
+
+function sajuContext() {
+  return `[의뢰인 정보]
+- 이름: ${usr.name}
+- 성별: ${usr.gender}
+- 생년월일: ${usr.birth} (양력)
+- 출생시간: ${usr.time || '미상 (시주는 보지 않거나 오시(午時) 기준 추정)'}
+- 출생지: ${usr.place || '한국'}
+- 특별요청: ${usr.req || '없음'}
+
+[전문가 분석 지침 — 반드시 준수]
+1) 한국 정통 만세력 기준으로 연주·월주·일주·시주의 천간(甲乙丙丁戊己庚辛壬癸)과 지지(子丑寅卯辰巳午未申酉戌亥)를 정확히 산출하라.
+2) 일간(日干)을 중심으로 신강/신약, 용신, 희신/기신, 오행(목화토금수) 균형, 십신(비견·겁재·식신·상관·편재·정재·편관·정관·편인·정인) 분포를 분석하라.
+3) 대운(10년 단위)과 ${new Date().getFullYear()}년 세운 흐름을 반영하여 향후 12개월 월운까지 구체적으로 짚어라.
+4) 추측·일반론·MBTI식 멘트 금지. 반드시 위에서 산출한 사주원국과 운의 흐름에 근거하여 이 사람만의 분석으로 작성하라.
+5) 출생시간 미상이면 시주 부분은 "시주 미상으로 추정"이라고 명시한 뒤 연·월·일주만으로 해석하라.`;
 }
 
 function sectionPrompt(batch) {
   return `당신은 20년 경력 한국 사주 명리학 전문가이자 감동적인 글쓰기 전문가입니다.
 
-의뢰인: ${usr.name}(${usr.gender}, 생년월일 ${usr.birth}, 출생시간 ${usr.time||'미상'}, 출생지 ${usr.place||'한국'})
-특별요청: ${usr.req||'없음'}
+${sajuContext()}
 
-다음 ${batch.length}개 섹션을 각 700~900자로 작성하세요.
-- 구체적이고 감동적으로, 이 사람만의 이야기처럼 개인화해서 써주세요
-- 단순 나열이 아닌 자연스럽게 흐르는 문장으로
-- 월별 가이드: 그 달의 운세 흐름·주의점·행동 지침 구체적으로
-- 소름 포인트: 사주에서 나타나는 놀라운 특징 7가지를 번호로
-- 마지막 조언: 실전 조언 3가지를 따뜻하고 구체적으로
+[작성 과제]
+다음 ${batch.length}개 섹션을 각 600~800자로, 위 사주 분석에 근거하여 개인화된 문장으로 작성하라.
+- 단순 나열 금지, 자연스러운 문장 흐름
+- 월별 가이드 섹션이면 해당 월의 세운 흐름·주의점·행동지침을 구체적으로
+- '소름 포인트' 섹션이면 사주에서 도출된 특징 7가지를 1~7번 번호로
+- '마지막 한마디' 섹션이면 실전 조언 3가지를 따뜻하고 구체적으로
+- 각 섹션 내용 안에서는 줄바꿈 대신 자연스러운 문장으로 이어쓸 것 (개행 금지)
 
-JSON만 반환 (백틱 없이):
-{${batch.map(s=>`"${s.id}":"내용"`).join(',')}}`;
+[출력 형식 — 엄격]
+오직 아래 JSON 객체 하나만 반환. 마크다운/설명/백틱 일절 금지. 모든 값은 문자열.
+{${batch.map(s=>`"${s.id}": "(${s.title.replace(/_/g,' —')} 본문)"`).join(',')}}
+
+요청 섹션 목록:
+${batch.map((s,i)=>`${i+1}. [${s.id}] ${s.title.replace(/_/g,' —')}`).join('\n')}`;
 }
 
 function setP(pct, label, ct) {
@@ -280,6 +325,32 @@ function renderSI(s, idx, text) {
       <span class="sp">p.${s.pg}</span>
     </div>
     <div class="sbody">${text}</div>`;
+}
+
+async function genBatchWithRetry(batch) {
+  // try as a batch, then fall back to per-section
+  try {
+    const out = await callGemini(sectionPrompt(batch));
+    const ok = batch.every(s => typeof out[s.id] === 'string' && out[s.id].length > 50);
+    if (ok) return out;
+    // partial — fill missing per-section
+    const merged = {...out};
+    for (const s of batch) {
+      if (typeof merged[s.id] !== 'string' || merged[s.id].length < 50) {
+        try { const o2 = await callGemini(sectionPrompt([s])); merged[s.id] = o2[s.id] || merged[s.id] || '생성 오류'; }
+        catch(e) { merged[s.id] = merged[s.id] || '생성 오류'; }
+      }
+    }
+    return merged;
+  } catch(e) {
+    console.warn('batch failed, retry per-section:', e.message);
+    const out = {};
+    for (const s of batch) {
+      try { const o = await callGemini(sectionPrompt([s])); out[s.id] = o[s.id] || '생성 오류'; }
+      catch(err) { out[s.id] = '생성 오류 (' + err.message + ')'; }
+    }
+    return out;
+  }
 }
 
 async function startGen() {
@@ -315,23 +386,27 @@ async function startGen() {
   });
 
   res = {};
-  const B = [SEC.slice(0,9), SEC.slice(9,18), SEC.slice(18,26), SEC.slice(26,33)];
+  // 33 sections in batches of 3 = 11 batches (smaller = stable)
+  const B = [];
+  for (let i = 0; i < SEC.length; i += 3) B.push(SEC.slice(i, i+3));
   let done = 0;
 
   for (let i = 0; i < B.length; i++) {
-    setP(Math.round(done/33*100), `배치 ${i+1}/4 생성 중...`, done+' / 33');
-    try {
-      const out = await callGemini(sectionPrompt(B[i]));
-      B[i].forEach(s => {
-        res[s.id] = out[s.id] || '생성 오류';
-        renderSI(s, SEC.indexOf(s)+1, res[s.id]);
-        done++;
-        setP(Math.round(done/33*100), `${done}/33 완료`, done+' / 33 섹션');
-      });
-    } catch(e) {
-      B[i].forEach(s => { res[s.id]='생성 오류'; done++; });
-    }
+    setP(Math.round(done/33*100), `배치 ${i+1}/${B.length} 생성 중...`, done+' / 33');
+    const out = await genBatchWithRetry(B[i]);
+    B[i].forEach(s => {
+      res[s.id] = out[s.id] || '생성 오류';
+      renderSI(s, SEC.indexOf(s)+1, res[s.id]);
+      done++;
+      setP(Math.round(done/33*100), `${done}/33 완료`, done+' / 33 섹션');
+    });
   }
+
+  document.getElementById('resultItems').innerHTML = gi.innerHTML;
+  document.getElementById('genCard').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resTitle').textContent = n + '님 운명 분석 보고서 완성!';
+  document.getElementById('resSub').textContent = '33섹션 · 69페이지 생성 완료';
 
   document.getElementById('resultItems').innerHTML = gi.innerHTML;
   document.getElementById('genCard').style.display = 'none';
