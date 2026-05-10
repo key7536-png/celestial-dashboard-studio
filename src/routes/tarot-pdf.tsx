@@ -383,7 +383,7 @@ function TarotPdfPage() {
         </div>
 
         {/* RIGHT — preview */}
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold">📄 PDF 미리보기</h3>
             <Button onClick={downloadPdf} disabled={downloading || readings.every(r => !r.text)} size="sm">
