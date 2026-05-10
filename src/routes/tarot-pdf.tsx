@@ -272,12 +272,34 @@ function TarotPdfPage() {
           const imgData = canvas.toDataURL("image/jpeg", 0.92);
           pdf.addImage(imgData, "JPEG", 0, 0, imgWmm, imgHmm);
         } else {
-          // 캔버스를 A4 높이만큼 잘라 여러 장으로 분할
+          // 캔버스를 A4 높이만큼 잘라 여러 장으로 분할 — 빈 줄(여백)에서 자르도록 보정
           const pageHpx = Math.floor((canvas.width * pageHmm) / pageWmm);
+          const ctxSrc = canvas.getContext("2d")!;
+          // 행이 거의 배경색에 가까우면 "빈 줄"로 판단
+          const bgRGB = hexToRgb(tpl.bg);
+          const isBlankRow = (y: number): boolean => {
+            try {
+              const data = ctxSrc.getImageData(0, y, canvas.width, 1).data;
+              let diff = 0;
+              for (let x = 0; x < data.length; x += 16) {
+                diff += Math.abs(data[x] - bgRGB.r) + Math.abs(data[x + 1] - bgRGB.g) + Math.abs(data[x + 2] - bgRGB.b);
+                if (diff > 800) return false;
+              }
+              return true;
+            } catch { return false; }
+          };
+
           let renderedH = 0;
           let pageIdx = 0;
           while (renderedH < canvas.height) {
-            const sliceH = Math.min(pageHpx, canvas.height - renderedH);
+            let sliceH = Math.min(pageHpx, canvas.height - renderedH);
+            // 마지막 페이지가 아니면 빈 줄 위치까지 후퇴해서 글자가 잘리지 않도록
+            if (renderedH + sliceH < canvas.height) {
+              const minSlice = Math.floor(pageHpx * 0.7);
+              let probe = sliceH;
+              while (probe > minSlice && !isBlankRow(renderedH + probe)) probe -= 4;
+              if (probe > minSlice) sliceH = probe;
+            }
             const slice = document.createElement("canvas");
             slice.width = canvas.width;
             slice.height = sliceH;
@@ -529,7 +551,17 @@ function TarotPdfPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-sm leading-relaxed whitespace-pre-wrap pdf-body" style={{ minHeight: "200px", wordBreak: "keep-all", overflowWrap: "anywhere" }}>
+                  <div
+                    className="whitespace-pre-wrap pdf-body"
+                    style={{
+                      minHeight: "200px",
+                      wordBreak: "keep-all",
+                      overflowWrap: "anywhere",
+                      fontSize: "14px",
+                      lineHeight: 1.85,
+                      letterSpacing: "0.01em",
+                    }}
+                  >
                     {r.loading ? "✨ 리딩 생성 중..." : r.text || "아직 리딩이 생성되지 않았어요. 'MZ톤 리딩 PDF 생성하기'를 눌러주세요."}
                   </div>
                 </div>
@@ -540,6 +572,13 @@ function TarotPdfPage() {
       </div>
     </PageShell>
   );
+}
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const m = hex.replace("#", "");
+  const s = m.length === 3 ? m.split("").map((c) => c + c).join("") : m.slice(0, 6);
+  const n = parseInt(s, 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
 function PreviewPage({ tpl, children }: { tpl: Template; children: React.ReactNode }) {
