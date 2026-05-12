@@ -394,7 +394,7 @@ function PurchaseSheet({ product, onClose }: { product: Product; onClose: () => 
 // ─────────────────────────── 결제 성공 모달 ───────────────────────────
 function SuccessModal({ isPdf, onClose }: { isPdf: boolean; onClose: () => void }) {
   return (
-    <div style={modalOverlay} onClick={onClose}>
+    <div className="tn-modal-overlay" style={modalOverlay} onClick={onClose}>
       <div style={{ ...sheetStyle, maxWidth: 420 }} onClick={(e) => e.stopPropagation()}>
         <div style={{ padding: "32px 24px", textAlign: "center" }}>
           <div style={{ fontSize: 56 }}>🎉</div>
