@@ -262,51 +262,73 @@ function FortunePdfPage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMsg, setStatusMsg] = useState("");
+  // 파트별 결과 누적 (실패 시 보존되어 재시도 시 이어서 진행)
+  const [partResults, setPartResults] = useState<Record<string, string>>({});
+
+  const completedCount = Object.keys(partResults).length;
+  const hasPartial = completedCount > 0 && completedCount < PARTS.length;
+
+  function resetAll() {
+    setPartResults({});
+    setProgress(0);
+    setStatusMsg("");
+  }
+
+  function openPdfWindow(results: Record<string, string>) {
+    const fullMd = PARTS.map((p) => `\n\n${results[p.key] ?? ""}\n\n`).join("\n");
+    const bodyHtml = mdToHtml(fullMd).replace(/^<\/section>/, "");
+    const html = buildHtmlDoc(name, `${birth} (${calendar}) · ${gender}${time ? ` · ${time}` : ""}`, bodyHtml);
+    const win = window.open("", "_blank");
+    if (!win) {
+      toast.error("팝업이 차단되었습니다. 브라우저 팝업 허용을 해주세요.");
+      return false;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    return true;
+  }
 
   async function handleGenerate() {
     if (!apiKey) return toast.error("설정에서 Gemini API 키를 먼저 등록해주세요.");
     if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
 
     setLoading(true);
-    setProgress(0);
-    const allMd: string[] = [];
+    const results = { ...partResults };
+    setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
 
     try {
       for (let i = 0; i < PARTS.length; i++) {
         const p = PARTS[i];
+        if (results[p.key]) continue; // 이미 생성된 파트는 건너뜀
         setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
         const text = await callAI(
           "saju-100-part",
-          {
-            name, birth, calendar, gender, time, request,
-            partTitle: p.title,
-            partSpec: p.spec,
-          },
+          { name, birth, calendar, gender, time, request, partTitle: p.title, partSpec: p.spec },
           apiKey,
         );
-        allMd.push(`\n\n${text}\n\n`);
-        setProgress(Math.round(((i + 1) / PARTS.length) * 100));
+        results[p.key] = text;
+        setPartResults({ ...results });
+        setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
       }
 
       setStatusMsg("PDF 문서 생성 중...");
-      const fullMd = allMd.join("\n");
-      const bodyHtml = mdToHtml(fullMd).replace(/^<\/section>/, "");
-      const html = buildHtmlDoc(name, `${birth} (${calendar}) · ${gender}${time ? ` · ${time}` : ""}`, bodyHtml);
-
-      const win = window.open("", "_blank");
-      if (!win) {
-        toast.error("팝업이 차단되었습니다. 브라우저 팝업 허용을 해주세요.");
-        return;
+      if (openPdfWindow(results)) {
+        toast.success("리포트가 새 창에서 열렸습니다. '인쇄 → PDF로 저장'을 눌러주세요.");
       }
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
-      toast.success("리포트가 새 창에서 열렸습니다. '인쇄 → PDF로 저장'을 눌러주세요.");
     } catch (e) {
-      toast.error((e as Error).message ?? "생성 실패");
+      const msg = (e as Error).message ?? "생성 실패";
+      toast.error(`${msg}\n(이미 생성된 ${Object.keys(results).length}/${PARTS.length} 파트는 저장됐어요. '이어서 생성' 버튼으로 계속할 수 있습니다.)`);
     } finally {
       setLoading(false);
       setStatusMsg("");
+    }
+  }
+
+  function handleDownloadPartial() {
+    if (!completedCount) return;
+    if (openPdfWindow(partResults)) {
+      toast.success(`현재까지 생성된 ${completedCount}/${PARTS.length} 파트로 PDF를 열었어요.`);
     }
   }
 
