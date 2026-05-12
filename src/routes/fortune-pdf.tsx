@@ -7,252 +7,396 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { callAI } from "@/lib/call-ai";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/fortune-pdf")({
-  head: () => ({ meta: [{ title: "운세 PDF — 자개빛" }] }),
+  head: () => ({ meta: [{ title: "종합 사주 100p 리포트 — 자개빛" }] }),
   component: FortunePdfPage,
 });
 
-const TAROT_DECK = [
-  "바보","마법사","여사제","여황제","황제","교황","연인","전차","힘","은둔자","운명의수레바퀴",
-  "정의","매달린남자","죽음","절제","악마","탑","별","달","태양","심판","세계",
+// 100페이지 리포트 파트 정의
+const PARTS: { key: string; title: string; spec: string }[] = [
+  {
+    key: "part0",
+    title: "PART 0. 오프닝 (p.1~5)",
+    spec: `## p.1 — 표지
+이름·생년월일·성별·"종합 사주 100p 리포트" 제목과 한두 문장의 부제(이 분만의 인생 키워드 한 줄). 표지 페이지답게 상징적이고 시적인 한 단락.
+
+## p.2 — 이 리포트를 보는 법
+이 리포트의 8개 PART 구성과 활용 방법, 어떻게 읽으면 좋은지 가이드.
+
+## p.3 — 사주 원국 도표
+시주/일주/월주/년주의 천간·지지를 한눈에 정리하고 각 기둥의 의미를 짧게 해설.
+
+## p.4 — 한 줄 총평 + 인생 키워드 5가지
+강한 한 문장 총평, 그리고 이 분의 인생을 관통하는 키워드 5개를 각각 한 단락씩 풀이. 첫 페이지부터 "소름" 유발하도록 구체적으로.
+
+## p.5 — 한 줄 총평 (확장)
+p.4 키워드 5개를 종합한 인생 메시지 한 페이지. 진심 어린 톤.`,
+  },
+  {
+    key: "part1",
+    title: "PART 1. 인생 총운 (p.6~19)",
+    spec: `## p.6 — 타고난 그릇: 격국
+## p.7 — 타고난 그릇: 용신
+## p.8 — 오행 에너지 분석 (강한 기운)
+## p.9 — 오행 에너지 분석 (부족한 기운과 보완책)
+## p.10 — 일간의 특성: 어떤 삶을 살도록 설계됐나
+## p.11 — 일간의 특성: 강점과 약점
+## p.12 — 대운 10년 전체 흐름 (유년·청년기)
+## p.13 — 대운 10년 전체 흐름 (중년·노년기)
+## p.14 — 인생에서 가장 빛나는 시기 (1)
+## p.15 — 인생에서 가장 빛나는 시기 (2)
+## p.16 — 인생에서 가장 조심해야 할 시기 (1)
+## p.17 — 인생에서 가장 조심해야 할 시기 (2)
+## p.18 — 숨겨진 운명 코드: 신살 (주요 신살)
+## p.19 — 숨겨진 운명 코드: 신살 (실생활 의미)`,
+  },
+  {
+    key: "part2",
+    title: "PART 2. 성격과 재능 (p.20~27)",
+    spec: `## p.20 — 겉으로 보이는 나
+## p.21 — 속에 숨겨진 나
+## p.22 — 타고난 재능
+## p.23 — 천직의 방향
+## p.24 — 사람을 대하는 방식
+## p.25 — 친해지는 결과 거리감
+## p.26 — 반복적으로 빠지는 함정
+## p.27 — 함정에서 벗어나는 해결책`,
+  },
+  {
+    key: "part3",
+    title: "PART 3. 결혼·연애운 (p.28~41)",
+    spec: `## p.28 — 이 분의 연애 패턴 (1)
+## p.29 — 이 분의 연애 패턴 (2)
+## p.30 — 끌리는 사람 유형
+## p.31 — 실제 잘 맞는 사람 유형
+## p.32 — 배우자 사주 유형 (이런 사람이 맞다)
+## p.33 — 배우자와의 궁합 포인트
+## p.34 — 결혼 시기: 인연이 오는 대운
+## p.35 — 결혼 시기: 세운 디테일
+## p.36 — 결혼 후 관계 패턴
+## p.37 — 함께 성장하는 방법
+## p.38 — 관계가 무너지는 순간
+## p.39 — 갈등의 골을 메우는 법
+## p.40 — 함께 있으면 편한 사람의 특징
+## p.41 — 함께 있으면 힘든 사람의 특징`,
+  },
+  {
+    key: "part4",
+    title: "PART 4. 재물·직업운 (p.42~55)",
+    spec: `## p.42 — 돈이 들어오는 방식 (재성 분석 1)
+## p.43 — 돈이 들어오는 방식 (재성 분석 2)
+## p.44 — 재물이 쌓이는 시기
+## p.45 — 재물이 새는 시기와 주의점
+## p.46 — 맞는 수익 구조: 직장 vs 사업 vs 투자
+## p.47 — 추천 수익 모델 디테일
+## p.48 — 피해야 할 돈 문제
+## p.49 — 사기·손재 패턴과 예방
+## p.50 — 일 스타일: 강점
+## p.51 — 일 스타일: 망가지는 조건
+## p.52 — 잘 맞는 직업군
+## p.53 — 잘 맞는 환경·조직 형태
+## p.54 — 명예·사회적 위치 (1)
+## p.55 — 명예·사회적 위치 (2)`,
+  },
+  {
+    key: "part5",
+    title: "PART 5. 건강·가족운 (p.56~65)",
+    spec: `## p.56 — 건강운: 오행으로 보는 약한 부분
+## p.57 — 건강운: 평생 관리 포인트
+## p.58 — 스트레스 신호
+## p.59 — 회복 루틴 추천
+## p.60 — 부모운: 받는 기운
+## p.61 — 가족운: 주는 기운
+## p.62 — 자녀운: 인연
+## p.63 — 자녀운: 관계 양상
+## p.64 — 귀인운: 인생 바꿀 사람의 유형
+## p.65 — 귀인을 만나는 시기와 방법`,
+  },
+  {
+    key: "part6",
+    title: "PART 6. 현재와 미래 (p.66~75)",
+    spec: `## p.66 — 지금 이 순간의 상태 진단 (1)
+## p.67 — 지금 이 순간의 상태 진단 (2)
+## p.68 — 앞으로 3개월 흐름
+## p.69 — 앞으로 3개월 우선순위
+## p.70 — 3~6개월: 변화가 시작되는 구간 (1)
+## p.71 — 3~6개월: 변화가 시작되는 구간 (2)
+## p.72 — 6~12개월: 큰 흐름
+## p.73 — 6~12개월: 방향성과 결단
+## p.74 — 이동·이사·해외운 (방향)
+## p.75 — 이동·이사·해외운 (시기)`,
+  },
+  {
+    key: "part7a",
+    title: "PART 7-A. 월별 가이드 1~6월 (p.76~87)",
+    spec: `각 달마다 2페이지. 페이지마다 [이달의 에너지(위험/보통/좋음)] / [주요 사건 예측] / [해야 할 것·피해야 할 것] / [이달의 행운 키워드]를 빠짐없이 포함하세요.
+
+## p.76 — 1월 가이드 (전반부)
+## p.77 — 1월 가이드 (후반부)
+## p.78 — 2월 가이드 (전반부)
+## p.79 — 2월 가이드 (후반부)
+## p.80 — 3월 가이드 (전반부)
+## p.81 — 3월 가이드 (후반부)
+## p.82 — 4월 가이드 (전반부)
+## p.83 — 4월 가이드 (후반부)
+## p.84 — 5월 가이드 (전반부)
+## p.85 — 5월 가이드 (후반부)
+## p.86 — 6월 가이드 (전반부)
+## p.87 — 6월 가이드 (후반부)`,
+  },
+  {
+    key: "part7b",
+    title: "PART 7-B. 월별 가이드 7~12월 (p.88~99)",
+    spec: `각 달마다 2페이지. 페이지마다 [이달의 에너지] / [주요 사건 예측] / [해야 할 것·피해야 할 것] / [이달의 행운 키워드]를 빠짐없이 포함하세요.
+
+## p.88 — 7월 가이드 (전반부)
+## p.89 — 7월 가이드 (후반부)
+## p.90 — 8월 가이드 (전반부)
+## p.91 — 8월 가이드 (후반부)
+## p.92 — 9월 가이드 (전반부)
+## p.93 — 9월 가이드 (후반부)
+## p.94 — 10월 가이드 (전반부)
+## p.95 — 10월 가이드 (후반부)
+## p.96 — 11월 가이드 (전반부)
+## p.97 — 11월 가이드 (후반부)
+## p.98 — 12월 가이드 (전반부)
+## p.99 — 12월 가이드 (후반부)`,
+  },
+  {
+    key: "part8",
+    title: "PART 8. 마무리 (p.100)",
+    spec: `## p.100 — 마무리: 소름 포인트 3가지 + 실전 조언 3개 + 자개빛 상담 안내
+이 리포트 전체에서 가장 핵심적인 "소름 포인트" 3가지를 짚어주고, 당장 실천할 수 있는 실전 조언 3개, 그리고 추가 상담을 원할 때 자개빛 카카오 채널로 문의하라는 따뜻한 마무리를 작성하세요.`,
+  },
 ];
 
-function pickCards(n: number) {
-  const pool = [...TAROT_DECK];
-  return Array.from({ length: n }, () => pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+function mdToHtml(md: string): string {
+  // 매우 간단한 마크다운 → HTML (## 헤더, 단락, **bold**)
+  const escaped = md
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const lines = escaped.split("\n");
+  const out: string[] = [];
+  let buf: string[] = [];
+  const flush = () => {
+    if (buf.length) {
+      out.push(`<p>${buf.join("<br/>")}</p>`);
+      buf = [];
+    }
+  };
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+    if (/^##\s+/.test(line)) {
+      flush();
+      // 새 페이지로 분리
+      out.push(
+        `</section><section class="page"><h2>${line.replace(/^##\s+/, "")}</h2>`,
+      );
+    } else if (/^#\s+/.test(line)) {
+      flush();
+      out.push(`<h1>${line.replace(/^#\s+/, "")}</h1>`);
+    } else if (line === "") {
+      flush();
+    } else {
+      buf.push(line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"));
+    }
+  }
+  flush();
+  return out.join("\n");
 }
 
-async function generatePdf(title: string, content: string, fileName: string) {
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-  // 한글 폰트 (jsPDF 기본 폰트는 한글 미지원 → notoSansKR base64를 동적 로드 필요. MVP는 한글 가능한 fallback으로 처리)
-  // 간단 대안: html2canvas로 dom 캡처. 여기선 가독성을 위해 줄바꿈 + splitTextToSize만 사용.
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text(title, 20, 30);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  const lines = doc.splitTextToSize(content, 170);
-  let y = 45;
-  for (const line of lines) {
-    if (y > 280) { doc.addPage(); y = 20; }
-    doc.text(line, 20, y);
-    y += 6;
-  }
-  doc.save(fileName);
+function buildHtmlDoc(name: string, birth: string, body: string): string {
+  return `<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"/>
+<title>${name}님의 종합 사주 100p 리포트</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:#1a1a2e; line-height:1.75; font-size:11pt; }
+  .cover { text-align:center; padding:80mm 0; page-break-after: always; }
+  .cover h1 { font-size:28pt; margin:0 0 12mm; letter-spacing:-0.02em; }
+  .cover .meta { font-size:14pt; color:#555; }
+  .cover .brand { margin-top:40mm; font-size:10pt; color:#a37; letter-spacing:0.3em; }
+  section.page { page-break-after: always; padding-top:6mm; }
+  section.page:last-child { page-break-after: auto; }
+  h1 { font-size:18pt; border-bottom:2px solid #c93; padding-bottom:4mm; margin:0 0 6mm; }
+  h2 { font-size:15pt; color:#7a2d4a; border-left:4px solid #c93; padding-left:8px; margin:0 0 6mm; }
+  p { margin:0 0 4mm; text-align: justify; }
+  strong { color:#7a2d4a; }
+  .toc-banner { background:#fdf6ec; padding:6mm; border-radius:4px; font-size:10pt; color:#7a4d1e; margin-bottom:6mm; }
+  @media print { .no-print { display:none !important; } }
+  .toolbar { position:sticky; top:0; background:#fff; padding:10px; border-bottom:1px solid #eee; text-align:center; }
+  .toolbar button { padding:10px 24px; font-size:14px; background:#7a2d4a; color:#fff; border:0; border-radius:6px; cursor:pointer; }
+</style></head>
+<body>
+  <div class="toolbar no-print">
+    <button onclick="window.print()">📥 PDF로 저장 (인쇄 → PDF로 저장 선택)</button>
+  </div>
+  <div class="cover">
+    <h1>${name}님의<br/>종합 사주 100p 리포트</h1>
+    <div class="meta">${birth}</div>
+    <div class="brand">자 개 빛</div>
+  </div>
+  <section class="page">${body}</section>
+  <script>setTimeout(()=>window.print(), 800);</script>
+</body></html>`;
 }
 
 function FortunePdfPage() {
   const { settings } = useUserSettings();
-  const apiKey = settings?.gemini_api_key ?? "";
-  const reportSrc = apiKey
-    ? `/fortune-report-generator.html?key=${encodeURIComponent(apiKey)}`
-    : "/fortune-report-generator.html";
-  return (
-    <PageShell icon={FileText} title="운세 PDF" description="종합 사주·타로 PDF 자동 생성">
-      <Tabs defaultValue="report" className="max-w-3xl mx-auto">
-        <TabsList className="grid grid-cols-3 w-full">
-          <TabsTrigger value="report">✦ 운명 분석 보고서 (69p)</TabsTrigger>
-          <TabsTrigger value="saju">🌙 종합 사주 PDF</TabsTrigger>
-          <TabsTrigger value="tarot">🔮 종합 타로 PDF</TabsTrigger>
-        </TabsList>
-        <TabsContent value="report" className="mt-6">
-          <Card className="p-2 bg-card/60 overflow-hidden">
-            {!apiKey && (
-              <div className="px-3 pt-2"><KeyWarning /></div>
-            )}
-            <iframe
-              key={apiKey || "no-key"}
-              src={reportSrc}
-              title="운명 분석 보고서 생성기"
-              className="w-full rounded-md"
-              style={{ height: "calc(100vh - 220px)", minHeight: 600, border: 0 }}
-            />
-            <div className="px-3 py-2 text-[11px] text-muted-foreground">
-              💡 브라우저 새 탭에서 열려면{" "}
-              <a href={reportSrc} target="_blank" rel="noreferrer" className="text-primary underline">
-                여기를 클릭
-              </a>
-              하세요.
-            </div>
-          </Card>
-        </TabsContent>
-        <TabsContent value="saju" className="mt-6"><SajuPdfForm /></TabsContent>
-        <TabsContent value="tarot" className="mt-6"><TarotPdfForm /></TabsContent>
-      </Tabs>
-    </PageShell>
-  );
-}
-
-function KeyWarning() {
-  return (
-    <Link to="/settings" className="block">
-      <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
-        ⚠️ 설정에서 Gemini API 키를 먼저 등록해주세요 →
-      </div>
-    </Link>
-  );
-}
-
-function SajuPdfForm() {
-  const { settings } = useUserSettings();
+  const apiKey = settings?.gemini_api_key;
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
   const [calendar, setCalendar] = useState("양력");
   const [gender, setGender] = useState("여성");
   const [time, setTime] = useState("");
-  const [pages, setPages] = useState("30");
   const [request, setRequest] = useState("");
   const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [statusMsg, setStatusMsg] = useState("");
 
   async function handleGenerate() {
-    if (!name || !birth) return toast.error("이름·생년월일을 입력해주세요.");
+    if (!apiKey) return toast.error("설정에서 Gemini API 키를 먼저 등록해주세요.");
+    if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
+
     setLoading(true);
+    setProgress(0);
+    const allMd: string[] = [];
+
     try {
-      const text = await callAI(
-        "saju-pdf",
-        { name, birth, calendar, gender, time, pages, request },
-        settings?.gemini_api_key,
-      );
-      setContent(text);
-      await generatePdf(`${name}님의 종합사주 리포트`, text, `${name}_종합사주_자개빛.pdf`);
-      toast.success("PDF가 다운로드되었습니다!");
+      for (let i = 0; i < PARTS.length; i++) {
+        const p = PARTS[i];
+        setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
+        const text = await callAI(
+          "saju-100-part",
+          {
+            name, birth, calendar, gender, time, request,
+            partTitle: p.title,
+            partSpec: p.spec,
+          },
+          apiKey,
+        );
+        allMd.push(`\n\n${text}\n\n`);
+        setProgress(Math.round(((i + 1) / PARTS.length) * 100));
+      }
+
+      setStatusMsg("PDF 문서 생성 중...");
+      const fullMd = allMd.join("\n");
+      const bodyHtml = mdToHtml(fullMd).replace(/^<\/section>/, "");
+      const html = buildHtmlDoc(name, `${birth} (${calendar}) · ${gender}${time ? ` · ${time}` : ""}`, bodyHtml);
+
+      const win = window.open("", "_blank");
+      if (!win) {
+        toast.error("팝업이 차단되었습니다. 브라우저 팝업 허용을 해주세요.");
+        return;
+      }
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      toast.success("리포트가 새 창에서 열렸습니다. '인쇄 → PDF로 저장'을 눌러주세요.");
     } catch (e) {
       toast.error((e as Error).message ?? "생성 실패");
     } finally {
       setLoading(false);
+      setStatusMsg("");
     }
   }
 
   return (
-    <Card className="p-6 space-y-4 bg-card/60">
-      {!settings?.gemini_api_key && <KeyWarning />}
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="이름"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
-        <Field label="생년월일"><Input type="date" value={birth} onChange={(e) => setBirth(e.target.value)} /></Field>
-        <Field label="시간 (모르면 비움)"><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
-        <Field label="달력">
-          <RadioGroup value={calendar} onValueChange={setCalendar} className="flex gap-3 pt-2">
-            {["양력","음력"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>))}
-          </RadioGroup>
-        </Field>
-        <Field label="성별">
-          <RadioGroup value={gender} onValueChange={setGender} className="flex gap-3 pt-2">
-            {["여성","남성"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>))}
-          </RadioGroup>
-        </Field>
-        <Field label="분량">
-          <RadioGroup value={pages} onValueChange={setPages} className="flex gap-3 pt-2">
-            {["15","30","50"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}장</label>))}
-          </RadioGroup>
-        </Field>
-      </div>
-      <Field label="특별 요청사항 (선택)">
-        <Textarea value={request} onChange={(e) => setRequest(e.target.value)} placeholder="예: 이직 시기를 자세히 봐주세요" className="min-h-[60px]" />
-      </Field>
-      <Button onClick={handleGenerate} disabled={loading} className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground">
-        {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중...</> : <>📋 종합사주 PDF 생성하기</>}
-      </Button>
-      {content && (
-        <div className="pt-3 border-t border-border/40">
-          <p className="text-xs text-muted-foreground mb-2">미리보기</p>
-          <div className="text-sm whitespace-pre-wrap max-h-60 overflow-auto p-3 bg-background/40 rounded">{content}</div>
+    <PageShell icon={FileText} title="종합 사주 100p 리포트" description="고객에게 이메일로 전달할 프리미엄 사주 PDF (1인 1리포트 · 약 100페이지)">
+      <Card className="max-w-2xl mx-auto p-6 space-y-5 bg-card/60">
+        {!apiKey && (
+          <Link to="/settings" className="block">
+            <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
+              ⚠️ 설정에서 Gemini API 키를 먼저 등록해주세요 →
+            </div>
+          </Link>
+        )}
+
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
+          <p className="font-medium text-primary mb-1">📖 리포트 구성 (총 100페이지 · 8개 파트)</p>
+          <ul className="space-y-0.5 list-disc list-inside">
+            <li>PART 0. 오프닝 (5p) — 표지·총평·인생 키워드 5</li>
+            <li>PART 1. 인생 총운 (14p) — 격국·용신·오행·대운</li>
+            <li>PART 2. 성격과 재능 (8p)</li>
+            <li>PART 3. 결혼·연애운 (14p)</li>
+            <li>PART 4. 재물·직업운 (14p)</li>
+            <li>PART 5. 건강·가족운 (10p)</li>
+            <li>PART 6. 현재와 미래 (10p)</li>
+            <li>PART 7. 12달 월별 가이드 (24p)</li>
+            <li>PART 8. 마무리 (1p)</li>
+          </ul>
         </div>
-      )}
-    </Card>
-  );
-}
 
-function TarotPdfForm() {
-  const { settings } = useUserSettings();
-  const [name, setName] = useState("");
-  const [question, setQuestion] = useState("");
-  const [cardCount, setCardCount] = useState("3");
-  const [style, setStyle] = useState("전문적");
-  const [drawn, setDrawn] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState("");
-
-  async function handleGenerate() {
-    if (!question.trim()) return toast.error("질문/주제를 입력해주세요.");
-    setLoading(true);
-    try {
-      const cards = drawn.length ? drawn : pickCards(parseInt(cardCount));
-      setDrawn(cards);
-      const text = await callAI(
-        "tarot-pdf",
-        { name, question, cardCount, cards, style },
-        settings?.gemini_api_key,
-      );
-      setContent(text);
-      await generatePdf(
-        `종합 타로 리포트${name ? ` - ${name}` : ""}`,
-        `질문: ${question}\n카드: ${cards.join(", ")}\n\n${text}`,
-        `${name || "종합타로"}_자개빛.pdf`,
-      );
-      toast.success("PDF가 다운로드되었습니다!");
-    } catch (e) {
-      toast.error((e as Error).message ?? "생성 실패");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <Card className="p-6 space-y-4 bg-card/60">
-      {!settings?.gemini_api_key && <KeyWarning />}
-      <Field label="이름 (선택)"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
-      <Field label="질문 또는 주제">
-        <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="예: 2026년 나의 연애운" className="min-h-[80px]" />
-      </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="카드 수">
-          <RadioGroup value={cardCount} onValueChange={(v) => { setCardCount(v); setDrawn([]); }} className="flex gap-3 pt-2">
-            {["3","7","10"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}장</label>))}
-          </RadioGroup>
-        </Field>
-        <Field label="리딩 스타일">
-          <RadioGroup value={style} onValueChange={setStyle} className="flex gap-3 pt-2 flex-wrap">
-            {["신비로운","전문적","친근한"].map((v) => (<label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>))}
-          </RadioGroup>
-        </Field>
-      </div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs">카드 뽑기</Label>
-          <Button size="sm" variant="outline" onClick={() => setDrawn(pickCards(parseInt(cardCount)))}>
-            🃏 {cardCount}장 뽑기
-          </Button>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="이름"><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="고객 이름" /></Field>
+          <Field label="생년월일"><Input type="date" value={birth} onChange={(e) => setBirth(e.target.value)} /></Field>
+          <Field label="출생 시간 (모르면 비움)"><Input type="time" value={time} onChange={(e) => setTime(e.target.value)} /></Field>
+          <Field label="달력">
+            <RadioGroup value={calendar} onValueChange={setCalendar} className="flex gap-3 pt-2">
+              {["양력", "음력"].map((v) => (
+                <label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>
+              ))}
+            </RadioGroup>
+          </Field>
+          <Field label="성별">
+            <RadioGroup value={gender} onValueChange={setGender} className="flex gap-3 pt-2">
+              {["여성", "남성"].map((v) => (
+                <label key={v} className="flex items-center gap-1.5 text-sm"><RadioGroupItem value={v} />{v}</label>
+              ))}
+            </RadioGroup>
+          </Field>
         </div>
-        {drawn.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            {drawn.map((c, i) => (
-              <div key={i} className="rounded-md border border-primary/40 bg-primary/10 px-2 py-1.5 text-xs">{c}</div>
-            ))}
+
+        <Field label="특별 요청사항 (선택)">
+          <Textarea
+            value={request}
+            onChange={(e) => setRequest(e.target.value)}
+            placeholder="예: 이직 시기를 자세히 봐주세요 / 재혼 가능성 위주로"
+            className="min-h-[60px]"
+          />
+        </Field>
+
+        <Button
+          onClick={handleGenerate}
+          disabled={loading || !apiKey}
+          className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
+          size="lg"
+        >
+          {loading ? (
+            <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
+          ) : (
+            <><Download className="h-4 w-4 mr-2" />100페이지 종합 사주 리포트 생성</>
+          )}
+        </Button>
+
+        {loading && (
+          <div className="space-y-2">
+            <Progress value={progress} />
+            <p className="text-xs text-muted-foreground text-center">{statusMsg}</p>
+            <p className="text-[11px] text-muted-foreground text-center">
+              ⏱ 약 5~10분 소요됩니다. 창을 닫지 마세요.
+            </p>
           </div>
         )}
-      </div>
-      <Button onClick={handleGenerate} disabled={loading} className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground">
-        {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중...</> : <><Download className="h-4 w-4 mr-2" />종합타로 PDF 생성하기</>}
-      </Button>
-      {content && (
-        <div className="pt-3 border-t border-border/40">
-          <div className="text-sm whitespace-pre-wrap max-h-60 overflow-auto p-3 bg-background/40 rounded">{content}</div>
+
+        <div className="text-[11px] text-muted-foreground border-t border-border/40 pt-3">
+          💡 생성 완료 시 새 창이 열리며 자동으로 인쇄 다이얼로그가 뜹니다.
+          "대상"을 <b>"PDF로 저장"</b>으로 선택해 다운로드하세요. 다운받은 PDF를 고객 이메일로 전달하시면 됩니다.
         </div>
-      )}
-    </Card>
+      </Card>
+    </PageShell>
   );
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label className="text-xs">{label}</Label>{children}</div>;
 }
-
