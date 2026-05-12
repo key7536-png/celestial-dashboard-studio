@@ -3,18 +3,10 @@
 
 const PW_KEY = "jagaebit_pw";
 const SESSION_KEY = "jagaebit_auth";
-const PW_VERSION_KEY = "jagaebit_pw_version";
-const PW_VERSION = "2"; // bump to force-reset stored password
-export const DEFAULT_PASSWORD = "sj37700@@";
+export const DEFAULT_PASSWORD = "jagaebit2026";
 
 export function getStoredPassword(): string {
   if (typeof window === "undefined") return DEFAULT_PASSWORD;
-  // Force reset if version changed (so default password updates take effect)
-  if (localStorage.getItem(PW_VERSION_KEY) !== PW_VERSION) {
-    localStorage.setItem(PW_KEY, DEFAULT_PASSWORD);
-    localStorage.setItem(PW_VERSION_KEY, PW_VERSION);
-    return DEFAULT_PASSWORD;
-  }
   return localStorage.getItem(PW_KEY) ?? DEFAULT_PASSWORD;
 }
 
