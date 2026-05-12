@@ -426,7 +426,38 @@ function FortunePdfPage() {
 
   return (
     <PageShell icon={FileText} title="종합 사주 100p 리포트" description="고객에게 이메일로 전달할 프리미엄 사주 PDF (1인 1리포트 · 약 100페이지)">
-      <Card className="max-w-2xl mx-auto p-6 space-y-5 bg-card/60">
+      <div className="max-w-2xl mx-auto space-y-4">
+        {savedList.length > 0 && (
+          <Card className="p-4 bg-card/60">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium">저장된 고객 ({savedList.length})</p>
+              <Button onClick={newCustomer} size="sm" variant="outline" className="h-7 text-xs">
+                <Plus className="h-3 w-3 mr-1" />새 고객
+              </Button>
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {savedList.map((row) => {
+                const c = Object.keys(row.part_results ?? {}).length;
+                const isActive = row.id === reportId;
+                return (
+                  <div key={row.id} className={`flex items-center gap-2 rounded-md border p-2 text-xs ${isActive ? "border-primary/60 bg-primary/10" : "border-border/40 hover:bg-muted/30"}`}>
+                    <button onClick={() => loadCustomer(row)} className="flex-1 text-left">
+                      <div className="font-medium">{row.name} <span className="text-muted-foreground font-normal">({row.birth})</span></div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {c}/{PARTS.length} 파트 · {new Date(row.updated_at).toLocaleDateString("ko-KR")}
+                      </div>
+                    </button>
+                    <button onClick={() => handleDelete(row.id)} className="text-muted-foreground hover:text-destructive p-1" title="삭제">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
+      <Card className="p-6 space-y-5 bg-card/60">
         {!apiKey && (
           <Link to="/settings" className="block">
             <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
