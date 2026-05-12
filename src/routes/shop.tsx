@@ -123,6 +123,8 @@ function ShopPage() {
   useEffect(() => {
     setAdmin(isAuthed());
     try {
+      const saved = localStorage.getItem("jagaebit_products");
+      if (saved) setProducts(JSON.parse(saved));
       const o = localStorage.getItem("jagaebit_orders");
       if (o) setOrders(JSON.parse(o));
       const h = localStorage.getItem("jagaebit_hidden");
