@@ -351,7 +351,7 @@ function PurchaseSheet({ product, onClose }: { product: Product; onClose: () => 
   };
 
   return (
-    <div style={modalOverlay} onClick={onClose}>
+    <div className="tn-modal-overlay" style={modalOverlay} onClick={onClose}>
       <div className="purchase-sheet" style={sheetStyle} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
           <div style={{ width: 40, height: 4, borderRadius: 999, background: "#3a3a45" }} className="show-mobile" />
