@@ -116,6 +116,8 @@ function Dashboard() {
             </Link>
           ))}
         </div>
+
+        <ShopControl />
       </main>
     </div>
   );
