@@ -395,10 +395,23 @@ function FortunePdfPage() {
         >
           {loading ? (
             <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
+          ) : hasPartial ? (
+            <><Download className="h-4 w-4 mr-2" />이어서 생성 ({completedCount}/{PARTS.length} 완료)</>
           ) : (
             <><Download className="h-4 w-4 mr-2" />100페이지 종합 사주 리포트 생성</>
           )}
         </Button>
+
+        {hasPartial && !loading && (
+          <div className="flex gap-2">
+            <Button onClick={handleDownloadPartial} variant="outline" size="sm" className="flex-1">
+              현재까지 ({completedCount}p) PDF 받기
+            </Button>
+            <Button onClick={resetAll} variant="ghost" size="sm" className="flex-1">
+              처음부터 다시
+            </Button>
+          </div>
+        )}
 
         {loading && (
           <div className="space-y-2">
