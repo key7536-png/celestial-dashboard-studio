@@ -651,7 +651,8 @@ const globalCss = `
   @media (min-width: 769px) {
     .taronyang-root { font-size: 16px; }
     .taronyang-root .purchase-sheet { border-radius: 20px !important; align-self: center; margin: auto; }
-    .taronyang-root [style*="align-items: flex-end"] { align-items: center !important; padding: 20px !important; }
+    .taronyang-root .tn-modal-overlay { align-items: center !important; padding: 20px; }
+    .taronyang-root .purchase-sheet { border-radius: 20px !important; }
   }
   .taronyang-root .stars { position: absolute; inset: 0; pointer-events: none; }
   .taronyang-root .star {
