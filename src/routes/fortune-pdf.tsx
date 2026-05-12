@@ -252,9 +252,23 @@ function buildHtmlDoc(name: string, birth: string, body: string): string {
 </body></html>`;
 }
 
+type FortuneRow = {
+  id: string;
+  name: string;
+  birth: string;
+  calendar: string;
+  gender: string;
+  birth_time: string | null;
+  request: string | null;
+  part_results: Record<string, string>;
+  updated_at: string;
+};
+
 function FortunePdfPage() {
   const { settings } = useUserSettings();
+  const { user } = useAuth();
   const apiKey = settings?.gemini_api_key;
+  const [reportId, setReportId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
   const [calendar, setCalendar] = useState("양력");
@@ -264,11 +278,81 @@ function FortunePdfPage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMsg, setStatusMsg] = useState("");
-  // 파트별 결과 누적 (실패 시 보존되어 재시도 시 이어서 진행)
   const [partResults, setPartResults] = useState<Record<string, string>>({});
+  const [savedList, setSavedList] = useState<FortuneRow[]>([]);
 
   const completedCount = Object.keys(partResults).length;
   const hasPartial = completedCount > 0 && completedCount < PARTS.length;
+
+  const loadList = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("fortune_reports")
+      .select("*")
+      .order("updated_at", { ascending: false });
+    setSavedList((data ?? []) as FortuneRow[]);
+  }, [user]);
+
+  useEffect(() => { void loadList(); }, [loadList]);
+
+  function newCustomer() {
+    setReportId(null);
+    setName(""); setBirth(""); setCalendar("양력"); setGender("여성");
+    setTime(""); setRequest(""); setPartResults({}); setProgress(0);
+  }
+
+  function loadCustomer(row: FortuneRow) {
+    setReportId(row.id);
+    setName(row.name);
+    setBirth(row.birth);
+    setCalendar(row.calendar);
+    setGender(row.gender);
+    setTime(row.birth_time ?? "");
+    setRequest(row.request ?? "");
+    setPartResults(row.part_results ?? {});
+    const c = Object.keys(row.part_results ?? {}).length;
+    setProgress(Math.round((c / PARTS.length) * 100));
+    toast.success(`${row.name} 고객 정보를 불러왔어요.`);
+  }
+
+  async function saveCustomer(nextResults?: Record<string, string>) {
+    if (!user) return null;
+    if (!name || !birth) return null;
+    const payload = {
+      user_id: user.id,
+      name, birth, calendar, gender,
+      birth_time: time || null,
+      request: request || null,
+      part_results: nextResults ?? partResults,
+    };
+    if (reportId) {
+      const { error } = await supabase.from("fortune_reports").update(payload).eq("id", reportId);
+      if (error) { toast.error(error.message); return null; }
+      void loadList();
+      return reportId;
+    } else {
+      const { data, error } = await supabase.from("fortune_reports").insert(payload).select("id").single();
+      if (error) { toast.error(error.message); return null; }
+      setReportId(data.id);
+      void loadList();
+      return data.id as string;
+    }
+  }
+
+  async function handleSaveOnly() {
+    if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
+    const id = await saveCustomer();
+    if (id) toast.success("고객 정보를 저장했어요.");
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("이 고객 리포트를 삭제할까요?")) return;
+    const { error } = await supabase.from("fortune_reports").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    if (reportId === id) newCustomer();
+    void loadList();
+    toast.success("삭제했어요.");
+  }
 
   function resetAll() {
     setPartResults({});
@@ -299,10 +383,13 @@ function FortunePdfPage() {
     const results = { ...partResults };
     setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
 
+    // 시작 전 고객 정보 자동 저장
+    await saveCustomer(results);
+
     try {
       for (let i = 0; i < PARTS.length; i++) {
         const p = PARTS[i];
-        if (results[p.key]) continue; // 이미 생성된 파트는 건너뜀
+        if (results[p.key]) continue;
         setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
         const text = await callAI(
           "saju-100-part",
@@ -312,6 +399,8 @@ function FortunePdfPage() {
         results[p.key] = text;
         setPartResults({ ...results });
         setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
+        // 파트별로 DB에 자동 저장 → 중간 실패해도 안전
+        await saveCustomer(results);
       }
 
       setStatusMsg("PDF 문서 생성 중...");
@@ -320,7 +409,8 @@ function FortunePdfPage() {
       }
     } catch (e) {
       const msg = (e as Error).message ?? "생성 실패";
-      toast.error(`${msg}\n(이미 생성된 ${Object.keys(results).length}/${PARTS.length} 파트는 저장됐어요. '이어서 생성' 버튼으로 계속할 수 있습니다.)`);
+      await saveCustomer(results);
+      toast.error(`${msg}\n(${Object.keys(results).length}/${PARTS.length} 파트 저장됨. '이어서 생성'으로 계속하세요.)`);
     } finally {
       setLoading(false);
       setStatusMsg("");
