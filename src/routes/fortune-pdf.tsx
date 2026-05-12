@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { FileText, Loader2, Download } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { FileText, Loader2, Download, Save, Trash2, Plus } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { callAI } from "@/lib/call-ai";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/fortune-pdf")({
   head: () => ({ meta: [{ title: "종합 사주 100p 리포트 — 자개빛" }] }),
