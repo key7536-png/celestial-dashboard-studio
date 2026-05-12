@@ -380,6 +380,7 @@ function FortunePdfPage() {
     if (!apiKey) return toast.error("설정에서 Gemini API 키를 먼저 등록해주세요.");
     if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
 
+    stopRef.current = false;
     setLoading(true);
     const results = { ...partResults };
     setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
@@ -389,6 +390,11 @@ function FortunePdfPage() {
 
     try {
       for (let i = 0; i < PARTS.length; i++) {
+        if (stopRef.current) {
+          await saveCustomer(results);
+          toast.info(`멈춤. ${Object.keys(results).length}/${PARTS.length} 파트 저장됨. '이어서 생성'으로 계속할 수 있어요.`);
+          return;
+        }
         const p = PARTS[i];
         if (results[p.key]) continue;
         setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
@@ -415,7 +421,13 @@ function FortunePdfPage() {
     } finally {
       setLoading(false);
       setStatusMsg("");
+      stopRef.current = false;
     }
+  }
+
+  function handleStop() {
+    stopRef.current = true;
+    setStatusMsg("멈추는 중... 현재 파트 완료 후 중단됩니다.");
   }
 
   function handleDownloadPartial() {
