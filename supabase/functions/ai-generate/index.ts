@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
     }
 
     const { system, user } = buildPrompt(mode, data);
-    const isLong = mode === "saju-pdf" || mode === "tarot-pdf";
+    const isLong = mode === "saju-pdf" || mode === "tarot-pdf" || mode === "saju-100-part";
     const model = isLong ? "gemini-2.5-pro" : "gemini-2.5-flash";
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: 8192 },
+        generationConfig: { temperature: 0.9, maxOutputTokens: mode === "saju-100-part" ? 32768 : 8192 },
       }),
     });
 
