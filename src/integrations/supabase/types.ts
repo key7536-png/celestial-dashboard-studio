@@ -134,6 +134,48 @@ export type Database = {
         }
         Relationships: []
       }
+      fortune_reports: {
+        Row: {
+          birth: string
+          birth_time: string | null
+          calendar: string
+          created_at: string
+          gender: string
+          id: string
+          name: string
+          part_results: Json
+          request: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth: string
+          birth_time?: string | null
+          calendar?: string
+          created_at?: string
+          gender?: string
+          id?: string
+          name: string
+          part_results?: Json
+          request?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth?: string
+          birth_time?: string | null
+          calendar?: string
+          created_at?: string
+          gender?: string
+          id?: string
+          name?: string
+          part_results?: Json
+          request?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
