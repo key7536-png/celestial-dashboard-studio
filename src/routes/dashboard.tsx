@@ -25,6 +25,7 @@ const MENU: ReadonlyArray<MenuItem> = [
   { to: "/card-designer", title: "카드 디자인", desc: "나만의 타로 카드팩 만들기", emoji: "🃏" },
   { to: "/my-shop", title: "내 상점", desc: "상점 디자인과 정보 관리", emoji: "🏪" },
   { to: "/shop", title: "상점 (고객용)", desc: "고객에게 보여질 jagaebit.shop", emoji: "🛍️" },
+  { to: "/taronyang", title: "타로냥 상점", desc: "타로냥 브랜드 상점 (고객용)", emoji: "🐱" },
   { to: "/products", title: "상품 관리", desc: "상점에 노출될 상품 등록·수정", emoji: "📦" },
   { to: "/chat", title: "채팅 상담", desc: "사주·타로 AI 채팅 5종", emoji: "💬" },
   { to: "/fortune-pdf", title: "운세 PDF", desc: "종합사주·종합타로 PDF 생성", emoji: "📋" },
