@@ -510,20 +510,25 @@ function FortunePdfPage() {
           />
         </Field>
 
-        <Button
-          onClick={handleGenerate}
-          disabled={loading || !apiKey}
-          className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
-          size="lg"
-        >
-          {loading ? (
-            <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
-          ) : hasPartial ? (
-            <><Download className="h-4 w-4 mr-2" />이어서 생성 ({completedCount}/{PARTS.length} 완료)</>
-          ) : (
-            <><Download className="h-4 w-4 mr-2" />100페이지 종합 사주 리포트 생성</>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleGenerate}
+            disabled={loading || !apiKey}
+            className="flex-1 bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
+            size="lg"
+          >
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
+            ) : hasPartial ? (
+              <><Download className="h-4 w-4 mr-2" />이어서 생성 ({completedCount}/{PARTS.length})</>
+            ) : (
+              <><Download className="h-4 w-4 mr-2" />100p 리포트 생성</>
+            )}
+          </Button>
+          <Button onClick={handleSaveOnly} disabled={loading} variant="outline" size="lg" title="고객 정보만 저장">
+            <Save className="h-4 w-4" />
+          </Button>
+        </div>
 
         {hasPartial && !loading && (
           <div className="flex gap-2">
@@ -551,6 +556,7 @@ function FortunePdfPage() {
           "대상"을 <b>"PDF로 저장"</b>으로 선택해 다운로드하세요. 다운받은 PDF를 고객 이메일로 전달하시면 됩니다.
         </div>
       </Card>
+      </div>
     </PageShell>
   );
 }
