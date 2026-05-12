@@ -280,6 +280,7 @@ function FortunePdfPage() {
   const [statusMsg, setStatusMsg] = useState("");
   const [partResults, setPartResults] = useState<Record<string, string>>({});
   const [savedList, setSavedList] = useState<FortuneRow[]>([]);
+  const stopRef = useRef(false);
 
   const completedCount = Object.keys(partResults).length;
   const hasPartial = completedCount > 0 && completedCount < PARTS.length;
