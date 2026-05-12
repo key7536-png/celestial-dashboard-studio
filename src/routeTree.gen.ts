@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VideoMakerRouteImport } from './routes/video-maker'
 import { Route as TarotPdfRouteImport } from './routes/tarot-pdf'
+import { Route as TaronyangRouteImport } from './routes/taronyang'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -41,6 +42,11 @@ const VideoMakerRoute = VideoMakerRouteImport.update({
 const TarotPdfRoute = TarotPdfRouteImport.update({
   id: '/tarot-pdf',
   path: '/tarot-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TaronyangRoute = TaronyangRouteImport.update({
+  id: '/taronyang',
+  path: '/taronyang',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SnsRoute = SnsRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
   '/chat/couple': typeof ChatCoupleRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
     | '/chat/couple'
@@ -317,6 +329,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SnsRoute: typeof SnsRoute
+  TaronyangRoute: typeof TaronyangRoute
   TarotPdfRoute: typeof TarotPdfRoute
   VideoMakerRoute: typeof VideoMakerRoute
 }
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/tarot-pdf'
       fullPath: '/tarot-pdf'
       preLoaderRoute: typeof TarotPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/taronyang': {
+      id: '/taronyang'
+      path: '/taronyang'
+      fullPath: '/taronyang'
+      preLoaderRoute: typeof TaronyangRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sns': {
@@ -523,6 +543,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SnsRoute: SnsRoute,
+  TaronyangRoute: TaronyangRoute,
   TarotPdfRoute: TarotPdfRoute,
   VideoMakerRoute: VideoMakerRoute,
 }
