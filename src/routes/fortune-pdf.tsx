@@ -538,9 +538,15 @@ function FortunePdfPage() {
               <><Download className="h-4 w-4 mr-2" />100p 리포트 생성</>
             )}
           </Button>
-          <Button onClick={handleSaveOnly} disabled={loading} variant="outline" size="lg" title="고객 정보만 저장">
-            <Save className="h-4 w-4" />
-          </Button>
+          {loading ? (
+            <Button onClick={handleStop} variant="destructive" size="lg" title="멈춤 (현재 파트 완료 후)">
+              <Square className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={handleSaveOnly} variant="outline" size="lg" title="고객 정보만 저장">
+              <Save className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {hasPartial && !loading && (
