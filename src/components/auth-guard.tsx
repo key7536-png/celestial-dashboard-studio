@@ -3,7 +3,7 @@ import { useRouterState, useNavigate } from "@tanstack/react-router";
 import { isAuthed } from "@/lib/dashboard-auth";
 
 // Routes accessible without password
-const PUBLIC_ROUTES = ["/login"];
+const PUBLIC_ROUTES = ["/login", "/shop"];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
