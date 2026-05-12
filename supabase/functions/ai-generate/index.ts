@@ -97,8 +97,9 @@ Deno.serve(async (req) => {
     }
 
     const { system, user } = buildPrompt(mode, data);
-    const isLong = mode === "saju-pdf" || mode === "tarot-pdf" || mode === "saju-100-part";
-    const model = isLong ? "gemini-2.5-pro" : "gemini-2.5-flash";
+    // saju-100-part는 파트별로 짧게 나눠 호출되므로 flash가 빠르고 안정적 (150s 타임아웃 회피)
+    const isLongPro = mode === "saju-pdf" || mode === "tarot-pdf";
+    const model = isLongPro ? "gemini-2.5-pro" : "gemini-2.5-flash";
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
@@ -108,7 +109,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: mode === "saju-100-part" ? 32768 : 8192 },
+        generationConfig: { temperature: 0.9, maxOutputTokens: 8192 },
       }),
     });
 
