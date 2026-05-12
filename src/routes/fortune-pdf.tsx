@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { FileText, Loader2, Download } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { FileText, Loader2, Download, Save, Trash2, Plus } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useUserSettings } from "@/hooks/use-user-settings";
 import { callAI } from "@/lib/call-ai";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/fortune-pdf")({
   head: () => ({ meta: [{ title: "종합 사주 100p 리포트 — 자개빛" }] }),
@@ -250,9 +252,23 @@ function buildHtmlDoc(name: string, birth: string, body: string): string {
 </body></html>`;
 }
 
+type FortuneRow = {
+  id: string;
+  name: string;
+  birth: string;
+  calendar: string;
+  gender: string;
+  birth_time: string | null;
+  request: string | null;
+  part_results: Record<string, string>;
+  updated_at: string;
+};
+
 function FortunePdfPage() {
   const { settings } = useUserSettings();
+  const { user } = useAuth();
   const apiKey = settings?.gemini_api_key;
+  const [reportId, setReportId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [birth, setBirth] = useState("");
   const [calendar, setCalendar] = useState("양력");
@@ -262,11 +278,81 @@ function FortunePdfPage() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMsg, setStatusMsg] = useState("");
-  // 파트별 결과 누적 (실패 시 보존되어 재시도 시 이어서 진행)
   const [partResults, setPartResults] = useState<Record<string, string>>({});
+  const [savedList, setSavedList] = useState<FortuneRow[]>([]);
 
   const completedCount = Object.keys(partResults).length;
   const hasPartial = completedCount > 0 && completedCount < PARTS.length;
+
+  const loadList = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("fortune_reports")
+      .select("*")
+      .order("updated_at", { ascending: false });
+    setSavedList((data ?? []) as FortuneRow[]);
+  }, [user]);
+
+  useEffect(() => { void loadList(); }, [loadList]);
+
+  function newCustomer() {
+    setReportId(null);
+    setName(""); setBirth(""); setCalendar("양력"); setGender("여성");
+    setTime(""); setRequest(""); setPartResults({}); setProgress(0);
+  }
+
+  function loadCustomer(row: FortuneRow) {
+    setReportId(row.id);
+    setName(row.name);
+    setBirth(row.birth);
+    setCalendar(row.calendar);
+    setGender(row.gender);
+    setTime(row.birth_time ?? "");
+    setRequest(row.request ?? "");
+    setPartResults(row.part_results ?? {});
+    const c = Object.keys(row.part_results ?? {}).length;
+    setProgress(Math.round((c / PARTS.length) * 100));
+    toast.success(`${row.name} 고객 정보를 불러왔어요.`);
+  }
+
+  async function saveCustomer(nextResults?: Record<string, string>) {
+    if (!user) return null;
+    if (!name || !birth) return null;
+    const payload = {
+      user_id: user.id,
+      name, birth, calendar, gender,
+      birth_time: time || null,
+      request: request || null,
+      part_results: nextResults ?? partResults,
+    };
+    if (reportId) {
+      const { error } = await supabase.from("fortune_reports").update(payload).eq("id", reportId);
+      if (error) { toast.error(error.message); return null; }
+      void loadList();
+      return reportId;
+    } else {
+      const { data, error } = await supabase.from("fortune_reports").insert(payload).select("id").single();
+      if (error) { toast.error(error.message); return null; }
+      setReportId(data.id);
+      void loadList();
+      return data.id as string;
+    }
+  }
+
+  async function handleSaveOnly() {
+    if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
+    const id = await saveCustomer();
+    if (id) toast.success("고객 정보를 저장했어요.");
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("이 고객 리포트를 삭제할까요?")) return;
+    const { error } = await supabase.from("fortune_reports").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    if (reportId === id) newCustomer();
+    void loadList();
+    toast.success("삭제했어요.");
+  }
 
   function resetAll() {
     setPartResults({});
@@ -297,10 +383,13 @@ function FortunePdfPage() {
     const results = { ...partResults };
     setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
 
+    // 시작 전 고객 정보 자동 저장
+    await saveCustomer(results);
+
     try {
       for (let i = 0; i < PARTS.length; i++) {
         const p = PARTS[i];
-        if (results[p.key]) continue; // 이미 생성된 파트는 건너뜀
+        if (results[p.key]) continue;
         setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
         const text = await callAI(
           "saju-100-part",
@@ -310,6 +399,8 @@ function FortunePdfPage() {
         results[p.key] = text;
         setPartResults({ ...results });
         setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
+        // 파트별로 DB에 자동 저장 → 중간 실패해도 안전
+        await saveCustomer(results);
       }
 
       setStatusMsg("PDF 문서 생성 중...");
@@ -318,7 +409,8 @@ function FortunePdfPage() {
       }
     } catch (e) {
       const msg = (e as Error).message ?? "생성 실패";
-      toast.error(`${msg}\n(이미 생성된 ${Object.keys(results).length}/${PARTS.length} 파트는 저장됐어요. '이어서 생성' 버튼으로 계속할 수 있습니다.)`);
+      await saveCustomer(results);
+      toast.error(`${msg}\n(${Object.keys(results).length}/${PARTS.length} 파트 저장됨. '이어서 생성'으로 계속하세요.)`);
     } finally {
       setLoading(false);
       setStatusMsg("");
@@ -334,7 +426,38 @@ function FortunePdfPage() {
 
   return (
     <PageShell icon={FileText} title="종합 사주 100p 리포트" description="고객에게 이메일로 전달할 프리미엄 사주 PDF (1인 1리포트 · 약 100페이지)">
-      <Card className="max-w-2xl mx-auto p-6 space-y-5 bg-card/60">
+      <div className="max-w-2xl mx-auto space-y-4">
+        {savedList.length > 0 && (
+          <Card className="p-4 bg-card/60">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium">저장된 고객 ({savedList.length})</p>
+              <Button onClick={newCustomer} size="sm" variant="outline" className="h-7 text-xs">
+                <Plus className="h-3 w-3 mr-1" />새 고객
+              </Button>
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {savedList.map((row) => {
+                const c = Object.keys(row.part_results ?? {}).length;
+                const isActive = row.id === reportId;
+                return (
+                  <div key={row.id} className={`flex items-center gap-2 rounded-md border p-2 text-xs ${isActive ? "border-primary/60 bg-primary/10" : "border-border/40 hover:bg-muted/30"}`}>
+                    <button onClick={() => loadCustomer(row)} className="flex-1 text-left">
+                      <div className="font-medium">{row.name} <span className="text-muted-foreground font-normal">({row.birth})</span></div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {c}/{PARTS.length} 파트 · {new Date(row.updated_at).toLocaleDateString("ko-KR")}
+                      </div>
+                    </button>
+                    <button onClick={() => handleDelete(row.id)} className="text-muted-foreground hover:text-destructive p-1" title="삭제">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
+      <Card className="p-6 space-y-5 bg-card/60">
         {!apiKey && (
           <Link to="/settings" className="block">
             <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/5 p-3 text-xs text-yellow-300 hover:bg-yellow-500/10">
@@ -387,20 +510,25 @@ function FortunePdfPage() {
           />
         </Field>
 
-        <Button
-          onClick={handleGenerate}
-          disabled={loading || !apiKey}
-          className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
-          size="lg"
-        >
-          {loading ? (
-            <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
-          ) : hasPartial ? (
-            <><Download className="h-4 w-4 mr-2" />이어서 생성 ({completedCount}/{PARTS.length} 완료)</>
-          ) : (
-            <><Download className="h-4 w-4 mr-2" />100페이지 종합 사주 리포트 생성</>
-          )}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleGenerate}
+            disabled={loading || !apiKey}
+            className="flex-1 bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
+            size="lg"
+          >
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />생성 중... ({progress}%)</>
+            ) : hasPartial ? (
+              <><Download className="h-4 w-4 mr-2" />이어서 생성 ({completedCount}/{PARTS.length})</>
+            ) : (
+              <><Download className="h-4 w-4 mr-2" />100p 리포트 생성</>
+            )}
+          </Button>
+          <Button onClick={handleSaveOnly} disabled={loading} variant="outline" size="lg" title="고객 정보만 저장">
+            <Save className="h-4 w-4" />
+          </Button>
+        </div>
 
         {hasPartial && !loading && (
           <div className="flex gap-2">
@@ -428,6 +556,7 @@ function FortunePdfPage() {
           "대상"을 <b>"PDF로 저장"</b>으로 선택해 다운로드하세요. 다운받은 PDF를 고객 이메일로 전달하시면 됩니다.
         </div>
       </Card>
+      </div>
     </PageShell>
   );
 }
