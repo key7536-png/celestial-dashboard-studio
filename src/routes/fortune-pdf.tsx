@@ -21,11 +21,13 @@ export const Route = createFileRoute("/fortune-pdf")({
   component: FortunePdfPage,
 });
 
-// 100페이지 리포트 파트 정의
-const PARTS: { key: string; title: string; spec: string }[] = [
+// 100페이지 리포트 파트 정의 — theme: PDF 챕터 표지 배경 이미지 키
+const PARTS: { key: string; title: string; subtitle: string; theme: string; spec: string }[] = [
   {
     key: "part0",
-    title: "PART 0. 오프닝 (p.1~5)",
+    title: "PART 0. 오프닝",
+    subtitle: "이 분의 핵심 · 한 줄 총평",
+    theme: "marble-pink",
     spec: `## p.1 — 표지
 이름·생년월일·성별·"종합 사주 100p 리포트" 제목과 한두 문장의 부제(이 분만의 인생 키워드 한 줄). 표지 페이지답게 상징적이고 시적인 한 단락.
 
