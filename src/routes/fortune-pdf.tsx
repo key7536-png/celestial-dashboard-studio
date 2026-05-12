@@ -199,8 +199,8 @@ p.4 키워드 5개를 종합한 인생 메시지 한 페이지. 진심 어린 �
   },
 ];
 
-function mdToHtml(md: string): string {
-  // 매우 간단한 마크다운 → HTML (## 헤더, 단락, **bold**)
+function mdToInner(md: string): string {
+  // ## 헤더로 페이지 분리. 결과는 첫 페이지 시작 <section>이 없는 형태.
   const escaped = md
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -208,6 +208,7 @@ function mdToHtml(md: string): string {
   const lines = escaped.split("\n");
   const out: string[] = [];
   let buf: string[] = [];
+  let opened = false;
   const flush = () => {
     if (buf.length) {
       out.push(`<p>${buf.join("<br/>")}</p>`);
@@ -218,13 +219,9 @@ function mdToHtml(md: string): string {
     const line = raw.trimEnd();
     if (/^##\s+/.test(line)) {
       flush();
-      // 새 페이지로 분리
-      out.push(
-        `</section><section class="page"><h2>${line.replace(/^##\s+/, "")}</h2>`,
-      );
-    } else if (/^#\s+/.test(line)) {
-      flush();
-      out.push(`<h1>${line.replace(/^#\s+/, "")}</h1>`);
+      if (opened) out.push(`</section>`);
+      out.push(`<section class="page"><h2>${line.replace(/^##\s+/, "")}</h2>`);
+      opened = true;
     } else if (line === "") {
       flush();
     } else {
@@ -232,30 +229,80 @@ function mdToHtml(md: string): string {
     }
   }
   flush();
+  if (opened) out.push(`</section>`);
   return out.join("\n");
 }
 
-function buildHtmlDoc(name: string, birth: string, body: string): string {
+function buildHtmlDoc(
+  name: string,
+  birth: string,
+  parts: { title: string; subtitle: string; theme: string; html: string }[],
+  origin: string,
+): string {
+  const dividerOf = (p: { title: string; subtitle: string; theme: string }) => `
+  <section class="divider" style="background-image:url('${origin}/fortune-bg/${p.theme}.jpg')">
+    <div class="divider-veil"></div>
+    <div class="divider-box">
+      <div class="divider-eyebrow">CHAPTER</div>
+      <h2 class="divider-title">${p.title}</h2>
+      <div class="divider-sub">${p.subtitle}</div>
+    </div>
+  </section>`;
+
+  const partsHtml = parts.map((p) => `${dividerOf(p)}${p.html}`).join("\n");
+
   return `<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"/>
 <title>${name}님의 종합 사주 100p 리포트</title>
 <style>
-  @page { size: A4; margin: 18mm 16mm; }
+  @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
-  body { font-family: "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:#1a1a2e; line-height:1.75; font-size:11pt; }
-  .cover { text-align:center; padding:80mm 0; page-break-after: always; }
-  .cover h1 { font-size:28pt; margin:0 0 12mm; letter-spacing:-0.02em; }
-  .cover .meta { font-size:14pt; color:#555; }
-  .cover .brand { margin-top:40mm; font-size:10pt; color:#a37; letter-spacing:0.3em; }
-  section.page { page-break-after: always; padding-top:6mm; }
+  body { margin:0; font-family: "Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif; color:#1a1a2e; line-height:1.75; font-size:11pt; }
+
+  /* 표지 */
+  .cover {
+    position:relative; width:210mm; height:297mm;
+    background-image:url('${origin}/fortune-bg/cover-tarot.jpg');
+    background-size:cover; background-position:center;
+    color:#f5e8c8; page-break-after: always;
+    display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+  }
+  .cover::before { content:""; position:absolute; inset:0; background:rgba(0,0,0,0.35); }
+  .cover-inner { position:relative; z-index:1; padding:0 24mm; }
+  .cover .brand-top { font-size:9pt; letter-spacing:0.4em; opacity:0.85; margin-bottom:18mm; }
+  .cover h1 { font-size:34pt; margin:0 0 14mm; letter-spacing:-0.02em; line-height:1.25; text-shadow:0 2px 12px rgba(0,0,0,0.5); }
+  .cover .meta { font-size:13pt; opacity:0.92; }
+  .cover .brand { margin-top:30mm; font-size:10pt; letter-spacing:0.5em; opacity:0.85; }
+
+  /* 챕터 표지 (PART별 테마 배경) */
+  .divider {
+    position:relative; width:210mm; height:297mm;
+    background-size:cover; background-position:center;
+    page-break-after: always;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .divider-veil { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.18) 100%); }
+  .divider-box {
+    position:relative; z-index:1;
+    background:rgba(255,255,255,0.78); backdrop-filter: blur(2px);
+    border-radius:8px;
+    padding:14mm 18mm; min-width:120mm; max-width:160mm; text-align:center;
+    box-shadow:0 8px 28px rgba(0,0,0,0.18);
+  }
+  .divider-eyebrow { font-size:9pt; letter-spacing:0.45em; color:#7a2d4a; margin-bottom:6mm; }
+  .divider-title { font-size:24pt; margin:0 0 6mm; color:#1a1a2e; letter-spacing:-0.02em; line-height:1.3; }
+  .divider-sub { font-size:11pt; color:#5a4a52; letter-spacing:0.05em; }
+
+  /* 본문 페이지 */
+  section.page { page-break-after: always; padding:18mm 16mm; min-height:297mm; }
   section.page:last-child { page-break-after: auto; }
   h1 { font-size:18pt; border-bottom:2px solid #c93; padding-bottom:4mm; margin:0 0 6mm; }
   h2 { font-size:15pt; color:#7a2d4a; border-left:4px solid #c93; padding-left:8px; margin:0 0 6mm; }
   p { margin:0 0 4mm; text-align: justify; }
   strong { color:#7a2d4a; }
-  .toc-banner { background:#fdf6ec; padding:6mm; border-radius:4px; font-size:10pt; color:#7a4d1e; margin-bottom:6mm; }
+
   @media print { .no-print { display:none !important; } }
-  .toolbar { position:sticky; top:0; background:#fff; padding:10px; border-bottom:1px solid #eee; text-align:center; }
+  .toolbar { position:sticky; top:0; background:#fff; padding:10px; border-bottom:1px solid #eee; text-align:center; z-index:10; }
   .toolbar button { padding:10px 24px; font-size:14px; background:#7a2d4a; color:#fff; border:0; border-radius:6px; cursor:pointer; }
 </style></head>
 <body>
@@ -263,12 +310,20 @@ function buildHtmlDoc(name: string, birth: string, body: string): string {
     <button onclick="window.print()">📥 PDF로 저장 (인쇄 → PDF로 저장 선택)</button>
   </div>
   <div class="cover">
-    <h1>${name}님의<br/>종합 사주 100p 리포트</h1>
-    <div class="meta">${birth}</div>
-    <div class="brand">자 개 빛</div>
+    <div class="cover-inner">
+      <div class="brand-top">VIBEELLA · 실 패 턴 리 포 트</div>
+      <h1>${name}님의<br/>운명 분석 보고서</h1>
+      <div class="meta">${birth}</div>
+      <div class="brand">자 개 빛</div>
+    </div>
   </div>
-  <section class="page">${body}</section>
-  <script>setTimeout(()=>window.print(), 800);</script>
+  ${partsHtml}
+  <script>
+    // 이미지 로딩 완료 후 인쇄
+    const imgs = Array.from(document.images);
+    Promise.all(imgs.map(i => i.complete ? Promise.resolve() : new Promise(r => { i.onload = i.onerror = r; })))
+      .then(() => setTimeout(() => window.print(), 600));
+  </script>
 </body></html>`;
 }
 
