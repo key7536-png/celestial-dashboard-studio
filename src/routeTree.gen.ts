@@ -16,6 +16,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyShopRouteImport } from './routes/my-shop'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as FortunePdfRouteImport } from './routes/fortune-pdf'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContentRouteImport } from './routes/content'
@@ -64,6 +65,11 @@ const PricingRoute = PricingRouteImport.update({
 const MyShopRoute = MyShopRouteImport.update({
   id: '/my-shop',
   path: '/my-shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FortunePdfRoute = FortunePdfRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
   '/fortune-pdf': typeof FortunePdfRoute
+  '/login': typeof LoginRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
   '/fortune-pdf': typeof FortunePdfRoute
+  '/login': typeof LoginRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/content': typeof ContentRoute
   '/dashboard': typeof DashboardRoute
   '/fortune-pdf': typeof FortunePdfRoute
+  '/login': typeof LoginRoute
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/dashboard'
     | '/fortune-pdf'
+    | '/login'
     | '/my-shop'
     | '/pricing'
     | '/products'
@@ -239,6 +249,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/dashboard'
     | '/fortune-pdf'
+    | '/login'
     | '/my-shop'
     | '/pricing'
     | '/products'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/content'
     | '/dashboard'
     | '/fortune-pdf'
+    | '/login'
     | '/my-shop'
     | '/pricing'
     | '/products'
@@ -286,6 +298,7 @@ export interface RootRouteChildren {
   ContentRoute: typeof ContentRoute
   DashboardRoute: typeof DashboardRoute
   FortunePdfRoute: typeof FortunePdfRoute
+  LoginRoute: typeof LoginRoute
   MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/my-shop'
       fullPath: '/my-shop'
       preLoaderRoute: typeof MyShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fortune-pdf': {
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContentRoute: ContentRoute,
   DashboardRoute: DashboardRoute,
   FortunePdfRoute: FortunePdfRoute,
+  LoginRoute: LoginRoute,
   MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,

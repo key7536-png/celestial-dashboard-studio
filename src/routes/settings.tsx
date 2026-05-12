@@ -10,6 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserSettings, saveUserSettings } from "@/hooks/use-user-settings";
 import { supabase } from "@/integrations/supabase/client";
+import { getStoredPassword, setStoredPassword, logout as logoutDashboard } from "@/lib/dashboard-auth";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
@@ -201,6 +203,8 @@ function SettingsPage() {
           </Button>
         </Card>
 
+        <PasswordChangeCard />
+
         <Card className="p-6 bg-card/60 border-border/50 space-y-4">
           <h3 className="font-display text-lg">알림</h3>
           <div className="flex items-center justify-between">
@@ -213,5 +217,96 @@ function SettingsPage() {
         </Card>
       </div>
     </PageShell>
+  );
+}
+
+function PasswordChangeCard() {
+  const navigate = useNavigate();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showCur, setShowCur] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  function handleSave() {
+    if (current !== getStoredPassword()) {
+      toast.error("현재 비밀번호가 올바르지 않습니다");
+      return;
+    }
+    if (next.length < 6) {
+      toast.error("새 비밀번호는 6자 이상이어야 합니다");
+      return;
+    }
+    if (next !== confirm) {
+      toast.error("새 비밀번호 확인이 일치하지 않습니다");
+      return;
+    }
+    setSaving(true);
+    try {
+      setStoredPassword(next);
+      toast.success("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+      setCurrent(""); setNext(""); setConfirm("");
+      logoutDashboard();
+      navigate({ to: "/login" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card className="p-6 bg-card/60 border-border/50 space-y-4">
+      <h3 className="font-display text-lg">대시보드 비밀번호 변경</h3>
+      <p className="text-xs text-muted-foreground">로그인 화면에서 사용하는 비밀번호를 변경합니다.</p>
+
+      <div className="space-y-2">
+        <Label className="text-sm">현재 비밀번호</Label>
+        <div className="relative">
+          <Input
+            type={showCur ? "text" : "password"}
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+            className="pr-10"
+          />
+          <button type="button" onClick={() => setShowCur(!showCur)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            {showCur ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm">새 비밀번호 (6자 이상)</Label>
+        <div className="relative">
+          <Input
+            type={showNew ? "text" : "password"}
+            value={next}
+            onChange={(e) => setNext(e.target.value)}
+            className="pr-10"
+          />
+          <button type="button" onClick={() => setShowNew(!showNew)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-sm">새 비밀번호 확인</Label>
+        <Input
+          type={showNew ? "text" : "password"}
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+        />
+      </div>
+
+      <Button
+        onClick={handleSave}
+        disabled={saving || !current || !next || !confirm}
+        className="w-full bg-gradient-to-r from-primary to-pink-500 text-primary-foreground"
+      >
+        {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />변경 중...</> : "비밀번호 변경"}
+      </Button>
+    </Card>
   );
 }
