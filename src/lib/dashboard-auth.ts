@@ -3,7 +3,7 @@
 
 const PW_KEY = "jagaebit_pw";
 const SESSION_KEY = "jagaebit_auth";
-export const DEFAULT_PASSWORD = "jagaebit2026";
+export const DEFAULT_PASSWORD = "sj37700@@";
 
 export function getStoredPassword(): string {
   if (typeof window === "undefined") return DEFAULT_PASSWORD;
