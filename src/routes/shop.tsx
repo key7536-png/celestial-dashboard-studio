@@ -179,12 +179,20 @@ function ShopPage() {
         {admin && (
           <div className="mb-5 flex items-center justify-between bg-[#13131a] border border-[#b794f4]/30 rounded-xl p-3">
             <span className="text-xs text-[#b794f4]">🔐 관리자 모드 — 고객은 이 영역을 볼 수 없습니다</span>
-            <button
-              onClick={() => copy(SHOP_URL, "상점 링크")}
-              className="text-xs bg-[#b794f4] text-black font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition"
-            >
-              🔗 상점 링크
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/dashboard"
+                className="text-xs border border-[#b794f4]/40 text-[#b794f4] font-semibold px-3 py-1.5 rounded-lg hover:bg-[#b794f4]/10 transition"
+              >
+                🏠 대시보드
+              </Link>
+              <button
+                onClick={() => copy(SHOP_URL, "상점 링크")}
+                className="text-xs bg-[#b794f4] text-black font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition"
+              >
+                🔗 상점 링크
+              </button>
+            </div>
           </div>
         )}
 
