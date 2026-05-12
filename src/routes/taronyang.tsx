@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { isAuthed } from "@/lib/dashboard-auth";
@@ -162,9 +162,14 @@ function TaroNyangShop() {
           타로냥 · 운명을 읽다
         </div>
         {admin && (
-          <button onClick={() => setShowAdmin((s) => !s)} style={adminBtnStyle}>
-            {showAdmin ? "닫기" : "관리"}
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <Link to="/dashboard" style={{ ...adminBtnStyle, textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+              🏠 대시보드
+            </Link>
+            <button onClick={() => setShowAdmin((s) => !s)} style={adminBtnStyle}>
+              {showAdmin ? "닫기" : "관리"}
+            </button>
+          </div>
         )}
       </header>
 
