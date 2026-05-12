@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
-import { FileText, Loader2, Download, Save, Trash2, Plus } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { FileText, Loader2, Download, Save, Trash2, Plus, Square } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -280,6 +280,7 @@ function FortunePdfPage() {
   const [statusMsg, setStatusMsg] = useState("");
   const [partResults, setPartResults] = useState<Record<string, string>>({});
   const [savedList, setSavedList] = useState<FortuneRow[]>([]);
+  const stopRef = useRef(false);
 
   const completedCount = Object.keys(partResults).length;
   const hasPartial = completedCount > 0 && completedCount < PARTS.length;
@@ -379,6 +380,7 @@ function FortunePdfPage() {
     if (!apiKey) return toast.error("설정에서 Gemini API 키를 먼저 등록해주세요.");
     if (!name || !birth) return toast.error("이름과 생년월일을 입력해주세요.");
 
+    stopRef.current = false;
     setLoading(true);
     const results = { ...partResults };
     setProgress(Math.round((Object.keys(results).length / PARTS.length) * 100));
@@ -388,6 +390,11 @@ function FortunePdfPage() {
 
     try {
       for (let i = 0; i < PARTS.length; i++) {
+        if (stopRef.current) {
+          await saveCustomer(results);
+          toast.info(`멈춤. ${Object.keys(results).length}/${PARTS.length} 파트 저장됨. '이어서 생성'으로 계속할 수 있어요.`);
+          return;
+        }
         const p = PARTS[i];
         if (results[p.key]) continue;
         setStatusMsg(`(${i + 1}/${PARTS.length}) ${p.title} 작성 중...`);
@@ -414,7 +421,13 @@ function FortunePdfPage() {
     } finally {
       setLoading(false);
       setStatusMsg("");
+      stopRef.current = false;
     }
+  }
+
+  function handleStop() {
+    stopRef.current = true;
+    setStatusMsg("멈추는 중... 현재 파트 완료 후 중단됩니다.");
   }
 
   function handleDownloadPartial() {
@@ -525,9 +538,15 @@ function FortunePdfPage() {
               <><Download className="h-4 w-4 mr-2" />100p 리포트 생성</>
             )}
           </Button>
-          <Button onClick={handleSaveOnly} disabled={loading} variant="outline" size="lg" title="고객 정보만 저장">
-            <Save className="h-4 w-4" />
-          </Button>
+          {loading ? (
+            <Button onClick={handleStop} variant="destructive" size="lg" title="멈춤 (현재 파트 완료 후)">
+              <Square className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button onClick={handleSaveOnly} variant="outline" size="lg" title="고객 정보만 저장">
+              <Save className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {hasPartial && !loading && (
