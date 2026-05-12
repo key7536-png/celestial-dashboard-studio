@@ -639,6 +639,7 @@ const sheetStyle: React.CSSProperties = {
 const globalCss = `
   .taronyang-root *::-webkit-scrollbar { display: none; }
   .taronyang-root .show-mobile { display: none; }
+  .taronyang-root .tn-modal-overlay { align-items: flex-end; }
   @media (max-width: 768px) {
     .taronyang-root .show-mobile { display: block; }
     .taronyang-root .hide-mobile { display: none !important; }
@@ -650,7 +651,6 @@ const globalCss = `
   }
   @media (min-width: 769px) {
     .taronyang-root { font-size: 16px; }
-    .taronyang-root .purchase-sheet { border-radius: 20px !important; align-self: center; margin: auto; }
     .taronyang-root .tn-modal-overlay { align-items: center !important; padding: 20px; }
     .taronyang-root .purchase-sheet { border-radius: 20px !important; }
   }
