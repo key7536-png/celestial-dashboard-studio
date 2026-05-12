@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: "user", parts: [{ text: user }] }],
-        generationConfig: { temperature: 0.9, maxOutputTokens: mode === "saju-100-part" ? 32768 : 8192 },
+        generationConfig: { temperature: 0.9, maxOutputTokens: 8192 },
       }),
     });
 
