@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
-import { FileText, Loader2, Download, Save, Trash2, Plus } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { FileText, Loader2, Download, Save, Trash2, Plus, Square } from "lucide-react";
 import { PageShell } from "@/components/page-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
