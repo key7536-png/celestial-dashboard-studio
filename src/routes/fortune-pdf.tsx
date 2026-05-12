@@ -437,9 +437,20 @@ function FortunePdfPage() {
   }
 
   function openPdfWindow(results: Record<string, string>) {
-    const fullMd = PARTS.map((p) => `\n\n${results[p.key] ?? ""}\n\n`).join("\n");
-    const bodyHtml = mdToHtml(fullMd).replace(/^<\/section>/, "");
-    const html = buildHtmlDoc(name, `${birth} (${calendar}) · ${gender}${time ? ` · ${time}` : ""}`, bodyHtml);
+    const partsForHtml = PARTS
+      .filter((p) => results[p.key])
+      .map((p) => ({
+        title: p.title,
+        subtitle: p.subtitle,
+        theme: p.theme,
+        html: mdToInner(results[p.key]),
+      }));
+    const html = buildHtmlDoc(
+      name,
+      `${birth} (${calendar}) · ${gender}${time ? ` · ${time}` : ""}`,
+      partsForHtml,
+      window.location.origin,
+    );
     const win = window.open("", "_blank");
     if (!win) {
       toast.error("팝업이 차단되었습니다. 브라우저 팝업 허용을 해주세요.");
