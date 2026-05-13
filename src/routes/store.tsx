@@ -50,7 +50,7 @@ async function payWithToss(p: Product) {
   const clientKey =
     (import.meta.env.VITE_TOSS_CLIENT_KEY as string | undefined)?.trim() ||
     (typeof window !== "undefined" ? localStorage.getItem("toss_client_key")?.trim() : "") ||
-    "test_ck_DpexMgkW36PMRyOPAaO8VGbR5ozO"; // 토스 공식 테스트 키 (자체 클라이언트 키로 교체 필요)
+    "test_ck_GjLJoQ1aVZ5K66j2Eb7W3w6KYe2R"; // 자개빛 천운 토스 테스트 클라이언트 키
 
   if (!clientKey) {
     alert("결제 키가 설정되지 않았습니다.");
