@@ -29,6 +29,8 @@ import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as PaymentSuccessRouteImport } from './routes/payment.success'
+import { Route as PaymentFailRouteImport } from './routes/payment.fail'
 import { Route as ChatTarotRouteImport } from './routes/chat.tarot'
 import { Route as ChatSajuRouteImport } from './routes/chat.saju'
 import { Route as ChatRelationRouteImport } from './routes/chat.relation'
@@ -135,6 +137,16 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ChatRoute,
 } as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment/success',
+  path: '/payment/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentFailRoute = PaymentFailRouteImport.update({
+  id: '/payment/fail',
+  path: '/payment/fail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatTarotRoute = ChatTarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
@@ -186,6 +198,8 @@ export interface FileRoutesByFullPath {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRoutesByTo {
@@ -212,6 +226,8 @@ export interface FileRoutesByTo {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat': typeof ChatIndexRoute
 }
 export interface FileRoutesById {
@@ -240,6 +256,8 @@ export interface FileRoutesById {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRouteTypes {
@@ -269,6 +287,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -295,6 +315,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat'
   id:
     | '__root__'
@@ -322,6 +344,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat/'
   fileRoutesById: FileRoutesById
 }
@@ -345,6 +369,8 @@ export interface RootRouteChildren {
   TaronyangRoute: typeof TaronyangRoute
   TarotPdfRoute: typeof TarotPdfRoute
   VideoMakerRoute: typeof VideoMakerRoute
+  PaymentFailRoute: typeof PaymentFailRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -489,6 +515,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof ChatRoute
     }
+    '/payment/success': {
+      id: '/payment/success'
+      path: '/payment/success'
+      fullPath: '/payment/success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/fail': {
+      id: '/payment/fail'
+      path: '/payment/fail'
+      fullPath: '/payment/fail'
+      preLoaderRoute: typeof PaymentFailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat/tarot': {
       id: '/chat/tarot'
       path: '/tarot'
@@ -567,7 +607,18 @@ const rootRouteChildren: RootRouteChildren = {
   TaronyangRoute: TaronyangRoute,
   TarotPdfRoute: TarotPdfRoute,
   VideoMakerRoute: VideoMakerRoute,
+  PaymentFailRoute: PaymentFailRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
