@@ -128,14 +128,14 @@ function MyShop() {
   const [toast, setToast] = useState(false);
 
   const [consultProducts, setConsultProducts] = useState<ConsultProduct[]>([
-    { id: 1, type: "tarot", name: "", time: "10분", price: "10000", link: "https://app.litt.ly/page" },
-    { id: 2, type: "tarot", name: "", time: "20분", price: "19000", link: "" },
-    { id: 3, type: "tarot", name: "", time: "30분", price: "25000", link: "" },
-    { id: 4, type: "saju", name: "", time: "10분", price: "10000", link: "" },
-    { id: 5, type: "saju", name: "", time: "20분", price: "19000", link: "" },
-    { id: 6, type: "saju", name: "", time: "30분", price: "25000", link: "" },
-    { id: 7, type: "goonghap", name: "", time: "30분", price: "35000", link: "" },
-    { id: 8, type: "gaemyeong", name: "", time: "30분", price: "35800", link: "" },
+    { id: 1, type: "tarot", name: "타로/사주 10분 상담", time: "10분", price: "10000", badge: "",
+      desc: "지금 이 순간, 딱 하나의 답이 필요할 때.\n핵심 한 가지를 명확하게 짚어드립니다." },
+    { id: 2, type: "tarot", name: "타로/사주 20분 상담", time: "20분", price: "20000", badge: "",
+      desc: "두 가지 고민을 깊이 있게 풀어드립니다.\n연애, 진로, 재물 어떤 주제든 가능해요." },
+    { id: 3, type: "tarot", name: "타로/사주 30분 상담", time: "30분", price: "30000", badge: "",
+      desc: "시간 내 무제한 질문.\n마음속 모든 이야기를 꺼내놓으세요." },
+    { id: 4, type: "goonghap", name: "재회/속마음 30분 특화 상담", time: "30분", price: "30000", badge: "인기",
+      desc: "그 사람, 지금 나를 생각하고 있을까요?\n타로와 사주로 그 마음을 정확하게 읽어드립니다." },
   ]);
 
   const [saleProducts, setSaleProducts] = useState<SaleProduct[]>([
@@ -144,9 +144,12 @@ function MyShop() {
   ]);
 
   const [pdfProducts, setPdfProducts] = useState<PdfProduct[]>([
-    { id: 1, type: PDF_TYPES[0], name: "종합 사주풀이", desc: "약 30~32페이지 분량의 AI 사주 종합 분석서 (10챕터)", price: "19000", link: "", active: true },
-    { id: 2, type: PDF_TYPES[1], name: "종합 사주풀이", desc: "약 30~32페이지 분량의 AI 사주 종합 분석서 (10챕터)", price: "35000", link: "", active: true },
-    { id: 3, type: PDF_TYPES[0], name: "종합 사주풀이 더상세하게 PDF 50장", desc: "약 30~32페이지 분량의 AI 사주 종합 분석서 (10챕터)", price: "30000", link: "", active: true },
+    { id: 1, type: PDF_TYPES[0], name: "사주 기본 PDF 리포트 (30장)", price: "15000", badge: "", active: true,
+      desc: "정통 명리학 기반 30장 분량 사주 분석 보고서.\n결제 후 생년월일시 입력 → 맞춤 리포트 발송." },
+    { id: 2, type: PDF_TYPES[0], name: "AI 사주 종합 리포트 PDF", price: "29000", badge: "추천", active: true,
+      desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로를 한 번에 담은 프리미엄 보고서." },
+    { id: 3, type: PDF_TYPES[1], name: "궁합 리포트 PDF", price: "29000", badge: "", active: true,
+      desc: "두 사람의 사주로 읽는 깊은 궁합 이야기.\n사랑 궁합부터 결혼 궁합까지 상세 분석." },
   ]);
 
   const handleCopy = () => {
