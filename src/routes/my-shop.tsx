@@ -369,7 +369,7 @@ function MyShop() {
                   </div>
                 </div>
                 <input className={inp + " mb-3"} value={p.name} onChange={(e) => updateConsult(p.id, "name", e.target.value)} placeholder="상품 이름 (예: 기본 타로 상담)" />
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-3 gap-3 mb-3">
                   <div>
                     <label className="text-xs text-[#555] mb-1 block">시간</label>
                     <select className={inp} value={p.time} onChange={(e) => updateConsult(p.id, "time", e.target.value)}>
@@ -380,6 +380,20 @@ function MyShop() {
                     <label className="text-xs text-[#555] mb-1 block">가격 (원)</label>
                     <input className={inp} type="number" value={p.price} onChange={(e) => updateConsult(p.id, "price", e.target.value)} />
                   </div>
+                  <div>
+                    <label className="text-xs text-[#555] mb-1 block">뱃지</label>
+                    <select className={inp} value={p.badge} onChange={(e) => updateConsult(p.id, "badge", e.target.value)}>
+                      <option value="">없음</option>
+                      <option value="인기">인기</option>
+                      <option value="추천">추천</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label className="text-xs text-[#555] mb-1 block">소개글</label>
+                  <textarea className={inp + " resize-none"} rows={3} value={p.desc}
+                    onChange={(e) => updateConsult(p.id, "desc", e.target.value)}
+                    placeholder="고객에게 보여질 상품 소개" />
                 </div>
                 <button
                   onClick={() => payWithToss({
