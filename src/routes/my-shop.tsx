@@ -167,7 +167,7 @@ function MyShop() {
     }
   };
 
-  const addConsult = () => setConsultProducts((p) => [...p, { id: Date.now(), type: "tarot", name: "", time: "10분", price: "", link: "" }]);
+  const addConsult = () => setConsultProducts((p) => [...p, { id: Date.now(), type: "tarot", name: "", time: "10분", price: "", desc: "", badge: "" }]);
   const removeConsult = (id: number) => setConsultProducts((p) => p.filter((x) => x.id !== id));
   const updateConsult = (id: number, key: keyof ConsultProduct, val: string) =>
     setConsultProducts((p) => p.map((x) => (x.id === id ? { ...x, [key]: val } : x)));
