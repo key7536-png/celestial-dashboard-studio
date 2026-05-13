@@ -64,7 +64,7 @@ function MyShop() {
   const navigate = useNavigate();
   const shopUrl = "https://tarotsaas.com/shop/천운";
   const [copied, setCopied] = useState(false);
-  const [bgImage, setBgImage] = useState<string | null>(null);
+  const [bgImage, setBgImage] = useState<string | null>(jagaebitShopBg);
   const bgInputRef = useRef<HTMLInputElement>(null);
 
   const [font, setFont] = useState("기본");
