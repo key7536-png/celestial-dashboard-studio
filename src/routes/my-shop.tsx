@@ -179,7 +179,7 @@ function MyShop() {
     setSaleProducts((p) => p.map((x) => (x.id === id ? { ...x, [key]: val } : x)));
   const removeSale = (id: number) => setSaleProducts((p) => p.filter((x) => x.id !== id));
 
-  const addPdf = () => setPdfProducts((p) => [...p, { id: Date.now(), type: PDF_TYPES[0], name: "", desc: "", price: "", link: "", active: true }]);
+  const addPdf = () => setPdfProducts((p) => [...p, { id: Date.now(), type: PDF_TYPES[0], name: "", desc: "", price: "", badge: "", active: true }]);
   const removePdf = (id: number) => setPdfProducts((p) => p.filter((x) => x.id !== id));
   const updatePdf = (id: number, key: keyof PdfProduct, val: string | boolean) =>
     setPdfProducts((p) => p.map((x) => (x.id === id ? { ...x, [key]: val } : x)));
