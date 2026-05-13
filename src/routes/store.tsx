@@ -85,6 +85,7 @@ async function payWithToss(p: Product) {
       amount: { currency: "KRW", value: p.price },
       orderId,
       orderName: p.name,
+      ...(email ? { customerEmail: email } : {}),
       successUrl: window.location.origin + "/payment/success",
       failUrl: window.location.origin + "/payment/fail",
     });
