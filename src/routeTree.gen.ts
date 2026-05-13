@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VideoMakerRouteImport } from './routes/video-maker'
 import { Route as TarotPdfRouteImport } from './routes/tarot-pdf'
 import { Route as TaronyangRouteImport } from './routes/taronyang'
+import { Route as StoreRouteImport } from './routes/store'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyShopRouteImport } from './routes/my-shop'
@@ -28,6 +30,8 @@ import { Route as CardDesignerRouteImport } from './routes/card-designer'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as PaymentSuccessRouteImport } from './routes/payment.success'
+import { Route as PaymentFailRouteImport } from './routes/payment.fail'
 import { Route as ChatTarotRouteImport } from './routes/chat.tarot'
 import { Route as ChatSajuRouteImport } from './routes/chat.saju'
 import { Route as ChatRelationRouteImport } from './routes/chat.relation'
@@ -49,6 +53,11 @@ const TaronyangRoute = TaronyangRouteImport.update({
   path: '/taronyang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StoreRoute = StoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SnsRoute = SnsRouteImport.update({
   id: '/sns',
   path: '/sns',
@@ -62,6 +71,11 @@ const ShopRoute = ShopRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -129,6 +143,16 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ChatRoute,
 } as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment/success',
+  path: '/payment/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentFailRoute = PaymentFailRouteImport.update({
+  id: '/payment/fail',
+  path: '/payment/fail',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatTarotRoute = ChatTarotRouteImport.update({
   id: '/tarot',
   path: '/tarot',
@@ -168,9 +192,11 @@ export interface FileRoutesByFullPath {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/store': typeof StoreRoute
   '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
@@ -179,6 +205,8 @@ export interface FileRoutesByFullPath {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRoutesByTo {
@@ -193,9 +221,11 @@ export interface FileRoutesByTo {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/store': typeof StoreRoute
   '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
@@ -204,6 +234,8 @@ export interface FileRoutesByTo {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat': typeof ChatIndexRoute
 }
 export interface FileRoutesById {
@@ -220,9 +252,11 @@ export interface FileRoutesById {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
+  '/store': typeof StoreRoute
   '/taronyang': typeof TaronyangRoute
   '/tarot-pdf': typeof TarotPdfRoute
   '/video-maker': typeof VideoMakerRoute
@@ -231,6 +265,8 @@ export interface FileRoutesById {
   '/chat/relation': typeof ChatRelationRoute
   '/chat/saju': typeof ChatSajuRoute
   '/chat/tarot': typeof ChatTarotRoute
+  '/payment/fail': typeof PaymentFailRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/chat/': typeof ChatIndexRoute
 }
 export interface FileRouteTypes {
@@ -248,9 +284,11 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/store'
     | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
@@ -259,6 +297,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -273,9 +313,11 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/store'
     | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
@@ -284,6 +326,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat'
   id:
     | '__root__'
@@ -299,9 +343,11 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
+    | '/store'
     | '/taronyang'
     | '/tarot-pdf'
     | '/video-maker'
@@ -310,6 +356,8 @@ export interface FileRouteTypes {
     | '/chat/relation'
     | '/chat/saju'
     | '/chat/tarot'
+    | '/payment/fail'
+    | '/payment/success'
     | '/chat/'
   fileRoutesById: FileRoutesById
 }
@@ -326,12 +374,16 @@ export interface RootRouteChildren {
   MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SnsRoute: typeof SnsRoute
+  StoreRoute: typeof StoreRoute
   TaronyangRoute: typeof TaronyangRoute
   TarotPdfRoute: typeof TarotPdfRoute
   VideoMakerRoute: typeof VideoMakerRoute
+  PaymentFailRoute: typeof PaymentFailRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -357,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaronyangRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/store': {
+      id: '/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sns': {
       id: '/sns'
       path: '/sns'
@@ -376,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -469,6 +535,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof ChatRoute
     }
+    '/payment/success': {
+      id: '/payment/success'
+      path: '/payment/success'
+      fullPath: '/payment/success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/fail': {
+      id: '/payment/fail'
+      path: '/payment/fail'
+      fullPath: '/payment/fail'
+      preLoaderRoute: typeof PaymentFailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat/tarot': {
       id: '/chat/tarot'
       path: '/tarot'
@@ -540,12 +620,16 @@ const rootRouteChildren: RootRouteChildren = {
   MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SnsRoute: SnsRoute,
+  StoreRoute: StoreRoute,
   TaronyangRoute: TaronyangRoute,
   TarotPdfRoute: TarotPdfRoute,
   VideoMakerRoute: VideoMakerRoute,
+  PaymentFailRoute: PaymentFailRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
