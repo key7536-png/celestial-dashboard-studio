@@ -222,6 +222,19 @@ function StorePage() {
           </p>
         </div>
       </footer>
+
+      {/* 플로팅 카카오 챗봇 문의 버튼 */}
+      <a
+        href="http://pf.kakao.com/_sunjin7536/chat"
+        target="_blank"
+        rel="noreferrer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full shadow-xl hover:scale-105 transition-transform"
+        style={{ background: "#FEE500", color: "#3C1E1E" }}
+        title="카카오톡으로 문의하기"
+      >
+        <span className="text-lg">💬</span>
+        <span className="text-sm font-semibold">문의하기</span>
+      </a>
     </div>
   );
 }
