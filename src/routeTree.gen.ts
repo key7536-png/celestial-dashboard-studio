@@ -16,6 +16,7 @@ import { Route as StoreRouteImport } from './routes/store'
 import { Route as SnsRouteImport } from './routes/sns'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MyShopRouteImport } from './routes/my-shop'
@@ -70,6 +71,11 @@ const ShopRoute = ShopRouteImport.update({
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/my-shop': typeof MyShopRoute
   '/pricing': typeof PricingRoute
   '/products': typeof ProductsRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/settings': typeof SettingsRoute
   '/shop': typeof ShopRoute
   '/sns': typeof SnsRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/my-shop'
     | '/pricing'
     | '/products'
+    | '/refund-policy'
     | '/settings'
     | '/shop'
     | '/sns'
@@ -362,6 +374,7 @@ export interface RootRouteChildren {
   MyShopRoute: typeof MyShopRoute
   PricingRoute: typeof PricingRoute
   ProductsRoute: typeof ProductsRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   SettingsRoute: typeof SettingsRoute
   ShopRoute: typeof ShopRoute
   SnsRoute: typeof SnsRoute
@@ -422,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -600,6 +620,7 @@ const rootRouteChildren: RootRouteChildren = {
   MyShopRoute: MyShopRoute,
   PricingRoute: PricingRoute,
   ProductsRoute: ProductsRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   SettingsRoute: SettingsRoute,
   ShopRoute: ShopRoute,
   SnsRoute: SnsRoute,
