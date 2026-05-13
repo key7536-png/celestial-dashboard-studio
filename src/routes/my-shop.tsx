@@ -199,6 +199,17 @@ function MyShop() {
     return Math.round(((r - s) / r) * 100) + "%";
   };
 
+  // 모든 입력값을 localStorage에 자동 저장 (변경 시마다)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const data = {
+      bgImage, font, fontSize, displayName, bio, freeTime,
+      bank, account, depositor, isPublic,
+      consultProducts, saleProducts, pdfProducts,
+    };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* quota */ }
+  }, [bgImage, font, fontSize, displayName, bio, freeTime, bank, account, depositor, isPublic, consultProducts, saleProducts, pdfProducts]);
+
   const handleSave = () => { setToast(true); setTimeout(() => setToast(false), 2500); };
 
   return (
