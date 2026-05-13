@@ -6,6 +6,48 @@ export const Route = createFileRoute("/my-shop")({
   component: MyShop,
 });
 
+// 상품 유형별 대표 이미지
+const CONSULT_IMG: Record<string, string> = {
+  tarot: "/fortune-bg/cover-tarot.jpg",
+  saju: "/fortune-bg/ink-mountain.jpg",
+  goonghap: "/fortune-bg/heart-moon.jpg",
+  gaemyeong: "/fortune-bg/gold-dust.jpg",
+  seongmyeong: "/fortune-bg/marble-pink.jpg",
+};
+const PDF_IMG = [
+  "/fortune-bg/galaxy-purple.jpg",
+  "/fortune-bg/galaxy-purple2.jpg",
+  "/fortune-bg/mountain-sunset.jpg",
+];
+
+// 토스 결제 트리거 (저장된 클라이언트 키 사용)
+async function payWithToss(opts: { name: string; amount: number; orderId: string }) {
+  const clientKey = localStorage.getItem("toss_client_key")?.trim();
+  if (!clientKey) {
+    alert("먼저 토스페이먼츠 클라이언트 키를 저장하세요.");
+    return;
+  }
+  if (!opts.amount || opts.amount < 100) {
+    alert("결제 금액을 확인해주세요.");
+    return;
+  }
+  try {
+    const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
+    const toss = await loadTossPayments(clientKey);
+    const payment = toss.payment({ customerKey: "ANONYMOUS" });
+    await payment.requestPayment({
+      method: "CARD",
+      amount: { currency: "KRW", value: opts.amount },
+      orderId: opts.orderId,
+      orderName: opts.name,
+      successUrl: window.location.origin + "/payment/success",
+      failUrl: window.location.origin + "/payment/fail",
+    });
+  } catch (e: any) {
+    if (e?.code !== "USER_CANCEL") alert("결제창 호출 실패: " + (e?.message || e));
+  }
+}
+
 const CONSULT_TYPES = [
   { value: "tarot", label: "🔮 타로" },
   { value: "saju", label: "🔴 사주" },
@@ -62,7 +104,7 @@ function QRCodeBox({ url }: { url: string }) {
 
 function MyShop() {
   const navigate = useNavigate();
-  const shopUrl = "https://tarotsaas.com/shop/천운";
+  const shopUrl = "https://자개빛.shop";
   const [copied, setCopied] = useState(false);
   const [bgImage, setBgImage] = useState<string | null>(jagaebitShopBg);
   const bgInputRef = useRef<HTMLInputElement>(null);
@@ -319,11 +361,15 @@ function MyShop() {
                   <span className="text-xs text-[#666]">상품 {i + 1}</span>
                   <button onClick={() => removeConsult(p.id)} className="text-xs text-red-500 hover:text-red-400">삭제</button>
                 </div>
-                <div className="mb-3">
-                  <label className="text-xs text-[#555] mb-1 block">상담 유형</label>
-                  <select className={inp} value={p.type} onChange={(e) => updateConsult(p.id, "type", e.target.value)}>
-                    {CONSULT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
+                <div className="flex gap-3 mb-3">
+                  <img src={CONSULT_IMG[p.type] || CONSULT_IMG.tarot} alt={p.type}
+                    className="w-16 h-16 rounded-lg object-cover border border-[#222] flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs text-[#555] mb-1 block">상담 유형</label>
+                    <select className={inp} value={p.type} onChange={(e) => updateConsult(p.id, "type", e.target.value)}>
+                      {CONSULT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <input className={inp + " mb-3"} value={p.name} onChange={(e) => updateConsult(p.id, "name", e.target.value)} placeholder="상품 이름 (예: 기본 타로 상담)" />
                 <div className="grid grid-cols-2 gap-3 mb-3">
@@ -338,10 +384,20 @@ function MyShop() {
                     <input className={inp} type="number" value={p.price} onChange={(e) => updateConsult(p.id, "price", e.target.value)} />
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs text-[#555] mb-1 block">결제 링크</label>
+                <div className="mb-2">
+                  <label className="text-xs text-[#555] mb-1 block">결제 링크 (선택)</label>
                   <input className={inp} value={p.link} onChange={(e) => updateConsult(p.id, "link", e.target.value)} placeholder="https://litt.ly/..." />
                 </div>
+                <button
+                  onClick={() => payWithToss({
+                    name: (p.name || CONSULT_TYPES.find(t => t.value === p.type)?.label || "상담") + " " + p.time,
+                    amount: Number(p.price) || 0,
+                    orderId: "consult-" + p.id + "-" + Date.now(),
+                  })}
+                  className="w-full mt-1 py-2 rounded-lg bg-[#3182f6] text-white text-xs font-semibold hover:opacity-90 transition"
+                >
+                  💳 토스로 결제 테스트
+                </button>
               </div>
             ))}
           </div>
@@ -443,11 +499,15 @@ function MyShop() {
                   <span className="text-xs text-[#666]">PDF 상품 {i + 1}</span>
                   <button onClick={() => removePdf(p.id)} className="text-xs text-red-500 hover:text-red-400">삭제</button>
                 </div>
-                <div className="mb-3">
-                  <label className="text-xs text-[#555] mb-1 block">유형</label>
-                  <select className={inp} value={p.type} onChange={(e) => updatePdf(p.id, "type", e.target.value)}>
-                    {PDF_TYPES.map((t) => <option key={t}>{t}</option>)}
-                  </select>
+                <div className="flex gap-3 mb-3">
+                  <img src={PDF_IMG[i % PDF_IMG.length]} alt="pdf"
+                    className="w-16 h-16 rounded-lg object-cover border border-[#222] flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <label className="text-xs text-[#555] mb-1 block">유형</label>
+                    <select className={inp} value={p.type} onChange={(e) => updatePdf(p.id, "type", e.target.value)}>
+                      {PDF_TYPES.map((t) => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <input className={inp + " mb-3"} value={p.name} onChange={(e) => updatePdf(p.id, "name", e.target.value)} placeholder="종합 사주풀이" />
                 <input className={inp + " mb-3"} value={p.desc} onChange={(e) => updatePdf(p.id, "desc", e.target.value)} placeholder="약 30~32페이지 분량의 AI 사주 종합 분석서 (10챕터)" />
@@ -457,10 +517,20 @@ function MyShop() {
                     <input className={inp} type="number" value={p.price} onChange={(e) => updatePdf(p.id, "price", e.target.value)} />
                   </div>
                   <div>
-                    <label className="text-xs text-[#555] mb-1 block">결제 링크</label>
+                    <label className="text-xs text-[#555] mb-1 block">결제 링크 (선택)</label>
                     <input className={inp} value={p.link} onChange={(e) => updatePdf(p.id, "link", e.target.value)} placeholder="https://..." />
                   </div>
                 </div>
+                <button
+                  onClick={() => payWithToss({
+                    name: p.name || p.type,
+                    amount: Number(p.price) || 0,
+                    orderId: "pdf-" + p.id + "-" + Date.now(),
+                  })}
+                  className="w-full mb-3 py-2 rounded-lg bg-[#3182f6] text-white text-xs font-semibold hover:opacity-90 transition"
+                >
+                  💳 토스로 결제 테스트
+                </button>
                 <div className="flex items-center gap-3">
                   <button onClick={() => updatePdf(p.id, "active", !p.active)}
                     className={`w-10 h-5 rounded-full transition-colors relative ${p.active ? "bg-[#b794f4]" : "bg-[#333]"}`}>
