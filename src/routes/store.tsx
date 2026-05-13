@@ -209,7 +209,7 @@ function StorePage() {
               환불규정
             </Link>
             <a
-              href="https://pf.kakao.com/"
+              href="http://pf.kakao.com/_sunjin7536/chat"
               target="_blank"
               rel="noreferrer"
               className="text-[#7a5a78] hover:underline"
