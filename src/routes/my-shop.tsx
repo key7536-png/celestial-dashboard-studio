@@ -1,6 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import jagaebitShopBg from "@/assets/jagaebit-shop-bg.png";
+
+const STORAGE_KEY = "jagaebit:my-shop";
+function loadStored<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return fallback;
+    const obj = JSON.parse(raw);
+    return key in obj ? (obj[key] as T) : fallback;
+  } catch { return fallback; }
+}
 
 export const Route = createFileRoute("/my-shop")({
   component: MyShop,
