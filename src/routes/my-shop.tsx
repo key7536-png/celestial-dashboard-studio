@@ -516,12 +516,21 @@ function MyShop() {
                     </select>
                   </div>
                 </div>
-                <input className={inp + " mb-3"} value={p.name} onChange={(e) => updatePdf(p.id, "name", e.target.value)} placeholder="종합 사주풀이" />
-                <input className={inp + " mb-3"} value={p.desc} onChange={(e) => updatePdf(p.id, "desc", e.target.value)} placeholder="약 30~32페이지 분량의 AI 사주 종합 분석서 (10챕터)" />
+                <input className={inp + " mb-3"} value={p.name} onChange={(e) => updatePdf(p.id, "name", e.target.value)} placeholder="상품 이름" />
+                <textarea className={inp + " mb-3 resize-none"} rows={3} value={p.desc}
+                  onChange={(e) => updatePdf(p.id, "desc", e.target.value)} placeholder="고객에게 보여질 상품 소개" />
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <label className="text-xs text-[#555] mb-1 block">가격 (원)</label>
                     <input className={inp} type="number" value={p.price} onChange={(e) => updatePdf(p.id, "price", e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#555] mb-1 block">뱃지</label>
+                    <select className={inp} value={p.badge} onChange={(e) => updatePdf(p.id, "badge", e.target.value as string)}>
+                      <option value="">없음</option>
+                      <option value="인기">인기</option>
+                      <option value="추천">추천</option>
+                    </select>
                   </div>
                 </div>
                 <button
