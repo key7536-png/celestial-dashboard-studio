@@ -75,6 +75,9 @@ function MyShop() {
   const [bank, setBank] = useState("");
   const [account, setAccount] = useState("");
   const [depositor, setDepositor] = useState("");
+  const [tossClientKey, setTossClientKey] = useState(
+    typeof window !== "undefined" ? localStorage.getItem("toss_client_key") || "" : ""
+  );
   const [isPublic, setIsPublic] = useState(true);
   const [toast, setToast] = useState(false);
 
@@ -266,6 +269,34 @@ function MyShop() {
             </div>
             <p className="text-xs text-[#555] mt-2">입력하면 고객 결제 안내에 계좌 정보가 표시됩니다</p>
           </div>
+
+          {/* 토스페이먼츠 클라이언트 키 */}
+          <div className="bg-[#0e0e0e] border border-[#1e1e1e] rounded-lg p-4 mb-4">
+            <p className="text-xs font-semibold text-[#888] mb-3">💳 토스페이먼츠 연동</p>
+            <label className="text-xs text-[#666] mb-1 block">클라이언트 키</label>
+            <input
+              className={inp + " font-mono"}
+              value={tossClientKey}
+              onChange={(e) => setTossClientKey(e.target.value)}
+              placeholder="test_ck_... 또는 live_ck_..."
+            />
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => {
+                  localStorage.setItem("toss_client_key", tossClientKey.trim());
+                  setToast(true);
+                  setTimeout(() => setToast(false), 1500);
+                }}
+                className="px-3 py-1.5 rounded-lg bg-[#b794f4] text-black text-xs font-semibold hover:opacity-90"
+              >
+                저장
+              </button>
+              <span className="text-[11px] text-[#555] self-center">
+                🔐 시크릿 키는 승인 후 별도 보안 입력란에서 등록됩니다
+              </span>
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <span className="text-sm text-[#aaa]">상점 공개</span>
             <button onClick={() => setIsPublic(!isPublic)}
