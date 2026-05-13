@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
+import jagaebitShopBg from "@/assets/jagaebit-shop-bg.png";
 
 export const Route = createFileRoute("/my-shop")({
   component: MyShop,
