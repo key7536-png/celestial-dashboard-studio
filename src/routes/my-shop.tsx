@@ -144,8 +144,8 @@ function MyShop() {
   const [pdfProducts, setPdfProducts] = useState<PdfProduct[]>([
     { id: 1, type: PDF_TYPES[0], name: "사주 기본 PDF 리포트 (30장)", price: "15000", badge: "", active: true,
       desc: "정통 명리학 기반 30장 분량 사주 분석 보고서.\n결제 후 생년월일시 입력 → 맞춤 리포트 발송." },
-    { id: 2, type: PDF_TYPES[0], name: "AI 사주 종합 리포트 PDF", price: "29000", badge: "추천", active: true,
-      desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로를 한 번에 담은 프리미엄 보고서." },
+    { id: 2, type: PDF_TYPES[0], name: "사주 종합 프리미엄 PDF (80~100p)", price: "29000", badge: "추천", active: true,
+      desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로·건강·대운까지 80~100장 분량의 프리미엄 보고서.\n결제 후 입력하신 이메일로 발송됩니다." },
     { id: 3, type: PDF_TYPES[1], name: "궁합 리포트 PDF", price: "29000", badge: "", active: true,
       desc: "두 사람의 사주로 읽는 깊은 궁합 이야기.\n사랑 궁합부터 결혼 궁합까지 상세 분석." },
   ]);
