@@ -112,7 +112,7 @@ function StorePage() {
             자개빛 <span className="text-[#a98ba8]">天運</span>
           </Link>
           <a
-            href="https://pf.kakao.com/"
+            href="http://pf.kakao.com/_sunjin7536/chat"
             target="_blank"
             rel="noreferrer"
             className="text-xs px-3 py-1.5 rounded-full border border-[#c8a9c0] text-[#7a5a78] hover:bg-[#c8a9c0]/10 transition"
