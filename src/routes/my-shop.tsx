@@ -71,9 +71,9 @@ const chip = (active: boolean) =>
     active ? "border-[#b794f4] text-[#b794f4] bg-[#1a0a2e]" : "border-[#2a2a2a] text-[#666] bg-[#13131a] hover:border-[#444]"
   }`;
 
-interface ConsultProduct { id: number; type: string; name: string; time: string; price: string; link: string; }
+interface ConsultProduct { id: number; type: string; name: string; time: string; price: string; desc: string; badge: string; }
 interface SaleProduct { id: number; kind: "ebook" | "physical"; title: string; description: string; regularPrice: string; salePrice: string; pages: string; buyLink: string; open: boolean; }
-interface PdfProduct { id: number; type: string; name: string; desc: string; price: string; link: string; active: boolean; }
+interface PdfProduct { id: number; type: string; name: string; desc: string; price: string; badge: string; active: boolean; }
 
 function QRCodeBox({ url }: { url: string }) {
   const size = 80;
