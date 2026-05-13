@@ -57,11 +57,25 @@ async function payWithToss(p: Product) {
     return;
   }
 
+  let email = "";
+  if (p.kind === "pdf") {
+    const input = window.prompt(
+      `${p.name}\n\nPDF 리포트는 결제 후 이메일로 발송됩니다.\n받으실 이메일 주소를 입력해주세요.`,
+      ""
+    );
+    if (!input) return;
+    email = input.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert("올바른 이메일 주소를 입력해주세요.");
+      return;
+    }
+  }
+
   try {
     const orderId = `${p.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     sessionStorage.setItem(
       "pending_order",
-      JSON.stringify({ orderId, productId: p.id, name: p.name, kind: p.kind, amount: p.price }),
+      JSON.stringify({ orderId, productId: p.id, name: p.name, kind: p.kind, amount: p.price, email }),
     );
     const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
     const toss = await loadTossPayments(clientKey);
