@@ -38,8 +38,8 @@ const PRODUCTS: Product[] = [
     desc: "그 사람, 지금 나를 생각하고 있을까요?\n타로와 사주로 그 마음을 정확하게 읽어드립니다." },
   { id: "saju-pdf-basic", name: "사주 기본 PDF 리포트 (30장)", price: 15000, kind: "pdf",
     desc: "정통 명리학 기반 30장 분량 사주 분석 보고서.\n결제 후 생년월일시 입력 → 맞춤 리포트 발송." },
-  { id: "saju-pdf-ai", name: "AI 사주 종합 리포트 PDF", price: 29000, kind: "pdf", badge: "추천",
-    desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로를 한 번에 담은 프리미엄 보고서." },
+  { id: "saju-premium-pdf", name: "사주 종합 프리미엄 PDF (80~100p)", price: 29000, kind: "pdf", badge: "추천",
+    desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로·건강·대운까지 80~100장 분량의 프리미엄 보고서.\n결제 후 입력하신 이메일로 발송됩니다." },
   { id: "goonghap-pdf", name: "궁합 리포트 PDF", price: 29000, kind: "pdf",
     desc: "두 사람의 사주로 읽는 깊은 궁합 이야기.\n사랑 궁합부터 결혼 궁합까지 상세 분석." },
 ];
