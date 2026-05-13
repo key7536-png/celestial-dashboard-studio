@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
+import jagaebitShopBg from "@/assets/jagaebit-shop-bg.png";
 
 export const Route = createFileRoute("/my-shop")({
   component: MyShop,
@@ -63,7 +64,7 @@ function MyShop() {
   const navigate = useNavigate();
   const shopUrl = "https://tarotsaas.com/shop/천운";
   const [copied, setCopied] = useState(false);
-  const [bgImage, setBgImage] = useState<string | null>(null);
+  const [bgImage, setBgImage] = useState<string | null>(jagaebitShopBg);
   const bgInputRef = useRef<HTMLInputElement>(null);
 
   const [font, setFont] = useState("기본");
