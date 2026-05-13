@@ -302,16 +302,6 @@ function MyShop() {
             {FREE_TIMES.map((t) => <button key={t} onClick={() => setFreeTime(t)} className={chip(freeTime === t)}>{t}</button>)}
           </div>
           <p className="text-xs text-[#555] mb-4">무료 시간 후 유료 전환 안내가 표시됩니다</p>
-          <div className="bg-[#0e0e0e] border border-[#1e1e1e] rounded-lg p-4 mb-4">
-            <p className="text-xs font-semibold text-[#888] mb-3">🏦 계좌 정보 (무통장입금 안내용)</p>
-            <div className="space-y-2">
-              <input className={inp} value={bank} onChange={(e) => setBank(e.target.value)} placeholder="은행명 (예: 카카오뱅크)" />
-              <input className={inp} value={account} onChange={(e) => setAccount(e.target.value)} placeholder="계좌번호 (예: 3333-12-1234567)" />
-              <input className={inp} value={depositor} onChange={(e) => setDepositor(e.target.value)} placeholder="예금주 (예: 홍길동)" />
-            </div>
-            <p className="text-xs text-[#555] mt-2">입력하면 고객 결제 안내에 계좌 정보가 표시됩니다</p>
-          </div>
-
           {/* 토스페이먼츠 클라이언트 키 */}
           <div className="bg-[#0e0e0e] border border-[#1e1e1e] rounded-lg p-4 mb-4">
             <p className="text-xs font-semibold text-[#888] mb-3">💳 토스페이먼츠 연동</p>
@@ -383,10 +373,6 @@ function MyShop() {
                     <label className="text-xs text-[#555] mb-1 block">가격 (원)</label>
                     <input className={inp} type="number" value={p.price} onChange={(e) => updateConsult(p.id, "price", e.target.value)} />
                   </div>
-                </div>
-                <div className="mb-2">
-                  <label className="text-xs text-[#555] mb-1 block">결제 링크 (선택)</label>
-                  <input className={inp} value={p.link} onChange={(e) => updateConsult(p.id, "link", e.target.value)} placeholder="https://litt.ly/..." />
                 </div>
                 <button
                   onClick={() => payWithToss({
@@ -515,10 +501,6 @@ function MyShop() {
                   <div>
                     <label className="text-xs text-[#555] mb-1 block">가격 (원)</label>
                     <input className={inp} type="number" value={p.price} onChange={(e) => updatePdf(p.id, "price", e.target.value)} />
-                  </div>
-                  <div>
-                    <label className="text-xs text-[#555] mb-1 block">결제 링크 (선택)</label>
-                    <input className={inp} value={p.link} onChange={(e) => updatePdf(p.id, "link", e.target.value)} placeholder="https://..." />
                   </div>
                 </div>
                 <button
