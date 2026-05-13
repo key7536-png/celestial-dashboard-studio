@@ -6,6 +6,48 @@ export const Route = createFileRoute("/my-shop")({
   component: MyShop,
 });
 
+// 상품 유형별 대표 이미지
+const CONSULT_IMG: Record<string, string> = {
+  tarot: "/fortune-bg/cover-tarot.jpg",
+  saju: "/fortune-bg/ink-mountain.jpg",
+  goonghap: "/fortune-bg/heart-moon.jpg",
+  gaemyeong: "/fortune-bg/gold-dust.jpg",
+  seongmyeong: "/fortune-bg/marble-pink.jpg",
+};
+const PDF_IMG = [
+  "/fortune-bg/galaxy-purple.jpg",
+  "/fortune-bg/galaxy-purple2.jpg",
+  "/fortune-bg/mountain-sunset.jpg",
+];
+
+// 토스 결제 트리거 (저장된 클라이언트 키 사용)
+async function payWithToss(opts: { name: string; amount: number; orderId: string }) {
+  const clientKey = localStorage.getItem("toss_client_key")?.trim();
+  if (!clientKey) {
+    alert("먼저 토스페이먼츠 클라이언트 키를 저장하세요.");
+    return;
+  }
+  if (!opts.amount || opts.amount < 100) {
+    alert("결제 금액을 확인해주세요.");
+    return;
+  }
+  try {
+    const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
+    const toss = await loadTossPayments(clientKey);
+    const payment = toss.payment({ customerKey: "ANONYMOUS" });
+    await payment.requestPayment({
+      method: "CARD",
+      amount: { currency: "KRW", value: opts.amount },
+      orderId: opts.orderId,
+      orderName: opts.name,
+      successUrl: window.location.origin + "/payment/success",
+      failUrl: window.location.origin + "/payment/fail",
+    });
+  } catch (e: any) {
+    if (e?.code !== "USER_CANCEL") alert("결제창 호출 실패: " + (e?.message || e));
+  }
+}
+
 const CONSULT_TYPES = [
   { value: "tarot", label: "🔮 타로" },
   { value: "saju", label: "🔴 사주" },
