@@ -577,15 +577,15 @@ function MyShop() {
 
     </div>
 
-      {/* 하단 고정 저장 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0a0a0f]/90 backdrop-blur border-t border-[#1e1e1e] z-40">
-        <div className="max-w-[600px] mx-auto">
-          <button onClick={handleSave} className="w-full py-4 rounded-xl text-white font-semibold text-sm hover:opacity-90 transition"
-            style={{ background: "linear-gradient(to right, #9333ea, #ec4899)" }}>
-            💾 저장하기
-          </button>
-        </div>
-      </div>
+      {/* 플로팅 저장 버튼 (스크롤 따라다님) */}
+      <button
+        onClick={handleSave}
+        className="fixed bottom-6 right-6 z-40 px-4 py-2.5 rounded-full text-white font-semibold text-xs shadow-lg hover:opacity-90 transition flex items-center gap-1.5"
+        style={{ background: "linear-gradient(to right, #9333ea, #ec4899)" }}
+        title="저장하기"
+      >
+        💾 저장
+      </button>
 
       {toast && (
         <div className="fixed bottom-6 right-6 bg-[#1a1a2e] border border-[#b794f4]/40 text-[#b794f4] text-sm px-4 py-2 rounded-xl shadow-lg z-50">
