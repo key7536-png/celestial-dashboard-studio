@@ -30,6 +30,7 @@ type Product = {
   name: string;
   price: number;
   desc: string;
+  image: string;
   badge?: "인기" | "추천" | "🎉 오픈 기념 특가";
   kind: "consult" | "pdf";
   originalPrice?: number;
