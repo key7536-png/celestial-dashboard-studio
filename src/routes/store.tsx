@@ -202,8 +202,14 @@ function StorePage() {
               카카오톡 채널 문의
             </a>
           </div>
-          <p className="mt-6 text-[11px] text-[#a89888]">
-            © {new Date().getFullYear()} 자개빛 (JAGAEBIT). All rights reserved.
+          <p className="mt-6 text-[11px] text-[#a89888] flex items-center justify-between gap-3 flex-wrap">
+            <span>© {new Date().getFullYear()} 자개빛 (JAGAEBIT). All rights reserved.</span>
+            <Link
+              to="/dashboard"
+              className="text-[10px] tracking-wider px-2.5 py-1 rounded-full border border-[#d8c8b8] text-[#a89888] hover:text-[#7a5a78] hover:border-[#c8a9c0] transition"
+            >
+              관리자 대시보드
+            </Link>
           </p>
         </div>
       </footer>
