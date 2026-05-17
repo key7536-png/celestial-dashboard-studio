@@ -176,6 +176,11 @@ function MyShop() {
   const handleBgChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert("이미지가 너무 커서 저장이 안 될 수 있어요. 1.5MB 이하 이미지로 올려주세요.");
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => setBgImage(ev.target?.result as string);
       reader.readAsDataURL(file);
@@ -209,14 +214,36 @@ function MyShop() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const data = {
-      bgImage, font, fontSize, displayName, bio, freeTime,
+      font, fontSize, displayName, bio, freeTime,
       bank, account, depositor, isPublic,
       consultProducts, saleProducts, pdfProducts,
     };
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch { /* quota */ }
-  }, [bgImage, font, fontSize, displayName, bio, freeTime, bank, account, depositor, isPublic, consultProducts, saleProducts, pdfProducts]);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      setToastMessage("⚠️ 저장 공간이 부족해요. 배경 이미지를 줄이거나 삭제해주세요.");
+      setToast(true);
+      setTimeout(() => setToast(false), 3500);
+    }
+  }, [font, fontSize, displayName, bio, freeTime, bank, account, depositor, isPublic, consultProducts, saleProducts, pdfProducts]);
 
-  const handleSave = () => { setToast(true); setTimeout(() => setToast(false), 2500); };
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(BG_STORAGE_KEY, bgImage || "__none__");
+    } catch {
+      setBgImage(jagaebitShopBg as string);
+      setToastMessage("⚠️ 배경 이미지가 커서 글 저장을 보호하려고 기본 이미지로 되돌렸어요.");
+      setToast(true);
+      setTimeout(() => setToast(false), 3500);
+    }
+  }, [bgImage]);
+
+  const handleSave = () => {
+    setToastMessage("✅ 저장 완료!");
+    setToast(true);
+    setTimeout(() => setToast(false), 2500);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white pb-24" style={{ fontFamily: "'Noto Sans KR', sans-serif" }}>
