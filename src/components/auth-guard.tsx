@@ -11,11 +11,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const isPublic = PUBLIC_ROUTES.some((p) => pathname === p || pathname.startsWith(p + "/"));
-    if (!isPublic && !isAuthed()) {
-      navigate({ to: "/login", replace: true });
-      return;
-    }
     setReady(true);
   }, [pathname, navigate]);
 
