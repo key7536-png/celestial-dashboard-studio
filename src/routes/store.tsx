@@ -424,59 +424,46 @@ function TarotPickSection() {
           pointer-events: none;
           user-select: none;
         }
-        .tarot-card-wrap { perspective: 1200px; }
-        .tarot-card-inner {
+        .wheel-slot {
           position: relative;
           width: 100%;
           aspect-ratio: 2 / 3;
-          transition: transform 0.7s cubic-bezier(.4,.2,.2,1);
-          transform-style: preserve-3d;
-          cursor: pointer;
-        }
-        .tarot-card-inner.flipped { transform: rotateY(180deg); }
-        .tarot-face {
-          position: absolute;
-          inset: 0;
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-          border-radius: 12px;
+          border-radius: 14px;
           overflow: hidden;
-          box-shadow:
-            0 1px 0 rgba(255,255,255,0.6) inset,
-            0 10px 25px -8px rgba(184,154,220,0.45),
-            0 0 40px -10px rgba(244,168,184,0.4);
-        }
-        .tarot-back {
-          background:
-            radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 50%),
-            linear-gradient(135deg, #f4a8b8, #e8a4cc 40%, #b89adc 75%, #9dd4d4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1.5px solid rgba(255,255,255,0.6);
-        }
-        .tarot-back-pattern {
-          width: 80%;
-          height: 80%;
-          border: 1.5px solid rgba(255,255,255,0.7);
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 2.2rem;
-          color: rgba(255,255,255,0.85);
-          text-shadow: 0 2px 6px rgba(120,60,90,0.35);
-        }
-        .tarot-front {
-          transform: rotateY(180deg);
+          cursor: pointer;
+          transition: transform 0.4s cubic-bezier(.4,.2,.2,1), box-shadow 0.4s, filter 0.4s;
           background: #fdf4f0;
-          border: 1.5px solid rgba(244,168,184,0.5);
         }
-        .tarot-front img {
+        .wheel-slot img {
           width: 100%; height: 100%; object-fit: cover; display: block;
         }
-        .tarot-card-wrap:hover .tarot-card-inner:not(.flipped) {
-          transform: translateY(-6px) rotate(-1deg);
+        .wheel-slot.idle {
+          filter: brightness(0.92) saturate(0.85);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.5) inset,
+            0 8px 20px -8px rgba(184,154,220,0.35);
+        }
+        .wheel-slot.idle:hover {
+          transform: translateY(-4px) rotate(-0.5deg);
+          filter: brightness(1) saturate(1);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.6) inset,
+            0 14px 28px -10px rgba(184,154,220,0.55),
+            0 0 40px -8px rgba(244,168,184,0.5);
+        }
+        .wheel-slot.picked {
+          filter: brightness(1.05) saturate(1.1);
+          box-shadow:
+            0 0 0 2px rgba(244,197,197,0.9) inset,
+            0 0 0 4px rgba(240,208,128,0.7),
+            0 14px 32px -8px rgba(184,154,220,0.6),
+            0 0 50px -8px rgba(240,208,128,0.55);
+          transform: translateY(-3px);
+        }
+        .wheel-slot.disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          filter: grayscale(0.4) brightness(0.85);
         }
         .pos-badge {
           position: absolute;
@@ -491,6 +478,30 @@ function TarotPickSection() {
           text-shadow: 0 1px 2px rgba(120,60,90,0.3);
           box-shadow: 0 4px 12px -3px rgba(184,154,220,0.5);
           z-index: 5;
+        }
+        .hero-result {
+          position: relative;
+          margin: 0 auto;
+          max-width: 320px;
+          padding: 28px 20px 24px;
+          border-radius: 24px;
+          background:
+            radial-gradient(ellipse at 50% 25%, rgba(244,197,197,0.55), transparent 60%),
+            radial-gradient(ellipse at 50% 80%, rgba(201,160,220,0.4), transparent 65%),
+            linear-gradient(180deg, #fdf4f0 0%, #f7e6ea 100%);
+          border: 1px solid rgba(244,168,184,0.45);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.7) inset,
+            0 20px 50px -15px rgba(184,154,220,0.5),
+            0 0 60px -10px rgba(240,208,128,0.4);
+          text-align: center;
+        }
+        .hero-result img {
+          width: 78%;
+          margin: 0 auto 14px;
+          display: block;
+          border-radius: 14px;
+          box-shadow: 0 18px 40px -12px rgba(120,60,90,0.45);
         }
       `}</style>
 
@@ -515,13 +526,11 @@ function TarotPickSection() {
           const isPicked = picked.includes(idx);
           const order = isPicked ? picked.indexOf(idx) : -1;
           const disabled = !isPicked && picked.length >= 3;
+          const cls = isPicked ? "picked" : disabled ? "disabled" : "idle";
           return (
-            <div key={card.id} className="tarot-card-wrap relative">
+            <div key={card.id} className="relative">
               {isPicked && (
-                <span
-                  className="pos-badge"
-                  style={{ background: BTN_GRADIENT }}
-                >
+                <span className="pos-badge" style={{ background: BTN_GRADIENT }}>
                   {POSITIONS[order]}
                 </span>
               )}
@@ -532,22 +541,17 @@ function TarotPickSection() {
                 onKeyDown={(e) => {
                   if ((e.key === "Enter" || e.key === " ") && !disabled) togglePick(idx);
                 }}
-                className={`tarot-card-inner ${isPicked ? "flipped" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
-                aria-label={isPicked ? `${POSITIONS[order]} — ${card.korean}` : `카드 ${idx + 1} 뽑기`}
+                className={`wheel-slot ${cls}`}
+                aria-label={isPicked ? `${POSITIONS[order]} — 운명의 수레바퀴` : `카드 ${idx + 1} 뽑기`}
               >
-                <div className="tarot-face tarot-back">
-                  <div className="tarot-back-pattern">✦</div>
-                </div>
-                <div className="tarot-face tarot-front">
-                  <img src={magicianImg} alt={card.korean} />
-                </div>
+                <img src={wheelImg} alt="운명의 수레바퀴" />
               </div>
               {isPicked && (
                 <div className="mt-2 text-center">
                   <div className="text-[11px] font-bold text-[#4a2a3a]" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-                    {card.korean}
+                    운명의 수레바퀴
                   </div>
-                  <div className="text-[9px] text-[#a87888] mt-0.5 leading-tight">{card.meaning}</div>
+                  <div className="text-[9px] text-[#a87888] mt-0.5 leading-tight">전환점 · 행운 · 기회</div>
                 </div>
               )}
             </div>
@@ -555,17 +559,41 @@ function TarotPickSection() {
         })}
       </div>
 
+      {allPicked && (
+        <div className="mt-10">
+          <p className="text-center text-[11px] tracking-[0.35em] text-[#b8865a] font-bold mb-4">
+            ✦ 미 래 의 메 시 지 ✦
+          </p>
+          <div className="hero-result">
+            <img src={magicianImg} alt="자개빛 마법사" />
+            <p
+              className="text-[11px] tracking-[0.3em] text-[#b89adc] font-semibold mb-2"
+              style={{ fontFamily: "'Noto Serif KR', serif" }}
+            >
+              J A G A E B I T
+            </p>
+            <h3
+              className="text-[18px] font-bold mb-3 leading-snug"
+              style={{
+                fontFamily: "'Noto Serif KR', serif",
+                background: JAGAE_GRADIENT,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
+            >
+              자개빛 천운이<br/>당신에게 다가옵니다
+            </h3>
+            <p className="text-[12px] text-[#6a4858] leading-relaxed mb-1">
+              세 장의 카드가 모두 <span className="font-bold text-[#b89adc]">정방향</span>으로 펼쳐졌어요.
+            </p>
+            <p className="text-[11px] text-[#a87888]">더 깊은 해석은 1:1 상담에서 만나보세요.</p>
+          </div>
+        </div>
+      )}
+
       {picked.length > 0 && (
-        <div className="mt-8 text-center">
-          {allPicked && (
-            <div className="mb-4 mx-auto max-w-md p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-[#f4a8b8]/40 shadow-md">
-              <p className="text-xs text-[#b8865a] font-bold tracking-widest mb-2">✦ 오늘의 메시지 ✦</p>
-              <p className="text-[13px] text-[#4a2a3a] leading-relaxed">
-                세 장의 카드가 모두 <span className="font-bold text-[#b89adc]">정방향</span>으로 나왔어요.<br />
-                더 자세한 해석은 1:1 상담에서 만나보세요.
-              </p>
-            </div>
-          )}
+        <div className="mt-6 text-center">
           <button
             onClick={reset}
             className="text-xs px-5 py-2 rounded-full text-[#6a4858] bg-white/70 border border-[#f4a8b8]/50 hover:bg-white transition font-semibold"
