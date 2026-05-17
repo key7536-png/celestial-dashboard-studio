@@ -104,11 +104,13 @@ function QRCodeBox({ url }: { url: string }) {
 
 function MyShop() {
   const navigate = useNavigate();
-  // 도메인 연결 후 자동 https://자개빛.shop, 그 전에는 현재 프리뷰의 /store 로 연결
-  const shopUrl =
+  // 표시용 URL (브랜드 도메인)
+  const shopUrl = "https://자개빛.shop";
+  // QR/미리보기 실제 동작용 URL — 도메인 연결 전에는 프리뷰의 /store 사용
+  const livePreviewUrl =
     typeof window !== "undefined"
-      ? window.location.origin + "/store"
-      : "https://자개빛.shop/store";
+      ? window.location.origin + "/"
+      : "https://자개빛.shop/";
   const [copied, setCopied] = useState(false);
   const [bgImage, setBgImage] = useState<string | null>(jagaebitShopBg);
   const bgInputRef = useRef<HTMLInputElement>(null);
@@ -224,12 +226,12 @@ function MyShop() {
           {/* QR 코드 */}
           <div className="flex items-start gap-4">
             <div className="bg-[#0e0e0e] border border-[#2a2a2a] rounded-xl p-3 flex-shrink-0">
-              <QRCodeBox url={shopUrl} />
+              <QRCodeBox url={livePreviewUrl} />
             </div>
             <div>
               <p className="text-sm font-semibold mb-1">QR 코드</p>
               <p className="text-xs text-[#666] mb-3">스크린샷하여 고객에게 공유하세요</p>
-              <button onClick={() => window.open(shopUrl, "_blank")}
+              <button onClick={() => window.open(livePreviewUrl, "_blank")}
                 className="flex items-center gap-1.5 text-xs border border-[#2a2a2a] px-3 py-1.5 rounded-lg text-[#888] hover:border-[#b794f4] hover:text-[#b794f4] transition">
                 👁 미리보기
               </button>
