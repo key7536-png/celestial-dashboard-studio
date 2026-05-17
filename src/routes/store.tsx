@@ -382,3 +382,197 @@ function StorePage() {
     </div>
   );
 }
+
+// ============ TAROT PICK ============
+const TAROT_DECK = [
+  { id: "magician", name: "The Magician", korean: "마법사", meaning: "새로운 시작 · 의지 · 창조의 힘" },
+  { id: "high-priestess", name: "The High Priestess", korean: "여사제", meaning: "직관 · 내면의 지혜 · 신비" },
+  { id: "empress", name: "The Empress", korean: "여황제", meaning: "풍요 · 사랑 · 모성의 따스함" },
+  { id: "lovers", name: "The Lovers", korean: "연인", meaning: "사랑 · 조화 · 운명의 선택" },
+  { id: "star", name: "The Star", korean: "별", meaning: "희망 · 영감 · 빛나는 미래" },
+  { id: "sun", name: "The Sun", korean: "태양", meaning: "기쁨 · 성공 · 따뜻한 행복" },
+  { id: "moon", name: "The Moon", korean: "달", meaning: "꿈 · 무의식 · 숨겨진 진실" },
+  { id: "wheel", name: "Wheel of Fortune", korean: "운명의 수레바퀴", meaning: "전환점 · 행운 · 기회" },
+  { id: "world", name: "The World", korean: "세계", meaning: "완성 · 성취 · 새로운 여정" },
+];
+
+const POSITIONS = ["과거", "현재", "미래"] as const;
+
+function TarotPickSection() {
+  const [picked, setPicked] = useState<number[]>([]);
+
+  const togglePick = (idx: number) => {
+    setPicked((prev) => {
+      if (prev.includes(idx)) return prev.filter((i) => i !== idx);
+      if (prev.length >= 3) return prev;
+      return [...prev, idx];
+    });
+  };
+
+  const reset = () => setPicked([]);
+  const allPicked = picked.length === 3;
+
+  return (
+    <section className="max-w-3xl mx-auto px-5 pt-14 pb-14 relative">
+      <style>{`
+        .rose-deco {
+          position: absolute;
+          font-size: 2.2rem;
+          opacity: 0.55;
+          filter: drop-shadow(0 4px 10px rgba(244,168,184,0.45));
+          pointer-events: none;
+          user-select: none;
+        }
+        .tarot-card-wrap { perspective: 1200px; }
+        .tarot-card-inner {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 2 / 3;
+          transition: transform 0.7s cubic-bezier(.4,.2,.2,1);
+          transform-style: preserve-3d;
+          cursor: pointer;
+        }
+        .tarot-card-inner.flipped { transform: rotateY(180deg); }
+        .tarot-face {
+          position: absolute;
+          inset: 0;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.6) inset,
+            0 10px 25px -8px rgba(184,154,220,0.45),
+            0 0 40px -10px rgba(244,168,184,0.4);
+        }
+        .tarot-back {
+          background:
+            radial-gradient(circle at 30% 30%, rgba(255,255,255,0.55), transparent 50%),
+            linear-gradient(135deg, #f4a8b8, #e8a4cc 40%, #b89adc 75%, #9dd4d4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1.5px solid rgba(255,255,255,0.6);
+        }
+        .tarot-back-pattern {
+          width: 80%;
+          height: 80%;
+          border: 1.5px solid rgba(255,255,255,0.7);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 2.2rem;
+          color: rgba(255,255,255,0.85);
+          text-shadow: 0 2px 6px rgba(120,60,90,0.35);
+        }
+        .tarot-front {
+          transform: rotateY(180deg);
+          background: #fdf4f0;
+          border: 1.5px solid rgba(244,168,184,0.5);
+        }
+        .tarot-front img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .tarot-card-wrap:hover .tarot-card-inner:not(.flipped) {
+          transform: translateY(-6px) rotate(-1deg);
+        }
+        .pos-badge {
+          position: absolute;
+          top: -10px; left: 50%;
+          transform: translateX(-50%);
+          font-size: 10px;
+          padding: 3px 10px;
+          border-radius: 999px;
+          color: #fff;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-shadow: 0 1px 2px rgba(120,60,90,0.3);
+          box-shadow: 0 4px 12px -3px rgba(184,154,220,0.5);
+          z-index: 5;
+        }
+      `}</style>
+
+      <span className="rose-deco" style={{ top: "10px", left: "8px" }}>🌹</span>
+      <span className="rose-deco" style={{ top: "30px", right: "10px", fontSize: "1.6rem" }}>🌹</span>
+      <span className="rose-deco" style={{ bottom: "20px", left: "20px", fontSize: "1.6rem" }}>🌹</span>
+      <span className="rose-deco" style={{ bottom: "10px", right: "8px" }}>🌹</span>
+
+      <h2
+        className="text-center text-sm tracking-[0.4em] text-[#b8865a] mb-3 font-semibold"
+        style={{ fontFamily: "'Noto Serif KR', serif" }}
+      >
+        — 오늘의 타로 —
+      </h2>
+      <p className="text-center text-[13px] text-[#6a4858] mb-8 leading-relaxed">
+        마음을 비우고 카드 9장 중 <span className="font-bold text-[#b89adc]">3장</span>을 골라보세요.<br />
+        <span className="text-[11px] text-[#a87888]">과거 · 현재 · 미래의 메시지가 정방향으로 펼쳐집니다.</span>
+      </p>
+
+      <div className="grid grid-cols-3 gap-3 md:gap-5 max-w-md md:max-w-xl mx-auto">
+        {TAROT_DECK.map((card, idx) => {
+          const isPicked = picked.includes(idx);
+          const order = isPicked ? picked.indexOf(idx) : -1;
+          const disabled = !isPicked && picked.length >= 3;
+          return (
+            <div key={card.id} className="tarot-card-wrap relative">
+              {isPicked && (
+                <span
+                  className="pos-badge"
+                  style={{ background: BTN_GRADIENT }}
+                >
+                  {POSITIONS[order]}
+                </span>
+              )}
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => !disabled && togglePick(idx)}
+                onKeyDown={(e) => {
+                  if ((e.key === "Enter" || e.key === " ") && !disabled) togglePick(idx);
+                }}
+                className={`tarot-card-inner ${isPicked ? "flipped" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
+                aria-label={isPicked ? `${POSITIONS[order]} — ${card.korean}` : `카드 ${idx + 1} 뽑기`}
+              >
+                <div className="tarot-face tarot-back">
+                  <div className="tarot-back-pattern">✦</div>
+                </div>
+                <div className="tarot-face tarot-front">
+                  <img src={magicianImg} alt={card.korean} />
+                </div>
+              </div>
+              {isPicked && (
+                <div className="mt-2 text-center">
+                  <div className="text-[11px] font-bold text-[#4a2a3a]" style={{ fontFamily: "'Noto Serif KR', serif" }}>
+                    {card.korean}
+                  </div>
+                  <div className="text-[9px] text-[#a87888] mt-0.5 leading-tight">{card.meaning}</div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {picked.length > 0 && (
+        <div className="mt-8 text-center">
+          {allPicked && (
+            <div className="mb-4 mx-auto max-w-md p-4 rounded-2xl bg-white/70 backdrop-blur-md border border-[#f4a8b8]/40 shadow-md">
+              <p className="text-xs text-[#b8865a] font-bold tracking-widest mb-2">✦ 오늘의 메시지 ✦</p>
+              <p className="text-[13px] text-[#4a2a3a] leading-relaxed">
+                세 장의 카드가 모두 <span className="font-bold text-[#b89adc]">정방향</span>으로 나왔어요.<br />
+                더 자세한 해석은 1:1 상담에서 만나보세요.
+              </p>
+            </div>
+          )}
+          <button
+            onClick={reset}
+            className="text-xs px-5 py-2 rounded-full text-[#6a4858] bg-white/70 border border-[#f4a8b8]/50 hover:bg-white transition font-semibold"
+          >
+            다시 뽑기
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
