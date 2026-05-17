@@ -229,8 +229,8 @@ function StorePage() {
         <div className="relative flex justify-center mb-6">
           <div className="hero-glow" />
           <img
-            src={magicianImg}
-            alt="자개빛 천운 — The Magician"
+            src={HERO_IMG}
+            alt="자개빛 천운 — 운명의 수레바퀴"
             className="floating-img relative z-10 w-44 md:w-56 rounded-2xl shadow-[0_20px_60px_-15px_rgba(184,154,220,0.55)] ring-1 ring-white/60"
           />
         </div>
