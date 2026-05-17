@@ -376,6 +376,7 @@ function MyShop() {
               <button
                 onClick={() => {
                   localStorage.setItem("toss_client_key", tossClientKey.trim());
+                  setToastMessage("✅ 저장 완료!");
                   setToast(true);
                   setTimeout(() => setToast(false), 1500);
                 }}
@@ -622,7 +623,7 @@ function MyShop() {
 
       {toast && (
         <div className="fixed bottom-6 right-6 bg-[#1a1a2e] border border-[#b794f4]/40 text-[#b794f4] text-sm px-4 py-2 rounded-xl shadow-lg z-50">
-          ✅ 저장 완료!
+          {toastMessage}
         </div>
       )}
     </div>
