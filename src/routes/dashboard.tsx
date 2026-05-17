@@ -51,6 +51,14 @@ function Dashboard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [activeConsultations, setActiveConsultations] = useState(0);
+  const [view, setView] = useState<ViewMode>(() => {
+    if (typeof window === "undefined") return "pc";
+    return (localStorage.getItem("dashboard_view") as ViewMode) || "pc";
+  });
+  const setViewMode = (m: ViewMode) => {
+    setView(m);
+    if (typeof window !== "undefined") localStorage.setItem("dashboard_view", m);
+  };
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
