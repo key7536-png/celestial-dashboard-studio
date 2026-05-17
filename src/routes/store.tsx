@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import magicianImg from "@/assets/jagae-magician.png";
 
 export const Route = createFileRoute("/store")({
