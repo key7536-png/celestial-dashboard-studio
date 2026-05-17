@@ -98,25 +98,51 @@ function Dashboard() {
 
   const nickname = user.email?.split("@")[0] ?? "별빛 여행자";
 
+  const modes: { id: ViewMode; label: string; Icon: typeof Smartphone }[] = [
+    { id: "mobile", label: "모바일", Icon: Smartphone },
+    { id: "tablet", label: "태블릿", Icon: Tablet },
+    { id: "pc", label: "PC", Icon: Monitor },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col grid-bg">
       <SiteHeader />
-      <main className="flex-1 container mx-auto px-6 py-12 max-w-6xl">
-        <div className="mb-12">
-          <h1 className="font-display text-4xl md:text-5xl font-semibold flex items-center gap-3 tracking-tight">
-            <span className="text-foreground">안녕하세요,</span>
-            <span className="text-gradient-mystic">{nickname}님!</span>
-            <span className="text-primary text-3xl">✦</span>
-          </h1>
-          <p className="text-muted-foreground mt-3 text-base">나만의 타로 상점을 관리하세요</p>
+      <main className={`flex-1 container mx-auto px-4 md:px-6 py-8 md:py-12 transition-all ${VIEW_WIDTHS[view]}`}>
+        <div className="mb-6 flex justify-end">
+          <div className="inline-flex rounded-full border border-border/60 bg-card/50 backdrop-blur-sm p-1">
+            {modes.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                onClick={() => setViewMode(id)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition ${
+                  view === id
+                    ? "bg-primary text-primary-foreground shadow"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                aria-label={label}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">{label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mb-10 md:mb-12">
+          <h1 className="font-display text-3xl md:text-5xl font-semibold flex flex-wrap items-center gap-3 tracking-tight">
+            <span className="text-foreground">안녕하세요,</span>
+            <span className="text-gradient-mystic">{nickname}님!</span>
+            <span className="text-primary text-2xl md:text-3xl">✦</span>
+          </h1>
+          <p className="text-muted-foreground mt-3 text-sm md:text-base">나만의 타로 상점을 관리하세요</p>
+        </div>
+
+        <div className={`grid ${VIEW_GRID[view]} gap-4 md:gap-5`}>
           {MENU.map((item) => (
             <Link
               key={item.to}
               to={item.to}
-              className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-7 hover:border-primary/50 hover:bg-card/80 transition-all"
+              className="group relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 md:p-7 hover:border-primary/50 hover:bg-card/80 transition-all"
             >
               {(() => {
                 const badge = item.to === "/consultations" ? activeConsultations : item.badge ?? 0;
@@ -126,10 +152,10 @@ function Dashboard() {
                   </span>
                 ) : null;
               })()}
-              <div className="text-4xl mb-5 group-hover:scale-110 transition-transform inline-block">
+              <div className="text-3xl md:text-4xl mb-3 md:mb-5 group-hover:scale-110 transition-transform inline-block">
                 {item.emoji}
               </div>
-              <h3 className="font-display text-xl font-semibold mb-1.5 text-foreground">
+              <h3 className="font-display text-lg md:text-xl font-semibold mb-1.5 text-foreground">
                 {item.title}
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
