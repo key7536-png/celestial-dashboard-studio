@@ -30,25 +30,35 @@ type Product = {
   name: string;
   price: number;
   desc: string;
+  image: string;
   badge?: "인기" | "추천" | "🎉 오픈 기념 특가";
   kind: "consult" | "pdf";
   originalPrice?: number;
 };
 
+const HERO_IMG = "https://upload.wikimedia.org/wikipedia/commons/3/3c/RWS_Tarot_10_Wheel_of_Fortune.jpg";
+
 const PRODUCTS: Product[] = [
   { id: "tarot-10", name: "타로/사주 10분 상담", price: 7000, originalPrice: 10000, kind: "consult", badge: "🎉 오픈 기념 특가",
+    image: "https://upload.wikimedia.org/wikipedia/commons/9/9b/RWS_Tarot_17_Star.jpg",
     desc: "지금 이 순간, 딱 하나의 답이 필요할 때.\n핵심 한 가지를 명확하게 짚어드립니다." },
   { id: "tarot-20", name: "타로/사주 20분 상담", price: 20000, kind: "consult",
+    image: "https://upload.wikimedia.org/wikipedia/commons/d/de/RWS_Tarot_02_High_Priestess.jpg",
     desc: "두 가지 고민을 깊이 있게 풀어드립니다.\n연애, 진로, 재물 어떤 주제든 가능해요." },
   { id: "tarot-30", name: "타로/사주 30분 상담", price: 30000, kind: "consult",
+    image: "https://upload.wikimedia.org/wikipedia/commons/f/f5/RWS_Tarot_08_Strength.jpg",
     desc: "시간 내 무제한 질문.\n마음속 모든 이야기를 꺼내놓으세요." },
   { id: "reunion-30", name: "재회/속마음 30분 특화 상담", price: 30000, kind: "consult", badge: "인기",
+    image: "https://upload.wikimedia.org/wikipedia/commons/e/e9/RWS_Tarot_06_Lovers.jpg",
     desc: "그 사람, 지금 나를 생각하고 있을까요?\n타로와 사주로 그 마음을 정확하게 읽어드립니다." },
   { id: "saju-pdf-basic", name: "사주 기본 PDF 리포트 (30장)", price: 15000, kind: "pdf",
+    image: "https://upload.wikimedia.org/wikipedia/commons/4/4d/RWS_Tarot_09_Hermit.jpg",
     desc: "정통 명리학 기반 30장 분량 사주 분석 보고서.\n결제 후 생년월일시 입력 → 맞춤 리포트 발송." },
   { id: "saju-pdf-ai", name: "AI 사주 종합 리포트 PDF", price: 29000, kind: "pdf", badge: "추천",
+    image: "https://upload.wikimedia.org/wikipedia/commons/1/10/RWS_Tarot_01_Magician.jpg",
     desc: "명리학 20년 내공 + AI 분석의 만남.\n연애·재물·진로를 한 번에 담은 프리미엄 보고서." },
   { id: "goonghap-pdf", name: "궁합 리포트 PDF", price: 29000, kind: "pdf",
+    image: "https://upload.wikimedia.org/wikipedia/commons/e/e9/RWS_Tarot_06_Lovers.jpg",
     desc: "두 사람의 사주로 읽는 깊은 궁합 이야기.\n사랑 궁합부터 결혼 궁합까지 상세 분석." },
 ];
 
@@ -219,8 +229,8 @@ function StorePage() {
         <div className="relative flex justify-center mb-6">
           <div className="hero-glow" />
           <img
-            src={magicianImg}
-            alt="자개빛 천운 — The Magician"
+            src={HERO_IMG}
+            alt="자개빛 천운 — 운명의 수레바퀴"
             className="floating-img relative z-10 w-44 md:w-56 rounded-2xl shadow-[0_20px_60px_-15px_rgba(184,154,220,0.55)] ring-1 ring-white/60"
           />
         </div>
@@ -290,8 +300,8 @@ function StorePage() {
                     style={{ background: JAGAE_GRADIENT }}
                   />
                   <img
-                    src={magicianImg}
-                    alt="자개빛 타로 카드"
+                    src={p.image}
+                    alt={p.name}
                     className="relative w-16 h-24 object-cover rounded-md ring-1 ring-white/70 shadow-md"
                   />
                 </div>
