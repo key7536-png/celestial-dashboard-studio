@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import magicianImg from "@/assets/jagae-magician.png";
 
 export const Route = createFileRoute("/store")({
   head: () => ({
@@ -51,10 +52,11 @@ const PRODUCTS: Product[] = [
 
 const fmt = (n: number) => n.toLocaleString("ko-KR") + "원";
 
+// 자개빛 그라디언트 (로즈 → 라벤더 → 민트 → 골드)
 const JAGAE_GRADIENT =
-  "linear-gradient(135deg, #f4c5c5 0%, #e8b4d0 35%, #c9a0dc 70%, #f0d080 100%)";
+  "linear-gradient(135deg, #f4a8b8 0%, #e8a4cc 30%, #b89adc 60%, #9dd4d4 80%, #d4a574 100%)";
 const BTN_GRADIENT =
-  "linear-gradient(135deg, #c9a0dc 0%, #e8b4d0 50%, #f4c5c5 100%)";
+  "linear-gradient(135deg, #c9a0dc 0%, #e8a4cc 50%, #f4a8b8 100%)";
 
 async function payWithToss(p: Product) {
   const clientKey =
@@ -92,14 +94,15 @@ async function payWithToss(p: Product) {
 function StorePage() {
   return (
     <div
-      className="min-h-screen text-[#f5e6e8] relative"
+      className="min-h-screen text-[#5a3a4a] relative"
       style={{
-        backgroundColor: "#1a0f0f",
+        backgroundColor: "#fdf4f0",
         backgroundImage: `
-          radial-gradient(ellipse at 15% 10%, rgba(244,197,197,0.14), transparent 55%),
-          radial-gradient(ellipse at 85% 20%, rgba(232,180,208,0.12), transparent 55%),
-          radial-gradient(ellipse at 50% 90%, rgba(201,160,220,0.10), transparent 55%),
-          radial-gradient(ellipse at 90% 80%, rgba(240,208,128,0.08), transparent 55%)
+          radial-gradient(ellipse at 10% 5%, rgba(244,168,184,0.45), transparent 50%),
+          radial-gradient(ellipse at 90% 10%, rgba(232,164,204,0.40), transparent 50%),
+          radial-gradient(ellipse at 50% 40%, rgba(184,154,220,0.30), transparent 55%),
+          radial-gradient(ellipse at 15% 75%, rgba(157,212,212,0.35), transparent 55%),
+          radial-gradient(ellipse at 85% 90%, rgba(240,208,128,0.35), transparent 55%)
         `,
         backgroundAttachment: "fixed",
         fontFamily: "'Noto Sans KR', sans-serif",
@@ -111,6 +114,10 @@ function StorePage() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        @keyframes float-soft {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(1deg); }
+        }
         .jagae-text {
           background: ${JAGAE_GRADIENT};
           background-size: 200% 200%;
@@ -121,13 +128,14 @@ function StorePage() {
         }
         .jagae-card {
           position: relative;
-          background: #2a1a1a;
-          border: 1px solid rgba(244,197,197,0.3);
-          border-radius: 18px;
+          background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(253,244,240,0.75));
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(244,168,184,0.45);
+          border-radius: 20px;
           box-shadow:
-            0 0 0 1px rgba(255,255,255,0.02) inset,
-            0 8px 40px -12px rgba(244,197,197,0.18),
-            0 0 60px -20px rgba(201,160,220,0.12);
+            0 1px 0 rgba(255,255,255,0.9) inset,
+            0 8px 30px -10px rgba(232,164,204,0.35),
+            0 0 60px -20px rgba(184,154,220,0.25);
           transition: transform .35s ease, box-shadow .35s ease;
           overflow: hidden;
         }
@@ -135,7 +143,7 @@ function StorePage() {
           content: "";
           position: absolute;
           top: 0; left: 0; right: 0;
-          height: 2px;
+          height: 3px;
           background: ${JAGAE_GRADIENT};
           background-size: 200% 200%;
           animation: jagae-shimmer 5s ease infinite;
@@ -143,35 +151,51 @@ function StorePage() {
         .jagae-card:hover {
           transform: translateY(-4px);
           box-shadow:
-            0 0 0 1px rgba(255,255,255,0.04) inset,
-            0 16px 50px -10px rgba(244,197,197,0.35),
-            0 0 80px -10px rgba(201,160,220,0.25);
+            0 1px 0 rgba(255,255,255,1) inset,
+            0 16px 45px -10px rgba(232,164,204,0.5),
+            0 0 80px -10px rgba(184,154,220,0.4);
         }
         .jagae-btn {
           background: ${BTN_GRADIENT};
           background-size: 200% 200%;
-          color: #3a1a2a;
+          color: #ffffff;
           font-weight: 700;
+          letter-spacing: 0.02em;
           animation: jagae-shimmer 5s ease infinite;
-          box-shadow: 0 4px 18px -4px rgba(201,160,220,0.45);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.5) inset,
+            0 4px 14px -2px rgba(201,160,220,0.5);
           transition: transform .2s ease, box-shadow .2s ease;
+          text-shadow: 0 1px 2px rgba(120,60,90,0.25);
         }
         .jagae-btn:hover {
           transform: translateY(-1px);
-          box-shadow: 0 6px 22px -2px rgba(244,197,197,0.55);
+          box-shadow:
+            0 1px 0 rgba(255,255,255,0.6) inset,
+            0 6px 20px -2px rgba(244,168,184,0.6);
         }
         .jagae-divider {
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(244,197,197,0.4), rgba(232,180,208,0.4), rgba(201,160,220,0.4), rgba(240,208,128,0.4), transparent);
+          background: linear-gradient(90deg, transparent, rgba(244,168,184,0.5), rgba(232,164,204,0.5), rgba(184,154,220,0.5), rgba(240,208,128,0.5), transparent);
+        }
+        .floating-img {
+          animation: float-soft 6s ease-in-out infinite;
+        }
+        .hero-glow {
+          position: absolute;
+          inset: -10% -10% -10% -10%;
+          background: radial-gradient(ellipse at center, rgba(255,255,255,0.6), transparent 60%);
+          pointer-events: none;
+          z-index: 0;
         }
       `}</style>
 
       {/* HEADER */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#1a0f0f]/75 border-b border-[#3a2424]">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-white/60 border-b border-[#f4a8b8]/30 shadow-[0_2px_20px_-10px_rgba(232,164,204,0.4)]">
         <div className="max-w-3xl mx-auto px-5 h-14 flex items-center justify-between">
           <Link
             to="/store"
-            className="text-xl tracking-wider font-semibold jagae-text"
+            className="text-xl tracking-wider font-bold jagae-text"
             style={{ fontFamily: "'Noto Serif KR', serif" }}
           >
             자개빛 天運
@@ -180,7 +204,8 @@ function StorePage() {
             href="https://pf.kakao.com/_sunjin7536"
             target="_blank"
             rel="noreferrer"
-            className="text-xs px-3 py-1.5 rounded-full border border-[#f4c5c5]/40 text-[#f5e6e8] hover:bg-[#f4c5c5]/10 transition"
+            className="text-xs px-3.5 py-1.5 rounded-full text-white font-semibold shadow-md hover:shadow-lg transition"
+            style={{ background: BTN_GRADIENT }}
           >
             카카오톡 문의
           </a>
@@ -188,16 +213,24 @@ function StorePage() {
       </header>
 
       {/* HERO */}
-      <section className="max-w-3xl mx-auto px-5 pt-16 pb-12 text-center">
-        <p className="text-[11px] tracking-[0.5em] text-[#f0d080] mb-5">JAGAEBIT · 자개빛 천운</p>
+      <section className="max-w-3xl mx-auto px-5 pt-10 pb-12 text-center relative">
+        <div className="relative flex justify-center mb-6">
+          <div className="hero-glow" />
+          <img
+            src={magicianImg}
+            alt="자개빛 천운 — The Magician"
+            className="floating-img relative z-10 w-44 md:w-56 rounded-2xl shadow-[0_20px_60px_-15px_rgba(184,154,220,0.55)] ring-1 ring-white/60"
+          />
+        </div>
+        <p className="text-[11px] tracking-[0.5em] text-[#b8865a] mb-4 font-semibold">JAGAEBIT · 자개빛 천운</p>
         <h1
-          className="text-3xl md:text-4xl leading-relaxed mb-7 font-semibold jagae-text"
+          className="text-3xl md:text-4xl leading-relaxed mb-6 font-bold jagae-text"
           style={{ fontFamily: "'Noto Serif KR', serif" }}
         >
           자개빛 천운에 오신 것을<br />환영합니다
         </h1>
         <p
-          className="text-sm md:text-base text-[#f5e6e8]/90 leading-loose whitespace-pre-line"
+          className="text-sm md:text-base text-[#6a4858] leading-loose whitespace-pre-line"
           style={{ fontFamily: "'Noto Sans KR', sans-serif" }}
         >
           {`명리상담사 1급 · 타로상담사 1급 · 타로마스터 1급
@@ -206,11 +239,12 @@ function StorePage() {
 
 답답한 마음, 이곳에서 풀어가세요.`}
         </p>
-        <div className="mt-8 flex justify-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#f4c5c5]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-[#e8b4d0]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-[#c9a0dc]" />
-          <span className="w-1.5 h-1.5 rounded-full bg-[#f0d080]" />
+        <div className="mt-8 flex justify-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#f4a8b8] shadow-sm" />
+          <span className="w-2 h-2 rounded-full bg-[#e8a4cc] shadow-sm" />
+          <span className="w-2 h-2 rounded-full bg-[#b89adc] shadow-sm" />
+          <span className="w-2 h-2 rounded-full bg-[#9dd4d4] shadow-sm" />
+          <span className="w-2 h-2 rounded-full bg-[#d4a574] shadow-sm" />
         </div>
       </section>
 
@@ -221,7 +255,7 @@ function StorePage() {
       {/* PRODUCTS */}
       <section className="max-w-3xl mx-auto px-5 pt-12 pb-16">
         <h2
-          className="text-center text-sm tracking-[0.4em] text-[#f0d080] mb-10"
+          className="text-center text-sm tracking-[0.4em] text-[#b8865a] mb-10 font-semibold"
           style={{ fontFamily: "'Noto Serif KR', serif" }}
         >
           — 상품 안내 —
@@ -231,36 +265,36 @@ function StorePage() {
             <article key={p.id} className="jagae-card p-6 flex flex-col">
               {p.badge && (
                 <span
-                  className="absolute top-3 right-3 text-[10px] tracking-wider px-2.5 py-1 rounded-full font-bold whitespace-nowrap"
+                  className="absolute top-3 right-3 text-[10px] tracking-wider px-2.5 py-1 rounded-full font-bold whitespace-nowrap text-white shadow-md"
                   style={{
                     background: JAGAE_GRADIENT,
-                    color: "#3a1a2a",
+                    textShadow: "0 1px 2px rgba(120,60,90,0.3)",
                   }}
                 >
                   {p.badge}
                 </span>
               )}
-              <div className="text-[11px] tracking-widest text-[#c9a0dc] mb-2">
+              <div className="text-[11px] tracking-widest text-[#b89adc] mb-2 font-semibold">
                 {p.kind === "consult" ? "1:1 상담" : "PDF 리포트"}
               </div>
               <h3
-                className="text-lg font-semibold text-[#f5e6e8] mb-3 leading-snug"
+                className="text-lg font-bold text-[#4a2a3a] mb-3 leading-snug"
                 style={{ fontFamily: "'Noto Serif KR', serif" }}
               >
                 {p.name}
               </h3>
-              <p className="text-[13px] text-[#f5e6e8]/75 leading-relaxed whitespace-pre-line mb-5 flex-1">
+              <p className="text-[13px] text-[#6a4858] leading-relaxed whitespace-pre-line mb-5 flex-1">
                 {p.desc}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-[#3a2424]">
+              <div className="flex items-center justify-between pt-4 border-t border-[#f4a8b8]/30">
                 <div className="flex flex-col">
                   {p.originalPrice && (
-                    <span className="text-xs text-[#f5e6e8]/50 line-through leading-tight">
+                    <span className="text-xs text-[#a87888] line-through leading-tight">
                       {fmt(p.originalPrice)}
                     </span>
                   )}
                   <span
-                    className="text-xl font-semibold text-[#f0d080]"
+                    className="text-xl font-bold text-[#b8865a]"
                     style={{ fontFamily: "'Noto Serif KR', serif" }}
                   >
                     {fmt(p.price)}
@@ -268,13 +302,13 @@ function StorePage() {
                 </div>
                 <button
                   onClick={() => payWithToss(p)}
-                  className="jagae-btn px-5 py-2 rounded-lg text-sm"
+                  className="jagae-btn px-5 py-2.5 rounded-xl text-sm"
                 >
                   결제하기
                 </button>
               </div>
               {p.originalPrice && (
-                <p className="mt-3 text-[10px] text-[#f5e6e8]/45 text-right">
+                <p className="mt-3 text-[10px] text-[#a87888]/80 text-right">
                   * 가격은 추후 변경될 수 있습니다
                 </p>
               )}
@@ -284,10 +318,10 @@ function StorePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-[#3a2424] bg-[#1a0f0f]/80 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-5 py-10 text-xs text-[#f5e6e8]/70 leading-relaxed">
+      <footer className="border-t border-[#f4a8b8]/30 bg-white/50 backdrop-blur-md">
+        <div className="max-w-3xl mx-auto px-5 py-10 text-xs text-[#6a4858] leading-relaxed">
           <p
-            className="text-base font-semibold mb-4 jagae-text inline-block"
+            className="text-base font-bold mb-4 jagae-text inline-block"
             style={{ fontFamily: "'Noto Serif KR', serif" }}
           >
             자개빛 天運
@@ -299,23 +333,23 @@ function StorePage() {
             <div>유선전화: [입력 필요]</div>
           </div>
           <div className="mt-5 flex flex-wrap gap-4">
-            <Link to="/refund-policy" className="text-[#e8b4d0] hover:text-[#f4c5c5] transition">
+            <Link to="/refund-policy" className="text-[#b89adc] hover:text-[#e8a4cc] transition font-semibold">
               환불규정
             </Link>
             <a
               href="https://pf.kakao.com/_sunjin7536"
               target="_blank"
               rel="noreferrer"
-              className="text-[#e8b4d0] hover:text-[#f4c5c5] transition"
+              className="text-[#b89adc] hover:text-[#e8a4cc] transition font-semibold"
             >
               카카오톡 채널 문의
             </a>
           </div>
-          <p className="mt-6 text-[11px] text-[#f5e6e8]/40 flex items-center justify-between gap-3 flex-wrap">
+          <p className="mt-6 text-[11px] text-[#a87888] flex items-center justify-between gap-3 flex-wrap">
             <span>© {new Date().getFullYear()} 자개빛 (JAGAEBIT). All rights reserved.</span>
             <Link
               to="/dashboard"
-              className="text-[10px] tracking-wider px-2.5 py-1 rounded-full border border-[#3a2424] text-[#f5e6e8]/50 hover:text-[#f4c5c5] hover:border-[#f4c5c5]/50 transition"
+              className="text-[10px] tracking-wider px-2.5 py-1 rounded-full border border-[#f4a8b8]/40 text-[#a87888] hover:text-[#b89adc] hover:border-[#b89adc]/50 transition"
             >
               관리자 대시보드
             </Link>
