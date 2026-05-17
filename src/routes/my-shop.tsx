@@ -104,11 +104,13 @@ function QRCodeBox({ url }: { url: string }) {
 
 function MyShop() {
   const navigate = useNavigate();
-  // 도메인 연결 후 자동 https://자개빛.shop, 그 전에는 현재 프리뷰의 /store 로 연결
-  const shopUrl =
+  // 표시용 URL (브랜드 도메인)
+  const shopUrl = "https://자개빛.shop";
+  // QR/미리보기 실제 동작용 URL — 도메인 연결 전에는 프리뷰의 /store 사용
+  const livePreviewUrl =
     typeof window !== "undefined"
-      ? window.location.origin + "/store"
-      : "https://자개빛.shop/store";
+      ? window.location.origin + "/"
+      : "https://자개빛.shop/";
   const [copied, setCopied] = useState(false);
   const [bgImage, setBgImage] = useState<string | null>(jagaebitShopBg);
   const bgInputRef = useRef<HTMLInputElement>(null);
