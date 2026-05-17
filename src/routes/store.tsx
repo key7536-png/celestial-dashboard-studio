@@ -177,7 +177,7 @@ function StorePage() {
             자개빛 天運
           </Link>
           <a
-            href="https://pf.kakao.com/"
+            href="https://pf.kakao.com/_sunjin7536"
             target="_blank"
             rel="noreferrer"
             className="text-xs px-3 py-1.5 rounded-full border border-[#f4c5c5]/40 text-[#f5e6e8] hover:bg-[#f4c5c5]/10 transition"
@@ -303,7 +303,7 @@ function StorePage() {
               환불규정
             </Link>
             <a
-              href="https://pf.kakao.com/"
+              href="https://pf.kakao.com/_sunjin7536"
               target="_blank"
               rel="noreferrer"
               className="text-[#e8b4d0] hover:text-[#f4c5c5] transition"
