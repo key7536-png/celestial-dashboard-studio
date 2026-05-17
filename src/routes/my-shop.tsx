@@ -226,12 +226,12 @@ function MyShop() {
           {/* QR 코드 */}
           <div className="flex items-start gap-4">
             <div className="bg-[#0e0e0e] border border-[#2a2a2a] rounded-xl p-3 flex-shrink-0">
-              <QRCodeBox url={shopUrl} />
+              <QRCodeBox url={livePreviewUrl} />
             </div>
             <div>
               <p className="text-sm font-semibold mb-1">QR 코드</p>
               <p className="text-xs text-[#666] mb-3">스크린샷하여 고객에게 공유하세요</p>
-              <button onClick={() => window.open(shopUrl, "_blank")}
+              <button onClick={() => window.open(livePreviewUrl, "_blank")}
                 className="flex items-center gap-1.5 text-xs border border-[#2a2a2a] px-3 py-1.5 rounded-lg text-[#888] hover:border-[#b794f4] hover:text-[#b794f4] transition">
                 👁 미리보기
               </button>
