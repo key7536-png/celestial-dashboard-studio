@@ -1,10 +1,22 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Smartphone, Tablet, Monitor } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { ShopControl } from "@/components/shop-control";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+
+type ViewMode = "mobile" | "tablet" | "pc";
+const VIEW_WIDTHS: Record<ViewMode, string> = {
+  mobile: "max-w-[390px]",
+  tablet: "max-w-[820px]",
+  pc: "max-w-6xl",
+};
+const VIEW_GRID: Record<ViewMode, string> = {
+  mobile: "grid-cols-1",
+  tablet: "grid-cols-2",
+  pc: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+};
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({ meta: [{ title: "대시보드 — Lunara" }] }),
