@@ -253,6 +253,13 @@ function StorePage() {
         <div className="jagae-divider" />
       </div>
 
+      {/* TAROT PICK */}
+      <TarotPickSection />
+
+      <div className="max-w-3xl mx-auto px-5">
+        <div className="jagae-divider" />
+      </div>
+
       {/* PRODUCTS */}
       <section className="max-w-3xl mx-auto px-5 pt-12 pb-16">
         <h2
