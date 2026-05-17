@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import magicianImg from "@/assets/jagae-magician.png";
-import wheelImg from "@/assets/tarot-wheel.png";
+import tarotBackImg from "@/assets/tarot-back.png";
 
 export const Route = createFileRoute("/store")({
   head: () => ({
@@ -385,33 +385,69 @@ function StorePage() {
 }
 
 // ============ TAROT PICK ============
-const TAROT_DECK = [
-  { id: "magician", name: "The Magician", korean: "마법사", meaning: "새로운 시작 · 의지 · 창조의 힘" },
-  { id: "high-priestess", name: "The High Priestess", korean: "여사제", meaning: "직관 · 내면의 지혜 · 신비" },
-  { id: "empress", name: "The Empress", korean: "여황제", meaning: "풍요 · 사랑 · 모성의 따스함" },
-  { id: "lovers", name: "The Lovers", korean: "연인", meaning: "사랑 · 조화 · 운명의 선택" },
-  { id: "star", name: "The Star", korean: "별", meaning: "희망 · 영감 · 빛나는 미래" },
-  { id: "sun", name: "The Sun", korean: "태양", meaning: "기쁨 · 성공 · 따뜻한 행복" },
-  { id: "moon", name: "The Moon", korean: "달", meaning: "꿈 · 무의식 · 숨겨진 진실" },
-  { id: "wheel", name: "Wheel of Fortune", korean: "운명의 수레바퀴", meaning: "전환점 · 행운 · 기회" },
-  { id: "world", name: "The World", korean: "세계", meaning: "완성 · 성취 · 새로운 여정" },
+const TAROT_BASE = "https://www.trustedtarot.com/img/cards/";
+const MAJOR: Array<[string, string]> = [
+  ["the-fool", "바보"], ["the-magician", "마법사"], ["the-high-priestess", "여사제"],
+  ["the-empress", "여황제"], ["the-emperor", "황제"], ["the-hierophant", "교황"],
+  ["the-lovers", "연인"], ["the-chariot", "전차"], ["strength", "힘"],
+  ["the-hermit", "은둔자"], ["wheel-of-fortune", "운명의 수레바퀴"], ["justice", "정의"],
+  ["the-hanged-man", "매달린 남자"], ["death", "죽음"], ["temperance", "절제"],
+  ["the-devil", "악마"], ["the-tower", "탑"], ["the-star", "별"],
+  ["the-moon", "달"], ["the-sun", "태양"], ["judgement", "심판"], ["the-world", "세계"],
 ];
+const RANKS: Array<[string, string]> = [
+  ["ace", "에이스"], ["two", "2"], ["three", "3"], ["four", "4"], ["five", "5"],
+  ["six", "6"], ["seven", "7"], ["eight", "8"], ["nine", "9"], ["ten", "10"],
+  ["page", "페이지"], ["knight", "기사"], ["queen", "퀸"], ["king", "킹"],
+];
+const SUITS: Array<[string, string]> = [
+  ["cups", "컵"], ["pentacles", "펜타클"], ["swords", "소드"], ["wands", "완드"],
+];
+const MINOR: Array<[string, string]> = SUITS.flatMap(([se, sk]) =>
+  RANKS.map(([re, rk]) => [`${re}-of-${se}`, `${sk} ${rk}`] as [string, string])
+);
+const FULL_DECK: Array<{ slug: string; korean: string }> = [...MAJOR, ...MINOR].map(
+  ([slug, korean]) => ({ slug, korean })
+);
+const cardUrl = (slug: string) => `${TAROT_BASE}${slug}.png`;
 
 const POSITIONS = ["과거", "현재", "미래"] as const;
 
+interface Slot {
+  flipped: boolean;
+  card: { slug: string; korean: string } | null;
+}
+
 function TarotPickSection() {
+  const [name, setName] = useState("");
+  const [question, setQuestion] = useState("");
+  const [started, setStarted] = useState(false);
+  const [slots, setSlots] = useState<Slot[]>([]);
   const [picked, setPicked] = useState<number[]>([]);
 
-  const togglePick = (idx: number) => {
-    setPicked((prev) => {
-      if (prev.includes(idx)) return prev.filter((i) => i !== idx);
-      if (prev.length >= 3) return prev;
-      return [...prev, idx];
-    });
+  const start = () => {
+    if (!name.trim() || !question.trim()) return;
+    // Pick 9 unique random cards from the 78-card deck
+    const shuffled = [...FULL_DECK].sort(() => Math.random() - 0.5).slice(0, 9);
+    setSlots(shuffled.map((c) => ({ flipped: false, card: c })));
+    setPicked([]);
+    setStarted(true);
   };
 
-  const reset = () => setPicked([]);
+  const flip = (idx: number) => {
+    if (picked.length >= 3 || picked.includes(idx)) return;
+    setSlots((prev) => prev.map((s, i) => (i === idx ? { ...s, flipped: true } : s)));
+    setPicked((prev) => [...prev, idx]);
+  };
+
+  const reset = () => {
+    setStarted(false);
+    setSlots([]);
+    setPicked([]);
+  };
+
   const allPicked = picked.length === 3;
+  const futureCard = allPicked ? slots[picked[2]].card : null;
 
   return (
     <section className="max-w-3xl mx-auto px-5 pt-14 pb-14 relative">
@@ -424,46 +460,34 @@ function TarotPickSection() {
           pointer-events: none;
           user-select: none;
         }
-        .wheel-slot {
+        .tarot-wrap { perspective: 1200px; }
+        .tarot-inner {
           position: relative;
           width: 100%;
           aspect-ratio: 2 / 3;
-          border-radius: 14px;
-          overflow: hidden;
+          transition: transform 0.8s cubic-bezier(.4,.2,.2,1);
+          transform-style: preserve-3d;
           cursor: pointer;
-          transition: transform 0.4s cubic-bezier(.4,.2,.2,1), box-shadow 0.4s, filter 0.4s;
-          background: #fdf4f0;
         }
-        .wheel-slot img {
-          width: 100%; height: 100%; object-fit: cover; display: block;
-        }
-        .wheel-slot.idle {
-          filter: brightness(0.92) saturate(0.85);
-          box-shadow:
-            0 1px 0 rgba(255,255,255,0.5) inset,
-            0 8px 20px -8px rgba(184,154,220,0.35);
-        }
-        .wheel-slot.idle:hover {
-          transform: translateY(-4px) rotate(-0.5deg);
-          filter: brightness(1) saturate(1);
+        .tarot-inner.flipped { transform: rotateY(180deg); cursor: default; }
+        .tarot-inner.disabled { cursor: not-allowed; opacity: 0.55; }
+        .tarot-face {
+          position: absolute;
+          inset: 0;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          border-radius: 12px;
+          overflow: hidden;
           box-shadow:
             0 1px 0 rgba(255,255,255,0.6) inset,
-            0 14px 28px -10px rgba(184,154,220,0.55),
-            0 0 40px -8px rgba(244,168,184,0.5);
+            0 10px 25px -8px rgba(184,154,220,0.45),
+            0 0 40px -10px rgba(244,168,184,0.4);
+          background: #fdf4f0;
         }
-        .wheel-slot.picked {
-          filter: brightness(1.05) saturate(1.1);
-          box-shadow:
-            0 0 0 2px rgba(244,197,197,0.9) inset,
-            0 0 0 4px rgba(240,208,128,0.7),
-            0 14px 32px -8px rgba(184,154,220,0.6),
-            0 0 50px -8px rgba(240,208,128,0.55);
-          transform: translateY(-3px);
-        }
-        .wheel-slot.disabled {
-          opacity: 0.35;
-          cursor: not-allowed;
-          filter: grayscale(0.4) brightness(0.85);
+        .tarot-face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .tarot-front { transform: rotateY(180deg); border: 1.5px solid rgba(244,168,184,0.5); }
+        .tarot-wrap:hover .tarot-inner:not(.flipped):not(.disabled) {
+          transform: translateY(-6px) rotate(-1deg);
         }
         .pos-badge {
           position: absolute;
@@ -503,6 +527,22 @@ function TarotPickSection() {
           border-radius: 14px;
           box-shadow: 0 18px 40px -12px rgba(120,60,90,0.45);
         }
+        .form-input {
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 14px;
+          background: rgba(255,255,255,0.75);
+          border: 1px solid rgba(244,168,184,0.45);
+          color: #4a2a3a;
+          font-size: 14px;
+          transition: border 0.2s, box-shadow 0.2s;
+          outline: none;
+        }
+        .form-input:focus {
+          border-color: rgba(184,154,220,0.7);
+          box-shadow: 0 0 0 3px rgba(184,154,220,0.18);
+        }
+        .form-input::placeholder { color: #b89aa0; }
       `}</style>
 
       <span className="rose-deco" style={{ top: "10px", left: "8px" }}>🌹</span>
@@ -516,91 +556,140 @@ function TarotPickSection() {
       >
         — 오늘의 타로 —
       </h2>
-      <p className="text-center text-[13px] text-[#6a4858] mb-8 leading-relaxed">
-        마음을 비우고 카드 9장 중 <span className="font-bold text-[#b89adc]">3장</span>을 골라보세요.<br />
-        <span className="text-[11px] text-[#a87888]">과거 · 현재 · 미래의 메시지가 정방향으로 펼쳐집니다.</span>
-      </p>
 
-      <div className="grid grid-cols-3 gap-3 md:gap-5 max-w-md md:max-w-xl mx-auto">
-        {TAROT_DECK.map((card, idx) => {
-          const isPicked = picked.includes(idx);
-          const order = isPicked ? picked.indexOf(idx) : -1;
-          const disabled = !isPicked && picked.length >= 3;
-          const cls = isPicked ? "picked" : disabled ? "disabled" : "idle";
-          return (
-            <div key={card.id} className="relative">
-              {isPicked && (
-                <span className="pos-badge" style={{ background: BTN_GRADIENT }}>
-                  {POSITIONS[order]}
-                </span>
-              )}
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => !disabled && togglePick(idx)}
-                onKeyDown={(e) => {
-                  if ((e.key === "Enter" || e.key === " ") && !disabled) togglePick(idx);
-                }}
-                className={`wheel-slot ${cls}`}
-                aria-label={isPicked ? `${POSITIONS[order]} — 운명의 수레바퀴` : `카드 ${idx + 1} 뽑기`}
-              >
-                <img src={wheelImg} alt="운명의 수레바퀴" />
-              </div>
-              {isPicked && (
-                <div className="mt-2 text-center">
-                  <div className="text-[11px] font-bold text-[#4a2a3a]" style={{ fontFamily: "'Noto Serif KR', serif" }}>
-                    운명의 수레바퀴
-                  </div>
-                  <div className="text-[9px] text-[#a87888] mt-0.5 leading-tight">전환점 · 행운 · 기회</div>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {allPicked && (
-        <div className="mt-10">
-          <p className="text-center text-[11px] tracking-[0.35em] text-[#b8865a] font-bold mb-4">
-            ✦ 미 래 의 메 시 지 ✦
+      {!started ? (
+        <div className="max-w-md mx-auto mt-4">
+          <p className="text-center text-[13px] text-[#6a4858] mb-6 leading-relaxed">
+            이름과 궁금한 질문을 적어주세요.<br />
+            <span className="text-[11px] text-[#a87888]">마음을 담아 묻는 만큼, 카드도 진심으로 답합니다.</span>
           </p>
-          <div className="hero-result">
-            <img src={magicianImg} alt="자개빛 마법사" />
-            <p
-              className="text-[11px] tracking-[0.3em] text-[#b89adc] font-semibold mb-2"
-              style={{ fontFamily: "'Noto Serif KR', serif" }}
-            >
-              J A G A E B I T
-            </p>
-            <h3
-              className="text-[18px] font-bold mb-3 leading-snug"
+          <div className="space-y-3">
+            <input
+              className="form-input"
+              placeholder="이름"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={30}
+            />
+            <textarea
+              className="form-input"
+              placeholder="궁금한 질문을 적어주세요 (예: 올해 하반기 운세는 어떨까요?)"
+              rows={3}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              maxLength={200}
+              style={{ resize: "none" }}
+            />
+            <button
+              onClick={start}
+              disabled={!name.trim() || !question.trim()}
+              className="w-full py-3 rounded-full text-white font-bold text-sm tracking-widest disabled:opacity-40 disabled:cursor-not-allowed transition-transform hover:scale-[1.02]"
               style={{
+                background: BTN_GRADIENT,
+                boxShadow: "0 10px 26px -8px rgba(184,154,220,0.6)",
                 fontFamily: "'Noto Serif KR', serif",
-                background: JAGAE_GRADIENT,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
               }}
             >
-              자개빛 천운이<br/>당신에게 다가옵니다
-            </h3>
-            <p className="text-[12px] text-[#6a4858] leading-relaxed mb-1">
-              세 장의 카드가 모두 <span className="font-bold text-[#b89adc]">정방향</span>으로 펼쳐졌어요.
-            </p>
-            <p className="text-[11px] text-[#a87888]">더 깊은 해석은 1:1 상담에서 만나보세요.</p>
+              ✦ 카드 펼치기 ✦
+            </button>
           </div>
         </div>
-      )}
+      ) : (
+        <>
+          <p className="text-center text-[13px] text-[#6a4858] mb-2 leading-relaxed">
+            <span className="font-bold text-[#b89adc]">{name}</span>님,
+            마음을 비우고 카드 9장 중 <span className="font-bold text-[#b89adc]">3장</span>을 골라보세요.
+          </p>
+          <p className="text-center text-[11px] text-[#a87888] mb-8 italic">"{question}"</p>
 
-      {picked.length > 0 && (
-        <div className="mt-6 text-center">
-          <button
-            onClick={reset}
-            className="text-xs px-5 py-2 rounded-full text-[#6a4858] bg-white/70 border border-[#f4a8b8]/50 hover:bg-white transition font-semibold"
-          >
-            다시 뽑기
-          </button>
-        </div>
+          <div className="grid grid-cols-3 gap-3 md:gap-5 max-w-md md:max-w-xl mx-auto">
+            {slots.map((slot, idx) => {
+              const isPicked = picked.includes(idx);
+              const order = isPicked ? picked.indexOf(idx) : -1;
+              const disabled = !isPicked && picked.length >= 3;
+              return (
+                <div key={idx} className="tarot-wrap relative">
+                  {isPicked && (
+                    <span className="pos-badge" style={{ background: BTN_GRADIENT }}>
+                      {POSITIONS[order]}
+                    </span>
+                  )}
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => flip(idx)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") flip(idx);
+                    }}
+                    className={`tarot-inner ${slot.flipped ? "flipped" : ""} ${disabled ? "disabled" : ""}`}
+                    aria-label={slot.flipped ? `${POSITIONS[order]} — ${slot.card?.korean}` : `카드 ${idx + 1}`}
+                  >
+                    <div className="tarot-face">
+                      <img src={tarotBackImg} alt="카드 뒷면" />
+                    </div>
+                    <div className="tarot-face tarot-front">
+                      {slot.card && (
+                        <img src={cardUrl(slot.card.slug)} alt={slot.card.korean} loading="lazy" />
+                      )}
+                    </div>
+                  </div>
+                  {isPicked && slot.card && (
+                    <div className="mt-2 text-center">
+                      <div
+                        className="text-[11px] font-bold text-[#4a2a3a]"
+                        style={{ fontFamily: "'Noto Serif KR', serif" }}
+                      >
+                        {slot.card.korean}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {allPicked && futureCard && (
+            <div className="mt-10">
+              <p className="text-center text-[11px] tracking-[0.35em] text-[#b8865a] font-bold mb-4">
+                ✦ 미 래 의 메 시 지 ✦
+              </p>
+              <div className="hero-result">
+                <img src={magicianImg} alt="자개빛 마법사" />
+                <p
+                  className="text-[11px] tracking-[0.3em] text-[#b89adc] font-semibold mb-2"
+                  style={{ fontFamily: "'Noto Serif KR', serif" }}
+                >
+                  J A G A E B I T
+                </p>
+                <h3
+                  className="text-[18px] font-bold mb-3 leading-snug"
+                  style={{
+                    fontFamily: "'Noto Serif KR', serif",
+                    background: JAGAE_GRADIENT,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  미래의 카드<br/>「{futureCard.korean}」
+                </h3>
+                <p className="text-[12px] text-[#6a4858] leading-relaxed mb-1">
+                  세 장의 카드가 <span className="font-bold text-[#b89adc]">정방향</span>으로 펼쳐졌어요.
+                </p>
+                <p className="text-[11px] text-[#a87888]">더 깊은 해석은 1:1 상담에서 만나보세요.</p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6 text-center">
+            <button
+              onClick={reset}
+              className="text-xs px-5 py-2 rounded-full text-[#6a4858] bg-white/70 border border-[#f4a8b8]/50 hover:bg-white transition font-semibold"
+            >
+              처음부터 다시
+            </button>
+          </div>
+        </>
       )}
     </section>
   );
