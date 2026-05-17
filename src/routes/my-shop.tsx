@@ -37,7 +37,7 @@ const PDF_IMG = [
 // 토스 결제 트리거 (환경변수 → 저장된 키 → 테스트 키 순으로 사용)
 const TOSS_TEST_CLIENT_KEY = "test_ck_DpexMgkW36PaO9MgEdyrVGbR5ozO";
 async function payWithToss(opts: { name: string; amount: number; orderId: string }) {
-  const envKey = (import.meta as any).env?.VITE_TOSS_CLIENT_KEY?.trim?.();
+  const envKey = import.meta.env.VITE_TOSS_CLIENT_KEY?.trim();
   const savedKey =
     typeof window !== "undefined" ? localStorage.getItem("toss_client_key")?.trim() : "";
   const clientKey = envKey || savedKey || TOSS_TEST_CLIENT_KEY;
@@ -57,8 +57,9 @@ async function payWithToss(opts: { name: string; amount: number; orderId: string
       successUrl: window.location.origin + "/payment/success",
       failUrl: window.location.origin + "/payment/fail",
     });
-  } catch (e: any) {
-    if (e?.code !== "USER_CANCEL") alert("결제창 호출 실패: " + (e?.message || e));
+  } catch (e: unknown) {
+    const error = e as { code?: string; message?: string };
+    if (error.code !== "USER_CANCEL") alert("결제창 호출 실패: " + (error.message || String(e)));
   }
 }
 
