@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import jagaebitShopBg from "@/assets/jagaebit-shop-bg.png";
 
 const STORAGE_KEY = "jagaebit:my-shop";
+const BG_STORAGE_KEY = "jagaebit:my-shop:bgImage";
 function loadStored<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -118,7 +119,12 @@ function MyShop() {
   const shopUrl = "https://자개빛.shop";
 
   const [copied, setCopied] = useState(false);
-  const [bgImage, setBgImage] = useState<string | null>(() => loadStored("bgImage", jagaebitShopBg as string | null));
+  const [bgImage, setBgImage] = useState<string | null>(() => {
+    if (typeof window === "undefined") return jagaebitShopBg as string;
+    const savedBg = localStorage.getItem(BG_STORAGE_KEY);
+    if (savedBg === "__none__") return null;
+    return savedBg || (jagaebitShopBg as string);
+  });
   const bgInputRef = useRef<HTMLInputElement>(null);
 
   const [font, setFont] = useState(() => loadStored("font", "기본"));
@@ -134,6 +140,7 @@ function MyShop() {
   );
   const [isPublic, setIsPublic] = useState(() => loadStored("isPublic", true));
   const [toast, setToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("✅ 저장 완료!");
 
   const [consultProducts, setConsultProducts] = useState<ConsultProduct[]>(() => loadStored<ConsultProduct[]>("consultProducts", [
     { id: 1, type: "tarot", name: "타로/사주 10분 상담", time: "10분", price: "10000", badge: "",
