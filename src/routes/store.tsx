@@ -300,8 +300,8 @@ function StorePage() {
                     style={{ background: JAGAE_GRADIENT }}
                   />
                   <img
-                    src={magicianImg}
-                    alt="자개빛 타로 카드"
+                    src={p.image}
+                    alt={p.name}
                     className="relative w-16 h-24 object-cover rounded-md ring-1 ring-white/70 shadow-md"
                   />
                 </div>
