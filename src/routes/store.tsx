@@ -282,15 +282,30 @@ function StorePage() {
                   {p.badge}
                 </span>
               )}
-              <div className="text-[11px] tracking-widest text-[#b89adc] mb-2 font-semibold">
-                {p.kind === "consult" ? "1:1 상담" : "PDF 리포트"}
+              <div className="flex items-start gap-4 mb-3">
+                <div className="shrink-0 relative">
+                  <div
+                    className="absolute -inset-1 rounded-lg opacity-40 blur-sm"
+                    style={{ background: JAGAE_GRADIENT }}
+                  />
+                  <img
+                    src={magicianImg}
+                    alt="자개빛 타로 카드"
+                    className="relative w-16 h-24 object-cover rounded-md ring-1 ring-white/70 shadow-md"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] tracking-widest text-[#b89adc] mb-1 font-semibold">
+                    {p.kind === "consult" ? "1:1 상담" : "PDF 리포트"}
+                  </div>
+                  <h3
+                    className="text-base md:text-lg font-bold text-[#4a2a3a] leading-snug"
+                    style={{ fontFamily: "'Noto Serif KR', serif" }}
+                  >
+                    {p.name}
+                  </h3>
+                </div>
               </div>
-              <h3
-                className="text-lg font-bold text-[#4a2a3a] mb-3 leading-snug"
-                style={{ fontFamily: "'Noto Serif KR', serif" }}
-              >
-                {p.name}
-              </h3>
               <p className="text-[13px] text-[#6a4858] leading-relaxed whitespace-pre-line mb-5 flex-1">
                 {p.desc}
               </p>
